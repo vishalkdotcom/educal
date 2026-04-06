@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { SchoolTierCard } from '@/components/onboarding/SchoolTierCard';
 import { SCHOOL_TIERS } from '@/constants/schools';
+import { COUNTRY_CONFIGS } from '@/constants/countries';
 import { searchSchoolsWithGemini } from '@/services/gemini';
 import { formatPercentage } from '@/utils/format';
 import type { SchoolTier, SchoolTierId } from '@/types';
@@ -30,9 +31,11 @@ export default function Step3Screen() {
     setSelectedTier,
     setSchoolResults,
     setCurrentStep,
+    countryCode,
   } = useOnboardingStore();
 
-  const [tiers, setTiers] = useState<SchoolTier[]>(SCHOOL_TIERS);
+  const countryTiers = COUNTRY_CONFIGS[countryCode].schoolTiers;
+  const [tiers, setTiers] = useState<SchoolTier[]>(countryTiers);
   const [loading, setLoading] = useState(false);
   const [dataSource, setDataSource] = useState<'gemini' | 'fallback'>('fallback');
 
@@ -55,11 +58,12 @@ export default function Step3Screen() {
                 tier,
                 childAges,
                 targetLevels,
+                countryCode,
               }),
           ),
         );
 
-        const updatedTiers = SCHOOL_TIERS.map((tier, i) => ({
+        const updatedTiers = countryTiers.map((tier, i) => ({
           ...tier,
           schools: results[i].length > 0 ? results[i] : tier.schools,
         }));
@@ -164,6 +168,7 @@ export default function Step3Screen() {
                 tier={tier}
                 selected={selectedTier === tier.id}
                 onSelect={setSelectedTier}
+                countryCode={countryCode}
               />
             </View>
           ))}

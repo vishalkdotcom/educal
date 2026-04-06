@@ -7,11 +7,9 @@ import { Colors, Typography, Layout, Spacing, Radius, Shadows } from '@/constant
 import { Card, Button } from '@/components/ui';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
 import { calculateProjectedCost, calculateFourYearTotal } from '@/services/calculator';
-import { SCHOOL_TIERS, DEFAULT_INFLATION_RATE } from '@/constants/schools';
+import { COUNTRY_CONFIGS } from '@/constants/countries';
 import { formatCurrency } from '@/utils/format';
-import type { SchoolResult } from '@/types';
-
-const INFLATION_RATE = 0.052; // 5.2% for individual school projection (national avg)
+import type { CountryCode, SchoolResult } from '@/types';
 
 function ForecastCard({
   years,
@@ -19,12 +17,14 @@ function ForecastCard({
   change,
   highlighted,
   testID,
+  countryCode,
 }: {
   years: number;
   cost: number;
   change: number;
   highlighted?: boolean;
   testID: string;
+  countryCode: CountryCode;
 }) {
   return (
     <Card
@@ -34,7 +34,7 @@ function ForecastCard({
     >
       <Text style={forecastStyles.label}>In {years} Years</Text>
       <Text style={[forecastStyles.cost, highlighted && forecastStyles.costHighlight]}>
-        {formatCurrency(cost)}
+        {formatCurrency(cost, countryCode)}
       </Text>
       <Text style={forecastStyles.change}>+{change.toFixed(1)}%</Text>
     </Card>
@@ -47,13 +47,15 @@ export default function SchoolDetailScreen() {
   const schoolResults = useOnboardingStore((s) => s.schoolResults);
   const selectedTier = useOnboardingStore((s) => s.selectedTier);
   const children = useOnboardingStore((s) => s.children);
+  const countryCode = useOnboardingStore((s) => s.countryCode);
+  const INFLATION_RATE = COUNTRY_CONFIGS[countryCode].inflationRate;
+  const countryTiers = COUNTRY_CONFIGS[countryCode].schoolTiers;
 
   const school: SchoolResult | undefined = useMemo(() => {
     const decodedId = decodeURIComponent(id ?? '');
     const fromResults = schoolResults.find((s) => s.name === decodedId);
     if (fromResults) return fromResults;
-    // Search fallback tiers
-    for (const tier of SCHOOL_TIERS) {
+    for (const tier of countryTiers) {
       const found = tier.schools.find((s) => s.name === decodedId);
       if (found) return found;
     }
@@ -119,12 +121,12 @@ export default function SchoolDetailScreen() {
               <Text style={styles.schoolName} testID="school-name">{schoolName}</Text>
               <Text style={styles.tuitionLabel}>Current Annual Tuition</Text>
               <Text style={styles.tuitionValue} testID="school-annual-tuition">
-                {formatCurrency(annualTuition)}
+                {formatCurrency(annualTuition, countryCode)}
               </Text>
             </View>
           </View>
           <Text style={styles.inflationNote} testID="school-inflation-rate">
-            National average inflation rate applied: {(INFLATION_RATE * 100).toFixed(1)}%
+            Education inflation rate applied: {(INFLATION_RATE * 100).toFixed(1)}%
           </Text>
         </Card>
 
@@ -139,6 +141,7 @@ export default function SchoolDetailScreen() {
               change={f.change}
               highlighted={f.years === 10}
               testID={`forecast-${f.years}yr`}
+              countryCode={countryCode}
             />
           ))}
         </View>
@@ -152,7 +155,7 @@ export default function SchoolDetailScreen() {
               const isTarget = b.year === enrollmentYear;
               return (
                 <View key={b.year} style={styles.chartBarCol}>
-                  <Text style={styles.chartBarValue}>{formatCurrency(b.cost)}</Text>
+                  <Text style={styles.chartBarValue}>{formatCurrency(b.cost, countryCode)}</Text>
                   <View
                     style={[
                       styles.chartBar,
@@ -174,17 +177,17 @@ export default function SchoolDetailScreen() {
           <Text style={styles.degreeLabel}>4-Year Degree Total</Text>
           <Text style={styles.degreeSubLabel}>Projected for Class of {enrollmentYear}</Text>
           <Text style={styles.degreeTotal} testID="degree-total-amount">
-            {formatCurrency(fourYearTotal)}
+            {formatCurrency(fourYearTotal, countryCode)}
           </Text>
           <View style={styles.degreeBreakdown}>
             <View style={styles.degreeRow}>
-              <Text style={styles.degreeRowLabel}>Base Cost (4 × {formatCurrency(annualTuition)})</Text>
-              <Text style={styles.degreeRowValue}>{formatCurrency(baseFourYear)}</Text>
+              <Text style={styles.degreeRowLabel}>Base Cost (4 × {formatCurrency(annualTuition, countryCode)})</Text>
+              <Text style={styles.degreeRowValue}>{formatCurrency(baseFourYear, countryCode)}</Text>
             </View>
             <View style={styles.degreeRow}>
               <Text style={styles.degreeRowLabel}>Inflation Impact</Text>
               <Text style={[styles.degreeRowValue, { color: Colors.error }]}>
-                +{formatCurrency(inflationImpact)}
+                +{formatCurrency(inflationImpact, countryCode)}
               </Text>
             </View>
           </View>

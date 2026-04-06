@@ -4,14 +4,15 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Radius, Spacing, Shadows } from '@/constants/theme';
 import { formatCurrency } from '@/utils/format';
 import { Card } from '@/components/ui/Card';
-import type { SavingsResult as SavingsResultType } from '@/types';
+import type { CountryCode, SavingsResult as SavingsResultType } from '@/types';
 
 interface SavingsResultProps {
   result: SavingsResultType;
+  countryCode?: CountryCode;
   testID?: string;
 }
 
-export function SavingsResultCard({ result, testID }: SavingsResultProps) {
+export function SavingsResultCard({ result, countryCode = 'US', testID }: SavingsResultProps) {
   const animValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export function SavingsResultCard({ result, testID }: SavingsResultProps) {
           testID="savings-goal-amount"
           style={[styles.amount, { opacity: animValue }]}
         >
-          {formatCurrency(result.totalMonthly)}
+          {formatCurrency(result.totalMonthly, countryCode)}
           <Text style={styles.amountUnit}>/mo</Text>
         </Animated.Text>
 
@@ -85,7 +86,7 @@ export function SavingsResultCard({ result, testID }: SavingsResultProps) {
                 testID={`child-share-${index}`}
                 style={styles.shareAmount}
               >
-                {formatCurrency(child.monthlyShare)}
+                {formatCurrency(child.monthlyShare, countryCode)}
               </Text>
             </View>
           </View>

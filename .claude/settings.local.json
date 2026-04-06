@@ -8,7 +8,20 @@
       "Bash(bun add:*)",
       "Bash(bunx tsc:*)",
       "Bash(rm -f src/components/animated-icon.tsx src/components/animated-icon.web.tsx src/components/animated-icon.module.css src/components/app-tabs.tsx src/components/app-tabs.web.tsx src/components/external-link.tsx src/components/hint-row.tsx src/components/themed-text.tsx src/components/themed-view.tsx src/components/web-badge.tsx src/components/ui/collapsible.tsx src/app/explore.tsx scripts/reset-project.js)",
-      "Bash(rm -rf src/hooks/)"
+      "Bash(rm -rf src/hooks/)",
+      "Bash(maestro test:*)",
+      "Bash(where maestro:*)",
+      "Read(//c/Users/vishal/.maestro/bin/**)",
+      "Bash(curl -fsSL \"https://get.maestro.mobile.dev\")",
+      "Bash(bash)",
+      "Bash(maestro:*)",
+      "Bash(adb shell:*)",
+      "Bash(dir \"C:\\\\vishal\\\\hacth\\\\educal\\\\app\")",
+      "Bash(pwsh -Command \"Get-ChildItem 'C:\\\\vishal\\\\hacth\\\\educal\\\\app' -Recurse -Name\")",
+      "Bash(adb devices:*)",
+      "Bash(curl -s http://localhost:8081/status)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)"
     ]
   }
 }

@@ -4,6 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Layout, Spacing, Radius, Shadows } from '@/constants/theme';
 import { Card, ProgressBar } from '@/components/ui';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
+import type { CountryCode } from '@/types';
 import {
   useWealthReport,
   useGrowthProjection,
@@ -11,7 +12,7 @@ import {
 } from '@/stores/useDashboardStore';
 import { formatCurrency, formatCurrencyCompact } from '@/utils/format';
 
-function GrowthChart({ milestones }: { milestones: { year: number; amount: number }[] }) {
+function GrowthChart({ milestones, countryCode }: { milestones: { year: number; amount: number }[]; countryCode: CountryCode }) {
   if (milestones.length < 2) return null;
   const maxAmount = Math.max(...milestones.map((m) => m.amount));
 
@@ -22,7 +23,7 @@ function GrowthChart({ milestones }: { milestones: { year: number; amount: numbe
           const height = maxAmount > 0 ? (m.amount / maxAmount) * 120 : 0;
           return (
             <View key={m.year} style={chartStyles.barCol}>
-              <Text style={chartStyles.barValue}>{formatCurrencyCompact(m.amount)}</Text>
+              <Text style={chartStyles.barValue}>{formatCurrencyCompact(m.amount, countryCode)}</Text>
               <View style={[chartStyles.bar, { height: Math.max(height, 4) }]} />
               <Text style={chartStyles.barLabel}>{m.year}</Text>
             </View>
@@ -38,11 +39,13 @@ function FundingRow({
   amount,
   icon,
   index,
+  countryCode,
 }: {
   label: string;
   amount: number;
   icon: keyof typeof MaterialIcons.glyphMap;
   index: number;
+  countryCode: CountryCode;
 }) {
   return (
     <View style={fundStyles.row} testID={`funding-source-${index}`}>
@@ -50,7 +53,7 @@ function FundingRow({
         <MaterialIcons name={icon} size={20} color={Colors.primary} />
       </View>
       <Text style={fundStyles.label}>{label}</Text>
-      <Text style={fundStyles.amount}>{formatCurrency(amount)}</Text>
+      <Text style={fundStyles.amount}>{formatCurrency(amount, countryCode)}</Text>
     </View>
   );
 }
@@ -58,6 +61,7 @@ function FundingRow({
 export default function InsightsScreen() {
   const report = useWealthReport();
   const children = useOnboardingStore((s) => s.children);
+  const countryCode = useOnboardingStore((s) => s.countryCode);
   const projections = useGrowthProjection();
   const fundingSources = useFundingSources();
 
@@ -99,13 +103,13 @@ export default function InsightsScreen() {
               </View>
             </View>
             <Text style={styles.growthAmount} testID="growth-projection-amount">
-              {formatCurrency(report.growthProjection.projectedTotal)}
+              {formatCurrency(report.growthProjection.projectedTotal, countryCode)}
             </Text>
             <View style={styles.targetPill}>
               <MaterialIcons name="flag" size={14} color={Colors.primary} />
               <Text style={styles.targetText}>Target: {report.growthProjection.targetYear}</Text>
             </View>
-            <GrowthChart milestones={projections} />
+            <GrowthChart milestones={projections} countryCode={countryCode} />
           </Card>
         )}
 
@@ -115,9 +119,9 @@ export default function InsightsScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Funding Sources</Text>
             <Card variant="outlined">
-              <FundingRow label="Personal Savings" amount={fundingSources.personalSavings} icon="savings" index={0} />
-              <FundingRow label="529 Market Growth" amount={fundingSources.marketGrowth} icon="show-chart" index={1} />
-              <FundingRow label="Potential Grants" amount={fundingSources.potentialGrants} icon="card-giftcard" index={2} />
+              <FundingRow label="Personal Savings" amount={fundingSources.personalSavings} icon="savings" index={0} countryCode={countryCode} />
+              <FundingRow label="Investment Growth" amount={fundingSources.marketGrowth} icon="show-chart" index={1} countryCode={countryCode} />
+              <FundingRow label="Potential Grants" amount={fundingSources.potentialGrants} icon="card-giftcard" index={2} countryCode={countryCode} />
             </Card>
           </View>
         )}
@@ -140,7 +144,7 @@ export default function InsightsScreen() {
                   </View>
                 </View>
                 <Text style={styles.childCostLabel}>EST. FUTURE COST (ADJUSTED)</Text>
-                <Text style={styles.childCostValue}>{formatCurrency(goal.adjustedCost)}</Text>
+                <Text style={styles.childCostValue}>{formatCurrency(goal.adjustedCost, countryCode)}</Text>
                 <ProgressBar
                   progress={Math.min(goal.progressPercent / 100, 1)}
                   showPercent
@@ -246,14 +250,6 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   targetText: { ...Typography.smallStat, color: Colors.primary, fontSize: 12 },
-  taxCard: {
-    backgroundColor: Colors.primary,
-    marginBottom: Spacing.lg,
-  },
-  taxTitle: { color: '#FFFFFF', fontSize: 18, fontWeight: '700', marginTop: Spacing.sm },
-  taxDesc: { color: 'rgba(255,255,255,0.8)', fontSize: 14, lineHeight: 20, marginTop: Spacing.xs, marginBottom: Spacing.md },
-  taxAmount: { color: '#FFFFFF', fontSize: 32, fontWeight: '800' },
-  taxSub: { color: 'rgba(255,255,255,0.7)', fontSize: 10, fontWeight: '600', letterSpacing: 1.5, marginTop: 2 },
   section: { marginBottom: Spacing.lg },
   sectionTitle: { ...Typography.heading, marginBottom: Spacing.md },
   childGoalCard: { marginBottom: Spacing.sm },

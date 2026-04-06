@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { SavingsResultCard } from '@/components/onboarding/SavingsResult';
 import { calculateMonthlySavings } from '@/services/calculator';
-import { SCHOOL_TIERS, DEFAULT_INFLATION_RATE, DEFAULT_GROWTH_RATE } from '@/constants/schools';
+import { COUNTRY_CONFIGS } from '@/constants/countries';
 import { formatCurrency, formatPercentage } from '@/utils/format';
 
 export default function Step4Screen() {
@@ -22,18 +22,22 @@ export default function Step4Screen() {
     setSavingsResult,
     setCurrentStep,
     completeOnboarding,
+    countryCode,
   } = useOnboardingStore();
+
+  const countryConfig = COUNTRY_CONFIGS[countryCode];
+  const countryTiers = countryConfig.schoolTiers;
 
   // Calculate savings on mount
   useEffect(() => {
     if (!selectedTier || children.length === 0) return;
 
-    const tierData = SCHOOL_TIERS.find((t) => t.id === selectedTier);
+    const tierData = countryTiers.find((t) => t.id === selectedTier);
     if (!tierData) return;
 
-    const result = calculateMonthlySavings(children, currentSavings, tierData);
+    const result = calculateMonthlySavings(children, currentSavings, tierData, countryConfig.inflationRate);
     setSavingsResult(result);
-  }, [selectedTier, children, currentSavings]);
+  }, [selectedTier, children, currentSavings, countryCode]);
 
   const handleBack = () => {
     setCurrentStep(3);
@@ -45,7 +49,7 @@ export default function Step4Screen() {
     router.replace('/(tabs)/horizon');
   };
 
-  const tierData = SCHOOL_TIERS.find((t) => t.id === selectedTier);
+  const tierData = countryTiers.find((t) => t.id === selectedTier);
 
   if (!savingsResult) {
     return (
@@ -70,7 +74,7 @@ export default function Step4Screen() {
         <Text style={styles.title}>Your Monthly Savings Goal</Text>
 
         {/* Savings Result Component */}
-        <SavingsResultCard result={savingsResult} />
+        <SavingsResultCard result={savingsResult} countryCode={countryCode} />
 
         {/* Progress Ring Placeholder */}
         <View testID="savings-progress-ring" style={styles.progressRing}>
@@ -102,7 +106,7 @@ export default function Step4Screen() {
             <View style={styles.factorText}>
               <Text style={styles.factorLabel}>Inflation Indexing</Text>
               <Text style={styles.factorDetail}>
-                Adjusted for a {formatPercentage(DEFAULT_INFLATION_RATE)} annual
+                Adjusted for a {formatPercentage(countryConfig.inflationRate)} annual
                 increase in education costs.
               </Text>
             </View>
@@ -118,43 +122,8 @@ export default function Step4Screen() {
               </Text>
             </View>
           </View>
-
-          <View style={styles.factorRow}>
-            <MaterialIcons name="show-chart" size={18} color={Colors.onSurfaceVariant} />
-            <View style={styles.factorText}>
-              <Text style={styles.factorLabel}>Growth Assumptions</Text>
-              <Text style={styles.factorDetail}>
-                Conservative {formatPercentage(DEFAULT_GROWTH_RATE)} annual ROI on
-                investment vehicle.
-              </Text>
-            </View>
-          </View>
         </View>
 
-        {/* CTA Card */}
-        <View style={styles.ctaCard}>
-          <Text style={styles.ctaTitle}>Ready to Start?</Text>
-          <Text style={styles.ctaSubtitle}>
-            Lock in these rates by opening a tax-advantaged 529 plan today.
-          </Text>
-          <View style={styles.ctaButtons}>
-            <Button
-              testID="cta-get-started"
-              title="Get Started"
-              variant="outlined"
-              onPress={handleNext}
-              style={styles.ctaBtn}
-              textStyle={{ color: '#FFFFFF' }}
-            />
-            <Button
-              testID="cta-talk-advisor"
-              title="Talk to Advisor"
-              onPress={() => {}}
-              style={{ ...styles.ctaBtn, backgroundColor: '#FFFFFF' }}
-              textStyle={{ color: Colors.primary }}
-            />
-          </View>
-        </View>
       </ScrollView>
 
       {/* Bottom Bar */}
@@ -283,33 +252,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 2,
     lineHeight: 18,
-  },
-  ctaCard: {
-    backgroundColor: Colors.primary,
-    borderRadius: Radius.default,
-    padding: Spacing.xl,
-    marginTop: Spacing.md,
-    alignItems: 'center',
-  },
-  ctaTitle: {
-    ...Typography.cardHeading,
-    color: '#FFFFFF',
-    fontSize: 20,
-  },
-  ctaSubtitle: {
-    ...Typography.muted,
-    color: 'rgba(255,255,255,0.8)',
-    textAlign: 'center',
-    marginTop: Spacing.sm,
-    marginBottom: Spacing.lg,
-  },
-  ctaButtons: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-  },
-  ctaBtn: {
-    flex: 1,
-    borderColor: '#FFFFFF',
   },
   bottomBar: {
     flexDirection: 'row',

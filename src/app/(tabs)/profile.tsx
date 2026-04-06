@@ -5,6 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Layout, Spacing, Radius } from '@/constants/theme';
 import { Card, Button } from '@/components/ui';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
+import { COUNTRY_CONFIGS } from '@/constants/countries';
 import { formatCurrency, formatAge } from '@/utils/format';
 
 function InfoRow({
@@ -34,6 +35,7 @@ export default function ProfileScreen() {
   const currentSavings = useOnboardingStore((s) => s.currentSavings);
   const location = useOnboardingStore((s) => s.location);
   const selectedTier = useOnboardingStore((s) => s.selectedTier);
+  const countryCode = useOnboardingStore((s) => s.countryCode);
   const reset = useOnboardingStore((s) => s.reset);
 
   const handleReset = () => {
@@ -113,8 +115,9 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Financial Details</Text>
           <Card variant="outlined">
-            <InfoRow icon="attach-money" label="Monthly Income" value={formatCurrency(monthlyIncome)} />
-            <InfoRow icon="savings" label="Current Savings" value={formatCurrency(currentSavings)} />
+            <InfoRow icon="public" label="Country" value={COUNTRY_CONFIGS[countryCode].name} />
+            <InfoRow icon="attach-money" label="Monthly Income" value={formatCurrency(monthlyIncome, countryCode)} />
+            <InfoRow icon="savings" label="Current Savings" value={formatCurrency(currentSavings, countryCode)} />
             <InfoRow icon="location-on" label="Location" value={location?.name ?? 'Not set'} />
             <InfoRow
               icon="school"

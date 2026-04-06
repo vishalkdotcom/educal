@@ -1,5 +1,4 @@
 import type { Child, ChildSavingsBreakdown, GrowthProjection, SavingsResult, SchoolTier } from '@/types';
-import { DEFAULT_INFLATION_RATE } from '@/constants/schools';
 
 export function calculateProjectedCost(
   annualTuition: number,
@@ -26,8 +25,8 @@ export function calculateMonthlySavings(
   children: Child[],
   currentSavings: number,
   tier: SchoolTier,
+  inflationRate = 0.042,
 ): SavingsResult {
-  const inflationRate = DEFAULT_INFLATION_RATE;
 
   const perChild: ChildSavingsBreakdown[] = children.map((child) => {
     const yearsToSave = child.targetAge - child.currentAge;
@@ -78,13 +77,6 @@ export function calculateGrowthProjection(
   }
 
   return milestones;
-}
-
-export function calculateTaxSavings(
-  totalContributions: number,
-  taxRate: number,
-): number {
-  return totalContributions * taxRate;
 }
 
 export function calculatePerChildBreakdown(

@@ -2,12 +2,13 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Radius, Spacing, Shadows } from '@/constants/theme';
 import { formatCurrencyCompact } from '@/utils/format';
-import type { SchoolTier, SchoolTierId } from '@/types';
+import type { CountryCode, SchoolTier, SchoolTierId } from '@/types';
 
 interface SchoolTierCardProps {
   tier: SchoolTier;
   selected: boolean;
   onSelect: (id: SchoolTierId) => void;
+  countryCode?: CountryCode;
   testID?: string;
 }
 
@@ -15,6 +16,7 @@ export function SchoolTierCard({
   tier,
   selected,
   onSelect,
+  countryCode = 'US',
   testID,
 }: SchoolTierCardProps) {
   const isInternational = tier.id === 'international';
@@ -90,8 +92,8 @@ export function SchoolTierCard({
             isInternational && styles.costRangeInternational,
           ]}
         >
-          {formatCurrencyCompact(tier.costRange.min)} —{' '}
-          {formatCurrencyCompact(tier.costRange.max)}
+          {formatCurrencyCompact(tier.costRange.min, countryCode)} —{' '}
+          {formatCurrencyCompact(tier.costRange.max, countryCode)}
         </Text>
       </View>
     </Pressable>

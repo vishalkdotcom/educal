@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -20,9 +21,13 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { validateIncome } from '@/utils/validation';
+import { COUNTRY_CONFIGS } from '@/constants/countries';
+import type { CountryCode } from '@/types';
 
 export default function Step2Screen() {
   const {
+    countryCode,
+    setCountryCode,
     monthlyIncome,
     setMonthlyIncome,
     currentSavings,
@@ -31,6 +36,10 @@ export default function Step2Screen() {
     setLocation,
     setCurrentStep,
   } = useOnboardingStore();
+
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const countryConfig = COUNTRY_CONFIGS[countryCode];
+  const currencySymbol = countryConfig.currency.symbol;
 
   const [incomeText, setIncomeText] = useState(
     monthlyIncome > 0 ? monthlyIncome.toString() : '',
@@ -136,16 +145,61 @@ export default function Step2Screen() {
             details and your location for local cost accuracy.
           </Text>
 
+          {/* Country Selector */}
+          <Text style={styles.inputLabel}>YOUR COUNTRY</Text>
+          <Pressable
+            testID="country-selector"
+            style={styles.countrySelector}
+            onPress={() => setShowCountryPicker(!showCountryPicker)}
+          >
+            <Text style={styles.countrySelectorText}>{countryConfig.name}</Text>
+            <MaterialIcons
+              name={showCountryPicker ? 'expand-less' : 'expand-more'}
+              size={24}
+              color={Colors.onSurfaceVariant}
+            />
+          </Pressable>
+          {showCountryPicker && (
+            <View style={styles.countryDropdown}>
+              {(Object.keys(COUNTRY_CONFIGS) as CountryCode[]).map((code) => (
+                <Pressable
+                  key={code}
+                  testID={`country-option-${code}`}
+                  style={[
+                    styles.countryOption,
+                    code === countryCode && styles.countryOptionSelected,
+                  ]}
+                  onPress={() => {
+                    setCountryCode(code);
+                    setShowCountryPicker(false);
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.countryOptionText,
+                      code === countryCode && styles.countryOptionTextSelected,
+                    ]}
+                  >
+                    {COUNTRY_CONFIGS[code].name} ({COUNTRY_CONFIGS[code].currency.symbol})
+                  </Text>
+                  {code === countryCode && (
+                    <MaterialIcons name="check" size={18} color={Colors.primary} />
+                  )}
+                </Pressable>
+              ))}
+            </View>
+          )}
+
           {/* Income */}
           <Input
             testID="income-input"
             label="MONTHLY HOUSEHOLD INCOME"
-            prefix="$"
+            prefix={currencySymbol}
             placeholder="0.00"
             value={incomeText}
             onChangeText={handleIncomeChange}
             error={incomeError ?? undefined}
-            helper="Combined after-tax income from all sources."
+            helper="Combined monthly income from all sources."
             keyboardType="decimal-pad"
           />
 
@@ -153,7 +207,7 @@ export default function Step2Screen() {
           <Input
             testID="savings-input"
             label="CURRENT EDUCATION SAVINGS"
-            prefix="$"
+            prefix={currencySymbol}
             placeholder="0.00"
             value={savingsText}
             onChangeText={handleSavingsChange}
@@ -258,6 +312,54 @@ const styles = StyleSheet.create({
     ...Typography.muted,
     marginTop: Spacing.sm,
     marginBottom: Spacing.lg,
+  },
+  inputLabel: {
+    ...Typography.label,
+    marginBottom: Spacing.xs,
+  },
+  countrySelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.surfaceWhite,
+    borderWidth: 1,
+    borderColor: Colors.outlineLight,
+    borderRadius: Radius.default,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
+  countrySelectorText: {
+    ...Typography.body,
+    fontWeight: '600',
+  },
+  countryDropdown: {
+    backgroundColor: Colors.surfaceWhite,
+    borderWidth: 1,
+    borderColor: Colors.outlineLight,
+    borderRadius: Radius.default,
+    marginTop: -Spacing.md,
+    marginBottom: Spacing.lg,
+    overflow: 'hidden',
+  },
+  countryOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.outlineLight,
+  },
+  countryOptionSelected: {
+    backgroundColor: Colors.primaryContainer,
+  },
+  countryOptionText: {
+    ...Typography.body,
+  },
+  countryOptionTextSelected: {
+    color: Colors.primary,
+    fontWeight: '600',
   },
   locationCard: {
     marginTop: Spacing.lg,

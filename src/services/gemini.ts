@@ -1,5 +1,5 @@
-import type { SchoolResult, SchoolTierId } from '@/types';
-import { SCHOOL_TIERS, DEFAULT_INFLATION_RATE } from '@/constants/schools';
+import type { CountryCode, SchoolResult, SchoolTierId } from '@/types';
+import { COUNTRY_CONFIGS } from '@/constants/countries';
 
 const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
 const GEMINI_ENDPOINT =
@@ -13,19 +13,21 @@ interface GeminiSchoolSearchParams {
   tier: SchoolTierId;
   childAges: number[];
   targetLevels: string[];
+  countryCode?: CountryCode;
 }
 
 export async function searchSchoolsWithGemini(
   params: GeminiSchoolSearchParams,
 ): Promise<SchoolResult[]> {
-  const { latitude, longitude, tier, childAges } = params;
+  const { latitude, longitude, tier, childAges, countryCode = 'US' } = params;
+  const currencyCode = COUNTRY_CONFIGS[countryCode].currency.code;
 
   const cacheKey = `${latitude}_${longitude}_${tier}`;
   const cached = cache.get(cacheKey);
   if (cached) return cached;
 
   if (!GEMINI_API_KEY) {
-    return getFallbackSchools(tier);
+    return getFallbackSchools(tier, countryCode);
   }
 
   const tierDescriptions: Record<SchoolTierId, string> = {
@@ -34,7 +36,7 @@ export async function searchSchoolsWithGemini(
     international: 'international schools with IB or international curriculum',
   };
 
-  const prompt = `Find ${tierDescriptions[tier]} near coordinates ${latitude}, ${longitude} suitable for children aged ${childAges.join(' and ')}. For each school, provide: school name, estimated annual tuition in USD, school type, and a brief description. Return ONLY a JSON array with no additional text, markdown, or explanation. Each object in the array should have: "name" (string), "annualTuition" (number), "type" (string: public/private/international), "description" (string). Return maximum 5 schools.`;
+  const prompt = `Find ${tierDescriptions[tier]} near coordinates ${latitude}, ${longitude} suitable for children aged ${childAges.join(' and ')}. For each school, provide: school name, estimated annual tuition in ${currencyCode}, school type, and a brief description. Return ONLY a JSON array with no additional text, markdown, or explanation. Each object in the array should have: "name" (string), "annualTuition" (number in ${currencyCode}), "type" (string: public/private/international), "description" (string). Return maximum 5 schools.`;
 
   try {
     const response = await fetch(`${GEMINI_ENDPOINT}?key=${GEMINI_API_KEY}`, {
@@ -68,7 +70,7 @@ export async function searchSchoolsWithGemini(
 
     const schools = safeParseSchools(textContent);
     if (schools.length === 0) {
-      return getFallbackSchools(tier);
+      return getFallbackSchools(tier, countryCode);
     }
 
     const results: SchoolResult[] = schools.map((s: any) => ({
@@ -84,7 +86,7 @@ export async function searchSchoolsWithGemini(
     return results;
   } catch (error) {
     console.warn('Gemini search failed, using fallback data:', error);
-    return getFallbackSchools(tier);
+    return getFallbackSchools(tier, countryCode);
   }
 }
 
@@ -93,7 +95,7 @@ export async function searchSchoolTuition(
 ): Promise<{ annualTuition: number; inflationRate: number } | null> {
   if (!GEMINI_API_KEY) return null;
 
-  const prompt = `What is the current annual tuition for ${schoolName}? Also provide the average annual education inflation rate for this type of institution. Return ONLY a JSON object with: "annualTuition" (number in USD), "inflationRate" (number as decimal, e.g. 0.052 for 5.2%). No additional text.`;
+  const prompt = `What is the current annual tuition for ${schoolName}? Also provide the average annual education inflation rate for this type of institution. Return ONLY a JSON object with: "annualTuition" (number in local currency), "inflationRate" (number as decimal, e.g. 0.052 for 5.2%). No additional text.`;
 
   try {
     const response = await fetch(`${GEMINI_ENDPOINT}?key=${GEMINI_API_KEY}`, {
@@ -118,7 +120,7 @@ export async function searchSchoolTuition(
     if (typeof parsed.annualTuition !== 'number') return null;
     return {
       annualTuition: parsed.annualTuition,
-      inflationRate: parsed.inflationRate ?? DEFAULT_INFLATION_RATE,
+      inflationRate: parsed.inflationRate ?? 0.042,
     };
   } catch (error) {
     console.warn('Gemini tuition search failed:', error);
@@ -126,8 +128,8 @@ export async function searchSchoolTuition(
   }
 }
 
-function getFallbackSchools(tier: SchoolTierId): SchoolResult[] {
-  const tierData = SCHOOL_TIERS.find((t) => t.id === tier);
+function getFallbackSchools(tier: SchoolTierId, countryCode: CountryCode = 'US'): SchoolResult[] {
+  const tierData = COUNTRY_CONFIGS[countryCode].schoolTiers.find((t) => t.id === tier);
   return tierData?.schools ?? [];
 }
 

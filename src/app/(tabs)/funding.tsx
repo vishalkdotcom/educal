@@ -6,9 +6,9 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Layout, Spacing, Radius, Shadows } from '@/constants/theme';
 import { Card } from '@/components/ui';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
-import { SCHOOL_TIERS } from '@/constants/schools';
+import { COUNTRY_CONFIGS } from '@/constants/countries';
 import { formatCurrency } from '@/utils/format';
-import type { SchoolResult } from '@/types';
+import type { CountryCode, SchoolResult } from '@/types';
 
 const TIER_BADGES: Record<string, { label: string; color: string; bg: string }> = {
   public: { label: 'PUBLIC', color: Colors.success, bg: '#ECFDF5' },
@@ -20,10 +20,12 @@ function SchoolCard({
   school,
   index,
   onPress,
+  countryCode,
 }: {
   school: SchoolResult;
   index: number;
   onPress: () => void;
+  countryCode: CountryCode;
 }) {
   const badge = TIER_BADGES[school.type] ?? TIER_BADGES.public;
   return (
@@ -45,7 +47,7 @@ function SchoolCard({
           </View>
           <View style={cardStyles.costCol}>
             <Text style={cardStyles.costLabel}>Annual</Text>
-            <Text style={cardStyles.cost}>{formatCurrency(school.annualTuition)}</Text>
+            <Text style={cardStyles.cost}>{formatCurrency(school.annualTuition, countryCode)}</Text>
           </View>
         </View>
         <View style={cardStyles.footer}>
@@ -62,16 +64,17 @@ export default function FundingScreen() {
   const [search, setSearch] = useState('');
   const schoolResults = useOnboardingStore((s) => s.schoolResults);
   const selectedTier = useOnboardingStore((s) => s.selectedTier);
+  const countryCode = useOnboardingStore((s) => s.countryCode);
+  const countryTiers = COUNTRY_CONFIGS[countryCode].schoolTiers;
 
   const allSchools = useMemo(() => {
     if (schoolResults.length > 0) return schoolResults;
-    // Fallback: show schools from selected tier or all tiers
     if (selectedTier) {
-      const tier = SCHOOL_TIERS.find((t) => t.id === selectedTier);
+      const tier = countryTiers.find((t) => t.id === selectedTier);
       return tier?.schools ?? [];
     }
-    return SCHOOL_TIERS.flatMap((t) => t.schools);
-  }, [schoolResults, selectedTier]);
+    return countryTiers.flatMap((t) => t.schools);
+  }, [schoolResults, selectedTier, countryCode]);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return allSchools;
@@ -125,6 +128,7 @@ export default function FundingScreen() {
               key={`${school.name}-${index}`}
               school={school}
               index={index}
+              countryCode={countryCode}
               onPress={() => router.push(`/school/${encodeURIComponent(school.name)}`)}
             />
           ))

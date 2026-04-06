@@ -15,6 +15,7 @@ export default function HorizonScreen() {
   const savingsResult = useOnboardingStore((s) => s.savingsResult);
   const children = useOnboardingStore((s) => s.children);
   const selectedTier = useOnboardingStore((s) => s.selectedTier);
+  const countryCode = useOnboardingStore((s) => s.countryCode);
 
   return (
     <SafeAreaView style={styles.safe} testID="horizon-screen">
@@ -42,7 +43,7 @@ export default function HorizonScreen() {
             <MaterialIcons name="trending-up" size={20} color={Colors.primary} />
             <Text style={styles.goalLabel}>MONTHLY SAVINGS GOAL</Text>
           </View>
-          <Text style={styles.goalAmount}>{formatCurrency(monthlyGoal)}</Text>
+          <Text style={styles.goalAmount}>{formatCurrency(monthlyGoal, countryCode)}</Text>
           <Text style={styles.goalMeta}>
             {savingsResult
               ? `Target reached by ${savingsResult.targetYear}`
@@ -51,7 +52,7 @@ export default function HorizonScreen() {
           {savingsResult && (
             <View style={styles.goalStats}>
               <View style={styles.goalStat}>
-                <Text style={styles.statValue}>{formatCurrency(savingsResult.projectedTotal)}</Text>
+                <Text style={styles.statValue}>{formatCurrency(savingsResult.projectedTotal, countryCode)}</Text>
                 <Text style={styles.statLabel}>Total Cost</Text>
               </View>
               <View style={styles.goalDivider} />
@@ -89,7 +90,7 @@ export default function HorizonScreen() {
                       <Text style={styles.childName}>{child.childName}</Text>
                       {breakdown && (
                         <Text style={styles.childMeta}>
-                          {breakdown.yearsToSave} years to save • {formatCurrency(breakdown.monthlyShare)}/mo
+                          {breakdown.yearsToSave} years to save • {formatCurrency(breakdown.monthlyShare, countryCode)}/mo
                         </Text>
                       )}
                     </View>
