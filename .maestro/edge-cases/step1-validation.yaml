@@ -1,0 +1,31 @@
+appId: ${APP_ID}
+name: "Step 1 validation - Missing fields prevent navigation"
+---
+- assertVisible:
+    id: "step1-screen"
+
+# Try to proceed with empty form — button is disabled (canProceed = false)
+- tapOn:
+    id: "step1-next-button"
+- assertVisible:
+    id: "step1-screen"
+
+# Fill only name (no age) — validateChild should fail on age
+- tapOn:
+    id: "child-name-input"
+- inputText: "Sophia"
+- tapOn:
+    id: "step1-next-button"
+# Should stay on step1 because age is invalid (NaN)
+- assertVisible:
+    id: "step1-screen"
+
+# Add valid age — now name + age + default university = valid
+- tapOn:
+    id: "child-age-input"
+- inputText: "8"
+- tapOn:
+    id: "step1-next-button"
+# Should navigate to step 2 (target level defaults to university)
+- assertVisible:
+    id: "step2-screen"

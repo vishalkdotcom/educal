@@ -1,0 +1,161 @@
+appId: ${APP_ID}
+name: "Full E2E - Complete app flow covering all screens"
+---
+# ===================================================================
+# FULL END-TO-END TEST
+# Covers: Onboarding (all 4 steps) → All 4 tabs → School detail modal
+# ===================================================================
+
+# === STEP 1: Family Profile ===
+- assertVisible:
+    id: "step1-screen"
+- assertVisible:
+    id: "step1-progress-bar"
+
+# Fill child details (first child auto-saves on Next)
+- tapOn:
+    id: "child-name-input"
+- inputText: "Sophia"
+- tapOn:
+    id: "child-age-input"
+- inputText: "8"
+# Target level defaults to University — no change needed
+
+- tapOn:
+    id: "step1-next-button"
+
+# === STEP 2: Financial Snapshot ===
+- assertVisible:
+    id: "step2-screen"
+- assertVisible:
+    id: "step2-progress-bar"
+
+- tapOn:
+    id: "income-input"
+- inputText: "10000"
+- tapOn:
+    id: "savings-input"
+- inputText: "20000"
+
+- tapOn:
+    id: "step2-next-button"
+
+# === STEP 3: Education Goal ===
+- assertVisible:
+    id: "step3-screen"
+- assertVisible:
+    id: "step3-progress-bar"
+
+# Verify all tiers visible
+- assertVisible:
+    id: "tier-card-public"
+- assertVisible:
+    id: "tier-card-private"
+- assertVisible:
+    id: "tier-card-international"
+
+# Select Private
+- tapOn:
+    id: "tier-card-private"
+
+# Cost projection card appears below tier cards — may need scroll
+- scrollUntilVisible:
+    element:
+      id: "cost-projection-card"
+    direction: DOWN
+    timeout: 5000
+
+- tapOn:
+    id: "step3-next-button"
+
+# === STEP 4: Savings Result ===
+- assertVisible:
+    id: "step4-screen"
+- assertVisible:
+    id: "savings-goal-amount"
+- assertVisible:
+    id: "child-breakdown-0"
+
+- scrollUntilVisible:
+    element:
+      id: "calculation-factors"
+    direction: DOWN
+    timeout: 5000
+
+- tapOn:
+    id: "step4-next-button"
+
+# === HORIZON TAB ===
+- assertVisible:
+    id: "horizon-screen"
+- assertVisible:
+    id: "horizon-goal-card"
+- assertVisible:
+    id: "horizon-child-0"
+- assertVisible:
+    id: "horizon-update-plan"
+- assertVisible:
+    id: "horizon-view-report"
+
+# === INSIGHTS TAB (via View Report button) ===
+- tapOn:
+    id: "horizon-view-report"
+- assertVisible:
+    id: "insights-screen"
+- assertVisible:
+    id: "growth-projection-card"
+- assertVisible:
+    id: "growth-projection-amount"
+- assertVisible:
+    id: "tax-savings-card"
+
+- scrollUntilVisible:
+    element:
+      id: "funding-source-0"
+    direction: DOWN
+    timeout: 5000
+
+- scrollUntilVisible:
+    element:
+      id: "child-goal-0"
+    direction: DOWN
+    timeout: 5000
+
+# === FUNDING TAB ===
+- tapOn: "Funding"
+- assertVisible:
+    id: "funding-screen"
+- assertVisible:
+    id: "school-search-input"
+- assertVisible:
+    id: "school-card-0"
+
+# Open school detail
+- tapOn:
+    id: "school-card-0"
+- assertVisible:
+    id: "school-detail-screen"
+- assertVisible:
+    id: "school-name"
+- assertVisible:
+    id: "school-annual-tuition"
+- assertVisible:
+    id: "forecast-5yr"
+- assertVisible:
+    id: "forecast-10yr"
+- assertVisible:
+    id: "forecast-15yr"
+
+# Go back from school detail
+- back
+
+# === PROFILE TAB ===
+- tapOn: "Profile"
+- assertVisible:
+    id: "profile-screen"
+- assertVisible: "Sophia"
+
+# === Return to Horizon ===
+- tapOn: "Horizon"
+- assertVisible:
+    id: "horizon-screen"

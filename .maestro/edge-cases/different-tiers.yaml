@@ -1,0 +1,67 @@
+appId: ${APP_ID}
+name: "Different tiers - Select each tier and verify cost projection"
+---
+# Navigate to Step 3
+- assertVisible:
+    id: "step1-screen"
+- tapOn:
+    id: "child-name-input"
+- inputText: "Sophia"
+- tapOn:
+    id: "child-age-input"
+- inputText: "10"
+- tapOn:
+    id: "child-target-level"
+- tapOn: "University"
+- tapOn:
+    id: "step1-next-button"
+
+- assertVisible:
+    id: "step2-screen"
+- tapOn:
+    id: "income-input"
+- inputText: "9000"
+- tapOn:
+    id: "savings-input"
+- inputText: "20000"
+- tapOn:
+    id: "step2-next-button"
+
+# === Step 3 - Test all tiers ===
+- assertVisible:
+    id: "step3-screen"
+
+# Select Public
+- tapOn:
+    id: "tier-card-public"
+- scrollUntilVisible:
+    element:
+      id: "cost-projection-card"
+    direction: DOWN
+    timeout: 5000
+
+# Scroll back up to switch tier
+- scrollUntilVisible:
+    element:
+      id: "tier-card-private"
+    direction: UP
+    timeout: 5000
+- tapOn:
+    id: "tier-card-private"
+
+# Switch to International
+- scrollUntilVisible:
+    element:
+      id: "tier-card-international"
+    direction: UP
+    timeout: 5000
+- tapOn:
+    id: "tier-card-international"
+
+# Keep International selected and proceed
+- tapOn:
+    id: "step3-next-button"
+- assertVisible:
+    id: "step4-screen"
+- assertVisible:
+    id: "savings-goal-amount"

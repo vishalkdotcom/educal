@@ -1,0 +1,45 @@
+appId: ${APP_ID}
+name: "Step 2 validation - Income is required"
+---
+# Navigate to Step 2 first
+- assertVisible:
+    id: "step1-screen"
+- tapOn:
+    id: "child-name-input"
+- inputText: "Sophia"
+- tapOn:
+    id: "child-age-input"
+- inputText: "8"
+- tapOn:
+    id: "child-target-level"
+- tapOn: "University"
+- tapOn:
+    id: "step1-next-button"
+
+# === Step 2 ===
+- assertVisible:
+    id: "step2-screen"
+
+# Try to proceed without entering income
+- tapOn:
+    id: "step2-next-button"
+- assertVisible:
+    id: "step2-screen"
+
+# Enter only savings (income still missing)
+- tapOn:
+    id: "savings-input"
+- inputText: "5000"
+- tapOn:
+    id: "step2-next-button"
+- assertVisible:
+    id: "step2-screen"
+
+# Now enter income — should allow proceeding
+- tapOn:
+    id: "income-input"
+- inputText: "6000"
+- tapOn:
+    id: "step2-next-button"
+- assertVisible:
+    id: "step3-screen"

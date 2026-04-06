@@ -1,0 +1,77 @@
+appId: ${APP_ID}
+name: "Back navigation - Navigate backwards through onboarding"
+---
+# === Start at Step 1 ===
+- assertVisible:
+    id: "step1-screen"
+
+# Fill Step 1
+- tapOn:
+    id: "child-name-input"
+- inputText: "Sophia"
+- tapOn:
+    id: "child-age-input"
+- inputText: "8"
+- tapOn:
+    id: "child-target-level"
+- tapOn: "University"
+- tapOn:
+    id: "step1-next-button"
+
+# === Step 2 ===
+- assertVisible:
+    id: "step2-screen"
+- tapOn:
+    id: "income-input"
+- inputText: "8500"
+- tapOn:
+    id: "savings-input"
+- inputText: "15000"
+- tapOn:
+    id: "step2-next-button"
+
+# === Step 3 ===
+- assertVisible:
+    id: "step3-screen"
+- tapOn:
+    id: "tier-card-private"
+
+# Go back to Step 2
+- tapOn:
+    id: "step3-back-button"
+- assertVisible:
+    id: "step2-screen"
+
+# Go back to Step 1
+- tapOn:
+    id: "step2-back-button"
+- assertVisible:
+    id: "step1-screen"
+
+# Verify child data persisted
+- assertVisible:
+    id: "child-card-0"
+
+# Go forward again
+- tapOn:
+    id: "step1-next-button"
+- assertVisible:
+    id: "step2-screen"
+
+# Verify financial data persisted
+- tapOn:
+    id: "step2-next-button"
+- assertVisible:
+    id: "step3-screen"
+
+# Continue to Step 4
+- tapOn:
+    id: "step3-next-button"
+- assertVisible:
+    id: "step4-screen"
+
+# Go back from Step 4
+- tapOn:
+    id: "step4-back-button"
+- assertVisible:
+    id: "step3-screen"
