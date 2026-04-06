@@ -1,10 +1,10 @@
-import { View, StyleSheet, type ViewStyle } from 'react-native';
+import { View, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { Colors, Radius, Shadows, Spacing } from '@/constants/theme';
 
 interface CardProps {
   children: React.ReactNode;
   variant?: 'elevated' | 'outlined' | 'filled';
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   testID?: string;
 }
 
