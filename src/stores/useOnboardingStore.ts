@@ -1,0 +1,89 @@
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import type {
+  Child,
+  Location,
+  SavingsResult,
+  SchoolResult,
+  SchoolTierId,
+} from '@/types';
+
+interface OnboardingState {
+  children: Child[];
+  monthlyIncome: number;
+  currentSavings: number;
+  location: Location | null;
+  selectedTier: SchoolTierId | null;
+  schoolResults: SchoolResult[];
+  savingsResult: SavingsResult | null;
+  currentStep: number;
+  onboardingComplete: boolean;
+}
+
+interface OnboardingActions {
+  addChild: (child: Child) => void;
+  removeChild: (id: string) => void;
+  updateChild: (id: string, updates: Partial<Child>) => void;
+  setMonthlyIncome: (amount: number) => void;
+  setCurrentSavings: (amount: number) => void;
+  setLocation: (location: Location) => void;
+  setSelectedTier: (tier: SchoolTierId) => void;
+  setSchoolResults: (results: SchoolResult[]) => void;
+  setSavingsResult: (result: SavingsResult) => void;
+  setCurrentStep: (step: number) => void;
+  completeOnboarding: () => void;
+  reset: () => void;
+}
+
+const initialState: OnboardingState = {
+  children: [],
+  monthlyIncome: 0,
+  currentSavings: 0,
+  location: null,
+  selectedTier: null,
+  schoolResults: [],
+  savingsResult: null,
+  currentStep: 1,
+  onboardingComplete: false,
+};
+
+export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
+  persist(
+    (set) => ({
+      ...initialState,
+
+      addChild: (child) =>
+        set((state) => ({ children: [...state.children, child] })),
+
+      removeChild: (id) =>
+        set((state) => ({
+          children: state.children.filter((c) => c.id !== id),
+        })),
+
+      updateChild: (id, updates) =>
+        set((state) => ({
+          children: state.children.map((c) =>
+            c.id === id ? { ...c, ...updates } : c,
+          ),
+        })),
+
+      setMonthlyIncome: (amount) => set({ monthlyIncome: amount }),
+      setCurrentSavings: (amount) => set({ currentSavings: amount }),
+      setLocation: (location) => set({ location }),
+      setSelectedTier: (tier) => set({ selectedTier: tier }),
+      setSchoolResults: (results) => set({ schoolResults: results }),
+      setSavingsResult: (result) => set({ savingsResult: result }),
+      setCurrentStep: (step) => set({ currentStep: step }),
+
+      completeOnboarding: () =>
+        set({ onboardingComplete: true, currentStep: 5 }),
+
+      reset: () => set(initialState),
+    }),
+    {
+      name: 'educal-onboarding',
+      storage: createJSONStorage(() => AsyncStorage),
+    },
+  ),
+);

@@ -34,6 +34,12 @@
             "imageWidth": 76
           }
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "EduCal needs your location to find nearby schools."
+        }
       ]
     ],
     "experiments": {

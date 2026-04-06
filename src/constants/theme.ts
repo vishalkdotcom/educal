@@ -1,19 +1,39 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
-
-import '@/global.css';
-
 import { Platform } from 'react-native';
 
+// ── Colors ──────────────────────────────────────────────────────────────────
+
 export const Colors = {
+  primary: '#2196F3',
+  primaryDark: '#1976D2',
+  primaryLight: '#90CAF9',
+  primaryContainer: '#E3F2FD',
+
+  surface: '#F8FAFC',
+  surfaceWhite: '#FFFFFF',
+  surfaceContainerHighest: '#F1F5F9',
+
+  onSurface: '#1E293B',
+  onSurfaceVariant: '#64748B',
+
+  outline: '#CBD5E1',
+  outlineLight: '#E2E8F0',
+
+  success: '#10B981',
+  warning: '#F59E0B',
+  error: '#EF4444',
+  info: '#3B82F6',
+
+  chartPrimary: '#2196F3',
+  chartSecondary: '#90CAF9',
+  chartAccent: '#E3F2FD',
+
+  // Legacy light/dark sub-objects (template compat, remove in Phase 4)
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    text: '#1E293B',
+    background: '#F8FAFC',
+    backgroundElement: '#F1F5F9',
+    backgroundSelected: '#E3F2FD',
+    textSecondary: '#64748B',
   },
   dark: {
     text: '#ffffff',
@@ -24,34 +44,84 @@ export const Colors = {
   },
 } as const;
 
-export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
+// ── Typography ──────────────────────────────────────────────────────────────
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
+export const Typography = {
+  screenTitle: {
+    fontSize: 34,
+    fontWeight: '800' as const,
+    lineHeight: 34 * 1.1,
+    color: Colors.primary,
   },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
+  heading: {
+    fontSize: 21,
+    fontWeight: '700' as const,
+    lineHeight: 21 * 1.2,
+    color: Colors.onSurface,
   },
-  web: {
-    sans: 'var(--font-display)',
-    serif: 'var(--font-serif)',
-    rounded: 'var(--font-rounded)',
-    mono: 'var(--font-mono)',
+  cardHeading: {
+    fontSize: 18,
+    fontWeight: '700' as const,
+    lineHeight: 18 * 1.3,
+    color: Colors.onSurface,
   },
-});
+  body: {
+    fontSize: 16,
+    fontWeight: '400' as const,
+    lineHeight: 16 * 1.5,
+    color: Colors.onSurface,
+  },
+  muted: {
+    fontSize: 14,
+    fontWeight: '400' as const,
+    lineHeight: 14 * 1.5,
+    color: Colors.onSurfaceVariant,
+  },
+  label: {
+    fontSize: 12,
+    fontWeight: '600' as const,
+    lineHeight: 12 * 1.2,
+    color: Colors.primary,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 1.5,
+  },
+  stat: {
+    fontSize: 44,
+    fontWeight: '800' as const,
+    lineHeight: 44,
+    color: Colors.primary,
+  },
+  smallStat: {
+    fontSize: 10,
+    fontWeight: '600' as const,
+    lineHeight: 12,
+    color: Colors.onSurfaceVariant,
+  },
+  button: {
+    fontSize: 14,
+    fontWeight: '600' as const,
+    lineHeight: 14,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 1.2,
+  },
+  input: {
+    fontSize: 16,
+    fontWeight: '400' as const,
+    lineHeight: 16 * 1.5,
+    color: Colors.onSurface,
+  },
+} as const;
+
+// ── Spacing ─────────────────────────────────────────────────────────────────
 
 export const Spacing = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  xxl: 48,
+  // Legacy aliases (used by template screens, remove in Phase 4)
   half: 2,
   one: 4,
   two: 8,
@@ -61,5 +131,76 @@ export const Spacing = {
   six: 64,
 } as const;
 
+// ── Layout ──────────────────────────────────────────────────────────────────
+
+export const Layout = {
+  screenPaddingHorizontal: 24,
+  screenPaddingTop: 40,
+  screenPaddingBottom: 128,
+  maxContentWidth: 800,
+} as const;
+
+// ── Border Radius ───────────────────────────────────────────────────────────
+
+export const Radius = {
+  default: 8,
+  full: 9999,
+} as const;
+
+// ── Shadows ─────────────────────────────────────────────────────────────────
+
+export const Shadows = {
+  sm: Platform.select({
+    ios: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.06,
+      shadowRadius: 3,
+    },
+    android: { elevation: 2 },
+    default: {},
+  }),
+  md: Platform.select({
+    ios: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+    },
+    android: { elevation: 4 },
+    default: {},
+  }),
+  lg: Platform.select({
+    ios: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.1,
+      shadowRadius: 24,
+    },
+    android: { elevation: 8 },
+    default: {},
+  }),
+  nav: Platform.select({
+    ios: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: -4 },
+      shadowOpacity: 0.05,
+      shadowRadius: 24,
+    },
+    android: { elevation: 8 },
+    default: {},
+  }),
+} as const;
+
+// ── Backward Compat (for template screens until Phase 4 replaces them) ──────
+
+export const Fonts = Platform.select({
+  ios: { sans: 'system-ui', serif: 'ui-serif', rounded: 'ui-rounded', mono: 'ui-monospace' },
+  default: { sans: 'normal', serif: 'serif', rounded: 'normal', mono: 'monospace' },
+  web: { sans: 'var(--font-display)', serif: 'var(--font-serif)', rounded: 'var(--font-rounded)', mono: 'var(--font-mono)' },
+});
+
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
-export const MaxContentWidth = 800;
+export const MaxContentWidth = Layout.maxContentWidth;
+
+export type ThemeColor = keyof typeof Colors.light;
