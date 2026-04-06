@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {
   Child,
+  CostSource,
   CountryCode,
   Location,
   SavingsResult,
@@ -17,6 +18,8 @@ interface OnboardingState {
   currentSavings: number;
   location: Location | null;
   selectedTier: SchoolTierId | null;
+  customAnnualCost: number | null;
+  costSource: CostSource | null;
   schoolResults: SchoolResult[];
   savingsResult: SavingsResult | null;
   currentStep: number;
@@ -32,6 +35,7 @@ interface OnboardingActions {
   setCurrentSavings: (amount: number) => void;
   setLocation: (location: Location) => void;
   setSelectedTier: (tier: SchoolTierId) => void;
+  setCustomAnnualCost: (amount: number | null, source: CostSource) => void;
   setSchoolResults: (results: SchoolResult[]) => void;
   setSavingsResult: (result: SavingsResult) => void;
   setCurrentStep: (step: number) => void;
@@ -46,6 +50,8 @@ const initialState: OnboardingState = {
   currentSavings: 0,
   location: null,
   selectedTier: null,
+  customAnnualCost: null,
+  costSource: null,
   schoolResults: [],
   savingsResult: null,
   currentStep: 1,
@@ -78,6 +84,8 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
       setCurrentSavings: (amount) => set({ currentSavings: amount }),
       setLocation: (location) => set({ location }),
       setSelectedTier: (tier) => set({ selectedTier: tier }),
+      setCustomAnnualCost: (amount, source) =>
+        set({ customAnnualCost: amount, costSource: source }),
       setSchoolResults: (results) => set({ schoolResults: results }),
       setSavingsResult: (result) => set({ savingsResult: result }),
       setCurrentStep: (step) => set({ currentStep: step }),

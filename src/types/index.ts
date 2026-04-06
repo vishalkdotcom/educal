@@ -1,5 +1,7 @@
 export type CountryCode = 'US' | 'IN' | 'ID';
 
+export type CostSource = 'user' | 'tier' | 'gemini';
+
 export interface CountryConfig {
   code: CountryCode;
   name: string;
@@ -67,6 +69,13 @@ export interface ChildSavingsBreakdown {
   yearsToSave: number;
   projectedCost: number;
   classOf: number;
+}
+
+export interface WhatIfResult {
+  fundedPercent: number;
+  shortfall: number;
+  yearsToGoal: number | null;
+  fullyFunded: boolean;
 }
 
 export interface GrowthProjection {

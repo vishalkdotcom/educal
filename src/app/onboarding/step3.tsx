@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   ActivityIndicator,
+  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -14,12 +15,10 @@ import { useOnboardingStore } from '@/stores/useOnboardingStore';
 import { OnboardingHeader } from './_layout';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { SchoolTierCard } from '@/components/onboarding/SchoolTierCard';
-import { SCHOOL_TIERS } from '@/constants/schools';
+import { Input } from '@/components/ui/Input';
 import { COUNTRY_CONFIGS } from '@/constants/countries';
 import { searchSchoolsWithGemini } from '@/services/gemini';
-import { formatPercentage } from '@/utils/format';
+import { formatCurrencyCompact } from '@/utils/format';
 import type { SchoolTier, SchoolTierId } from '@/types';
 
 export default function Step3Screen() {
@@ -28,73 +27,97 @@ export default function Step3Screen() {
     location,
     currentSavings,
     selectedTier,
+    customAnnualCost,
     setSelectedTier,
+    setCustomAnnualCost,
     setSchoolResults,
     setCurrentStep,
     countryCode,
   } = useOnboardingStore();
 
-  const countryTiers = COUNTRY_CONFIGS[countryCode].schoolTiers;
-  const [tiers, setTiers] = useState<SchoolTier[]>(countryTiers);
+  const countryConfig = COUNTRY_CONFIGS[countryCode];
+  const countryTiers = countryConfig.schoolTiers;
+  const currencySymbol = countryConfig.currency.symbol;
+
+  // Local state for cost input
+  const [costInput, setCostInput] = useState(
+    customAnnualCost ? String(customAnnualCost) : '',
+  );
+  const [activeTierPick, setActiveTierPick] = useState<SchoolTierId | null>(
+    selectedTier,
+  );
+
+  // Gemini research state
+  const [researchOpen, setResearchOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [geminiResults, setGeminiResults] = useState<
+    { tierLabel: string; schools: { name: string; annualTuition: number }[] }[]
+  >([]);
   const [dataSource, setDataSource] = useState<'gemini' | 'fallback'>('fallback');
 
-  // Fetch school data from Gemini on mount
-  useEffect(() => {
-    if (!location) return;
+  const parsedCost = Number(costInput) || 0;
 
-    const fetchSchools = async () => {
-      setLoading(true);
-      try {
-        const childAges = children.map((c) => c.currentAge);
-        const targetLevels = children.map((c) => c.targetLevel);
+  const handleTierPick = (tier: SchoolTier) => {
+    setActiveTierPick(tier.id);
+    setCostInput(String(tier.midpointCost));
+  };
 
-        const results = await Promise.all(
-          (['public', 'private', 'international'] as SchoolTierId[]).map(
-            (tier) =>
-              searchSchoolsWithGemini({
-                latitude: location.lat,
-                longitude: location.lng,
-                tier,
-                childAges,
-                targetLevels,
-                countryCode,
-              }),
-          ),
-        );
+  const handleGeminiUseAmount = (amount: number) => {
+    setCostInput(String(amount));
+    setActiveTierPick(null);
+  };
 
-        const updatedTiers = countryTiers.map((tier, i) => ({
-          ...tier,
-          schools: results[i].length > 0 ? results[i] : tier.schools,
-        }));
+  // Fetch school data from Gemini
+  const handleResearch = async () => {
+    setResearchOpen(true);
+    if (geminiResults.length > 0 || !location) return;
 
-        setTiers(updatedTiers);
-        setDataSource(results.some((r) => r[0]?.source === 'gemini') ? 'gemini' : 'fallback');
+    setLoading(true);
+    try {
+      const childAges = children.map((c) => c.currentAge);
+      const targetLevels = children.map((c) => c.targetLevel);
 
-        // Store all results in the store
-        const allSchools = results.flat();
+      const results = await Promise.all(
+        (['public', 'private', 'international'] as SchoolTierId[]).map(
+          (tier) =>
+            searchSchoolsWithGemini({
+              latitude: location.lat,
+              longitude: location.lng,
+              tier,
+              childAges,
+              targetLevels,
+              countryCode,
+            }),
+        ),
+      );
+
+      const mapped = countryTiers.map((tier, i) => ({
+        tierLabel: tier.label,
+        schools: results[i].length > 0
+          ? results[i].map((s) => ({ name: s.name, annualTuition: s.annualTuition }))
+          : tier.schools.map((s) => ({ name: s.name, annualTuition: s.annualTuition })),
+      }));
+
+      setGeminiResults(mapped);
+      setDataSource(results.some((r) => r[0]?.source === 'gemini') ? 'gemini' : 'fallback');
+
+      // Store all results
+      const allSchools = results.flat();
+      if (allSchools.length > 0) {
         setSchoolResults(allSchools);
-      } catch {
-        setDataSource('fallback');
-      } finally {
-        setLoading(false);
       }
-    };
-
-    fetchSchools();
-  }, [location]);
-
-  const selectedTierData = tiers.find((t) => t.id === selectedTier);
-
-  // Calculate cost projection impact
-  const projectionIncrease = selectedTierData
-    ? Math.min(
-        ((selectedTierData.midpointCost - currentSavings) /
-          Math.max(currentSavings, 1)) *
-          100,
-        999,
-      )
-    : 0;
+    } catch {
+      setDataSource('fallback');
+      // Show fallback data
+      const mapped = countryTiers.map((tier) => ({
+        tierLabel: tier.label,
+        schools: tier.schools.map((s) => ({ name: s.name, annualTuition: s.annualTuition })),
+      }));
+      setGeminiResults(mapped);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleBack = () => {
     setCurrentStep(2);
@@ -102,12 +125,20 @@ export default function Step3Screen() {
   };
 
   const handleNext = () => {
-    if (!selectedTier) return;
+    if (parsedCost <= 0) return;
+
+    // Determine source
+    const source = activeTierPick ? 'tier' : 'user';
+    setCustomAnnualCost(parsedCost, source);
+
+    // Also set selectedTier if a tier was picked (for backward compat)
+    if (activeTierPick) {
+      setSelectedTier(activeTierPick);
+    }
+
     setCurrentStep(4);
     router.push('/onboarding/step4');
   };
-
-  const districtName = location?.name ?? 'your area';
 
   return (
     <SafeAreaView style={styles.safe} testID="step3-screen">
@@ -124,79 +155,142 @@ export default function Step3Screen() {
         />
 
         {/* Heading */}
-        <Text style={styles.title}>Select Education Goal</Text>
+        <Text style={styles.title}>Expected Education Cost</Text>
+        <Text style={styles.subtitle}>
+          How much do you expect to pay per year for education?
+        </Text>
 
-        {/* Nearby Schools Banner */}
-        <View testID="nearby-schools-banner" style={styles.banner}>
-          <MaterialIcons name="location-city" size={28} color="#FFFFFF" />
-          <View style={styles.bannerText}>
-            <Text style={styles.bannerTitle}>
-              {location
-                ? `Nearby Schools in ${districtName}`
-                : 'Schools Matching Your Profile'}
-            </Text>
-            <Text style={styles.bannerSubtitle}>
-              {loading
-                ? 'Searching for institutions...'
-                : `We've identified institutions matching your financial profile.`}
-            </Text>
-          </View>
+        {/* Cost Input */}
+        <Input
+          testID="annual-cost-input"
+          label="ANNUAL COST"
+          prefix={currencySymbol}
+          value={costInput}
+          onChangeText={(text) => {
+            setCostInput(text.replace(/[^0-9]/g, ''));
+            setActiveTierPick(null);
+          }}
+          keyboardType="numeric"
+          placeholder="Enter expected annual cost"
+          helper="Total annual tuition and fees per child"
+        />
+
+        {/* Quick-Pick Tier Chips */}
+        <Text style={styles.quickPickLabel}>QUICK ESTIMATE</Text>
+        <View style={styles.chipRow}>
+          {countryTiers.map((tier) => {
+            const isActive = activeTierPick === tier.id;
+            return (
+              <Pressable
+                key={tier.id}
+                testID={`tier-chip-${tier.id}`}
+                onPress={() => handleTierPick(tier)}
+                style={[styles.chip, isActive && styles.chipActive]}
+              >
+                <MaterialIcons
+                  name={tier.icon as keyof typeof MaterialIcons.glyphMap}
+                  size={16}
+                  color={isActive ? '#FFFFFF' : Colors.primary}
+                />
+                <View style={styles.chipTextWrap}>
+                  <Text
+                    style={[styles.chipLabel, isActive && styles.chipLabelActive]}
+                    numberOfLines={1}
+                  >
+                    {tier.label}
+                  </Text>
+                  <Text
+                    style={[styles.chipCost, isActive && styles.chipCostActive]}
+                  >
+                    ~{formatCurrencyCompact(tier.midpointCost, countryCode)}/yr
+                  </Text>
+                </View>
+              </Pressable>
+            );
+          })}
         </View>
 
-        {/* Loading State */}
-        {loading && (
-          <View testID="step3-loading" style={styles.loadingWrap}>
-            <ActivityIndicator size="large" color={Colors.primary} />
-            <Text style={styles.loadingText}>Finding schools near you...</Text>
+        {/* Research Section */}
+        <Pressable
+          testID="research-toggle"
+          onPress={handleResearch}
+          style={styles.researchToggle}
+        >
+          <MaterialIcons
+            name={researchOpen ? 'expand-less' : 'search'}
+            size={20}
+            color={Colors.primary}
+          />
+          <Text style={styles.researchToggleText}>
+            {researchOpen ? 'Hide research' : 'Help me research school costs'}
+          </Text>
+        </Pressable>
+
+        {researchOpen && (
+          <View testID="research-section" style={styles.researchSection}>
+            {loading && (
+              <View testID="step3-loading" style={styles.loadingWrap}>
+                <ActivityIndicator size="large" color={Colors.primary} />
+                <Text style={styles.loadingText}>
+                  Searching for schools near you...
+                </Text>
+              </View>
+            )}
+
+            {!loading && !location && (
+              <View style={styles.noLocationWrap}>
+                <MaterialIcons
+                  name="location-off"
+                  size={24}
+                  color={Colors.onSurfaceVariant}
+                />
+                <Text style={styles.noLocationText}>
+                  Add your location in Step 2 to get local school cost data.
+                </Text>
+              </View>
+            )}
+
+            {!loading && dataSource === 'fallback' && location && (
+              <View style={styles.dataBadge}>
+                <MaterialIcons
+                  name="info-outline"
+                  size={14}
+                  color={Colors.onSurfaceVariant}
+                />
+                <Text style={styles.dataBadgeText}>
+                  Using estimated data for your area
+                </Text>
+              </View>
+            )}
+
+            {!loading &&
+              geminiResults.map((group) => (
+                <View key={group.tierLabel} style={styles.researchGroup}>
+                  <Text style={styles.researchGroupLabel}>{group.tierLabel}</Text>
+                  {group.schools.map((school) => (
+                    <Pressable
+                      key={school.name}
+                      testID={`research-school-${school.name.replace(/\s+/g, '-').toLowerCase()}`}
+                      onPress={() => handleGeminiUseAmount(school.annualTuition)}
+                      style={styles.schoolRow}
+                    >
+                      <View style={styles.schoolInfo}>
+                        <Text style={styles.schoolName} numberOfLines={1}>
+                          {school.name}
+                        </Text>
+                        <Text style={styles.schoolCost}>
+                          {formatCurrencyCompact(school.annualTuition, countryCode)}
+                          /yr
+                        </Text>
+                      </View>
+                      <View style={styles.useButton}>
+                        <Text style={styles.useButtonText}>Use</Text>
+                      </View>
+                    </Pressable>
+                  ))}
+                </View>
+              ))}
           </View>
-        )}
-
-        {/* Data Source Badge */}
-        {!loading && dataSource === 'fallback' && location && (
-          <View style={styles.dataBadge}>
-            <MaterialIcons name="info-outline" size={14} color={Colors.onSurfaceVariant} />
-            <Text style={styles.dataBadgeText}>Using estimated data</Text>
-          </View>
-        )}
-
-        {/* School Tier Cards */}
-        {!loading &&
-          tiers.map((tier) => (
-            <View key={tier.id} style={styles.tierWrap}>
-              <SchoolTierCard
-                testID={`tier-card-${tier.id}`}
-                tier={tier}
-                selected={selectedTier === tier.id}
-                onSelect={setSelectedTier}
-                countryCode={countryCode}
-              />
-            </View>
-          ))}
-
-        {/* Cost Projection Card */}
-        {selectedTierData && (
-          <Card
-            testID="cost-projection-card"
-            variant="filled"
-            style={styles.projectionCard}
-          >
-            <Text style={styles.projectionText}>
-              Based on your current savings rate, a{' '}
-              <Text style={{ fontWeight: '700' }}>
-                {selectedTierData.label}
-              </Text>{' '}
-              goal would require adjusting your monthly contributions.
-            </Text>
-            <View style={styles.forecastRow}>
-              <Text style={styles.forecastLabel}>Growth Forecast</Text>
-              <Text
-                testID="growth-forecast-value"
-                style={styles.forecastValue}
-              >
-                +8.2%
-              </Text>
-            </View>
-          </Card>
         )}
       </ScrollView>
 
@@ -213,7 +307,7 @@ export default function Step3Screen() {
           testID="step3-next-button"
           title="NEXT"
           onPress={handleNext}
-          disabled={!selectedTier}
+          disabled={parsedCost <= 0}
           icon="arrow-forward"
           iconPosition="right"
           style={{ flex: 1, marginLeft: Spacing.md }}
@@ -239,29 +333,75 @@ const styles = StyleSheet.create({
     ...Typography.heading,
     fontSize: 24,
     marginTop: Spacing.lg,
+    marginBottom: Spacing.xs,
+  },
+  subtitle: {
+    ...Typography.muted,
     marginBottom: Spacing.lg,
   },
-  banner: {
+  quickPickLabel: {
+    ...Typography.label,
+    color: Colors.onSurfaceVariant,
+    marginTop: Spacing.xl,
+    marginBottom: Spacing.md,
+  },
+  chipRow: {
+    gap: Spacing.sm,
+  },
+  chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.primaryDark,
+    backgroundColor: Colors.primaryContainer,
     borderRadius: Radius.default,
-    padding: Spacing.lg,
-    marginBottom: Spacing.lg,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
     gap: Spacing.md,
   },
-  bannerText: {
+  chipActive: {
+    backgroundColor: Colors.primary,
+  },
+  chipTextWrap: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  chipLabel: {
+    ...Typography.body,
+    fontWeight: '600',
+    fontSize: 14,
+    color: Colors.onSurface,
     flex: 1,
   },
-  bannerTitle: {
-    ...Typography.cardHeading,
+  chipLabelActive: {
     color: '#FFFFFF',
   },
-  bannerSubtitle: {
-    ...Typography.muted,
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: 12,
-    marginTop: 4,
+  chipCost: {
+    ...Typography.label,
+    fontSize: 13,
+    color: Colors.primary,
+  },
+  chipCostActive: {
+    color: 'rgba(255,255,255,0.85)',
+  },
+  researchToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginTop: Spacing.xl,
+    paddingVertical: Spacing.md,
+  },
+  researchToggleText: {
+    ...Typography.body,
+    color: Colors.primary,
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  researchSection: {
+    marginTop: Spacing.sm,
+    paddingTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.outlineLight,
   },
   loadingWrap: {
     alignItems: 'center',
@@ -270,6 +410,15 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     ...Typography.muted,
+  },
+  noLocationWrap: {
+    alignItems: 'center',
+    paddingVertical: Spacing.xl,
+    gap: Spacing.md,
+  },
+  noLocationText: {
+    ...Typography.muted,
+    textAlign: 'center',
   },
   dataBadge: {
     flexDirection: 'row',
@@ -281,33 +430,47 @@ const styles = StyleSheet.create({
     ...Typography.muted,
     fontSize: 12,
   },
-  tierWrap: {
-    marginBottom: Spacing.md,
+  researchGroup: {
+    marginBottom: Spacing.lg,
   },
-  projectionCard: {
-    marginTop: Spacing.sm,
-  },
-  projectionText: {
-    ...Typography.muted,
-    color: Colors.primaryDark,
-    lineHeight: 20,
-  },
-  forecastRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: Spacing.md,
-    paddingTop: Spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: Colors.primaryLight,
-  },
-  forecastLabel: {
+  researchGroupLabel: {
     ...Typography.label,
-    color: Colors.primaryDark,
+    color: Colors.onSurfaceVariant,
+    marginBottom: Spacing.sm,
   },
-  forecastValue: {
-    ...Typography.cardHeading,
-    color: Colors.success,
+  schoolRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surfaceWhite,
+    borderRadius: Radius.default,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.outlineLight,
+  },
+  schoolInfo: {
+    flex: 1,
+  },
+  schoolName: {
+    ...Typography.body,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  schoolCost: {
+    ...Typography.muted,
+    fontSize: 13,
+    marginTop: 2,
+  },
+  useButton: {
+    backgroundColor: Colors.primaryContainer,
+    borderRadius: Radius.default,
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.md,
+  },
+  useButtonText: {
+    ...Typography.label,
+    color: Colors.primary,
+    fontSize: 12,
   },
   bottomBar: {
     flexDirection: 'row',
