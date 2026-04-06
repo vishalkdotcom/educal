@@ -22,7 +22,7 @@ export async function searchSchoolsWithGemini(
   const { latitude, longitude, tier, childAges, countryCode = 'US' } = params;
   const currencyCode = COUNTRY_CONFIGS[countryCode].currency.code;
 
-  const cacheKey = `${latitude}_${longitude}_${tier}`;
+  const cacheKey = `${countryCode}_${latitude}_${longitude}_${tier}`;
   const cached = cache.get(cacheKey);
   if (cached) return cached;
 

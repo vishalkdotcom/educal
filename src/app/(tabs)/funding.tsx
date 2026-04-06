@@ -4,11 +4,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Layout, Spacing, Radius, Shadows } from '@/constants/theme';
-import { Card } from '@/components/ui';
+import { Card, Button } from '@/components/ui';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
 import { COUNTRY_CONFIGS } from '@/constants/countries';
+import { searchSchoolsWithGemini } from '@/services/gemini';
 import { formatCurrency } from '@/utils/format';
-import type { CountryCode, SchoolResult } from '@/types';
+import type { CountryCode, SchoolResult, SchoolTierId } from '@/types';
 
 const TIER_BADGES: Record<string, { label: string; color: string; bg: string }> = {
   public: { label: 'PUBLIC', color: Colors.success, bg: '#ECFDF5' },
@@ -62,10 +63,18 @@ function SchoolCard({
 export default function FundingScreen() {
   const router = useRouter();
   const [search, setSearch] = useState('');
+  const [tierFilter, setTierFilter] = useState<SchoolTierId | null>(null);
+  const [searching, setSearching] = useState(false);
   const schoolResults = useOnboardingStore((s) => s.schoolResults);
+  const setSchoolResults = useOnboardingStore((s) => s.setSchoolResults);
+  const children = useOnboardingStore((s) => s.children);
   const selectedTier = useOnboardingStore((s) => s.selectedTier);
   const countryCode = useOnboardingStore((s) => s.countryCode);
-  const countryTiers = COUNTRY_CONFIGS[countryCode].schoolTiers;
+  const location = useOnboardingStore((s) => s.location);
+  const countryConfig = COUNTRY_CONFIGS[countryCode];
+  const countryTiers = countryConfig.schoolTiers;
+
+  const hasGeminiResults = schoolResults.length > 0 && schoolResults.some((s) => s.source === 'gemini');
 
   const allSchools = useMemo(() => {
     if (schoolResults.length > 0) return schoolResults;
@@ -77,10 +86,45 @@ export default function FundingScreen() {
   }, [schoolResults, selectedTier, countryCode]);
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return allSchools;
-    const q = search.toLowerCase();
-    return allSchools.filter((s) => s.name.toLowerCase().includes(q));
-  }, [allSchools, search]);
+    let list = allSchools;
+    if (tierFilter) {
+      list = list.filter((s) => s.type === tierFilter);
+    }
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter((s) => s.name.toLowerCase().includes(q));
+    }
+    return list;
+  }, [allSchools, search, tierFilter]);
+
+  const handleSearchNearby = async () => {
+    if (!location) return;
+    setSearching(true);
+    try {
+      const childAges = children.map((c) => c.currentAge);
+      const targetLevels = children.map((c) => c.targetLevel);
+      const results = await Promise.all(
+        (['public', 'private', 'international'] as SchoolTierId[]).map((tier) =>
+          searchSchoolsWithGemini({
+            latitude: location.lat,
+            longitude: location.lng,
+            tier,
+            childAges,
+            targetLevels,
+            countryCode,
+          }),
+        ),
+      );
+      const allResults = results.flat();
+      if (allResults.length > 0) {
+        setSchoolResults(allResults);
+      }
+    } catch {
+      // keep existing results
+    } finally {
+      setSearching(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safe} testID="funding-screen">
@@ -96,7 +140,11 @@ export default function FundingScreen() {
         </View>
 
         <Text style={styles.title}>School Search</Text>
-        <Text style={styles.subtitle}>Browse schools and view cost projections</Text>
+        <Text style={styles.subtitle}>
+          {hasGeminiResults
+            ? `Schools near ${location?.name ?? 'your area'}`
+            : `Average schools for ${countryConfig.name} — search during onboarding for local results`}
+        </Text>
 
         {/* Search Bar */}
         <View style={styles.searchWrap}>
@@ -115,6 +163,42 @@ export default function FundingScreen() {
             </Pressable>
           )}
         </View>
+
+        {/* Tier Filter */}
+        <View style={styles.filterRow}>
+          <Pressable
+            testID="filter-all"
+            onPress={() => setTierFilter(null)}
+            style={[styles.filterPill, !tierFilter && styles.filterPillActive]}
+          >
+            <Text style={[styles.filterText, !tierFilter && styles.filterTextActive]}>All</Text>
+          </Pressable>
+          {countryTiers.map((tier) => (
+            <Pressable
+              key={tier.id}
+              testID={`filter-${tier.id}`}
+              onPress={() => setTierFilter(tierFilter === tier.id ? null : tier.id)}
+              style={[styles.filterPill, tierFilter === tier.id && styles.filterPillActive]}
+            >
+              <Text style={[styles.filterText, tierFilter === tier.id && styles.filterTextActive]}>
+                {tier.label}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        {/* Search Nearby */}
+        {location && !hasGeminiResults && (
+          <Button
+            testID="search-nearby-button"
+            title={searching ? 'Searching...' : 'Search schools near me'}
+            variant="outlined"
+            icon="location-on"
+            onPress={handleSearchNearby}
+            disabled={searching}
+            style={{ marginBottom: Spacing.lg }}
+          />
+        )}
 
         {/* Results */}
         {filtered.length === 0 ? (
@@ -187,6 +271,32 @@ const styles = StyleSheet.create({
   logo: { fontSize: 24, fontWeight: '800', color: Colors.primary },
   title: { ...Typography.screenTitle, marginBottom: Spacing.xs },
   subtitle: { ...Typography.muted, marginBottom: Spacing.lg },
+  filterRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
+    flexWrap: 'wrap',
+  },
+  filterPill: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: Radius.full,
+    borderWidth: 1,
+    borderColor: Colors.outlineLight,
+    backgroundColor: Colors.surface,
+  },
+  filterPillActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  filterText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: Colors.onSurfaceVariant,
+  },
+  filterTextActive: {
+    color: '#FFFFFF',
+  },
   searchWrap: {
     flexDirection: 'row',
     alignItems: 'center',

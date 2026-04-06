@@ -67,10 +67,24 @@ export default function Step3Screen() {
     setActiveTierPick(null);
   };
 
-  // Fetch school data from Gemini
+  const showFallbackData = () => {
+    const mapped = countryTiers.map((tier) => ({
+      tierLabel: tier.label,
+      schools: tier.schools.map((s) => ({ name: s.name, annualTuition: s.annualTuition })),
+    }));
+    setGeminiResults(mapped);
+    setDataSource('fallback');
+  };
+
+  // Fetch school data from Gemini (or show fallback if no location)
   const handleResearch = async () => {
     setResearchOpen(true);
-    if (geminiResults.length > 0 || !location) return;
+    if (geminiResults.length > 0) return;
+
+    if (!location) {
+      showFallbackData();
+      return;
+    }
 
     setLoading(true);
     try {
@@ -107,13 +121,7 @@ export default function Step3Screen() {
         setSchoolResults(allSchools);
       }
     } catch {
-      setDataSource('fallback');
-      // Show fallback data
-      const mapped = countryTiers.map((tier) => ({
-        tierLabel: tier.label,
-        schools: tier.schools.map((s) => ({ name: s.name, annualTuition: s.annualTuition })),
-      }));
-      setGeminiResults(mapped);
+      showFallbackData();
     } finally {
       setLoading(false);
     }
@@ -237,20 +245,7 @@ export default function Step3Screen() {
               </View>
             )}
 
-            {!loading && !location && (
-              <View style={styles.noLocationWrap}>
-                <MaterialIcons
-                  name="location-off"
-                  size={24}
-                  color={Colors.onSurfaceVariant}
-                />
-                <Text style={styles.noLocationText}>
-                  Add your location in Step 2 to get local school cost data.
-                </Text>
-              </View>
-            )}
-
-            {!loading && dataSource === 'fallback' && location && (
+            {!loading && dataSource === 'fallback' && (
               <View style={styles.dataBadge}>
                 <MaterialIcons
                   name="info-outline"
@@ -258,7 +253,9 @@ export default function Step3Screen() {
                   color={Colors.onSurfaceVariant}
                 />
                 <Text style={styles.dataBadgeText}>
-                  Using estimated data for your area
+                  {location
+                    ? `Average costs for ${countryConfig.name}`
+                    : `Average costs for ${countryConfig.name} — add location in Step 2 for local results`}
                 </Text>
               </View>
             )}
@@ -410,15 +407,6 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     ...Typography.muted,
-  },
-  noLocationWrap: {
-    alignItems: 'center',
-    paddingVertical: Spacing.xl,
-    gap: Spacing.md,
-  },
-  noLocationText: {
-    ...Typography.muted,
-    textAlign: 'center',
   },
   dataBadge: {
     flexDirection: 'row',
