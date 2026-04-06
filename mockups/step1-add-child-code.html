@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EduCal - Add Family Member</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2196F3",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#E3F2FD",
+                        "on-primary-container": "#0D47A1",
+                        "secondary": "#4CAF50",
+                        "secondary-container": "#E8F5E9",
+                        "on-secondary-container": "#1B5E20",
+                        "surface": "#F5F7FA",
+                        "on-surface": "#1A1C1E",
+                        "on-surface-variant": "#44474E",
+                        "outline": "#74777F",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#EBEEF2",
+                        "surface-container-highest": "#E1E2E8",
+                    },
+                    fontFamily: {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { 
+                        "DEFAULT": "8px", 
+                        "lg": "8px", 
+                        "xl": "8px", 
+                        "full": "9999px" 
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen font-body">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-surface-container-high">
+<div class="flex justify-between items-center px-6 py-4 max-w-full">
+<div class="flex items-center gap-3">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg dark:text-blue-100 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-primary" data-icon="arrow_back">arrow_back</span>
+</button>
+<span class="text-xl font-bold text-primary font-headline tracking-tight">EduCal</span>
+</div>
+<span class="text-primary font-bold font-headline text-sm">Step 1 of 4</span>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 md:px-12 max-w-4xl mx-auto">
+<!-- Progress Indicator -->
+<section class="mb-10">
+<div class="flex justify-between items-end mb-3">
+<div>
+<p class="font-label text-[11px] font-bold uppercase tracking-widest text-outline mb-1">Onboarding Progress</p>
+</div>
+<span class="text-primary font-bold font-headline text-lg">25%</span>
+</div>
+<div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 25%;"></div>
+</div>
+</section>
+<!-- Page Header -->
+<header class="mb-10">
+<h1 class="text-3xl font-extrabold text-primary font-headline tracking-tight mb-2">Build Your Family Profile</h1>
+<p class="text-on-surface-variant text-lg leading-relaxed">Tell us more about your children to personalize their education trajectory.</p>
+</header>
+<!-- Cards Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+<!-- Existing Child Card (Leo) -->
+<div class="bg-surface-container-lowest rounded-lg p-6 border border-surface-container-high shadow-sm">
+<div class="flex justify-between items-start mb-6">
+<div class="w-12 h-12 rounded-lg bg-primary-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl" data-icon="face">face</span>
+</div>
+<span class="bg-primary-container text-on-primary-container px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest">Active</span>
+</div>
+<h3 class="text-2xl font-bold text-on-surface font-headline mb-4">Leo</h3>
+<div class="space-y-3">
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-xl" data-icon="cake">cake</span>
+<span class="font-medium">4 Years Old</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-xl" data-icon="school">school</span>
+<span class="font-medium">Target: Primary</span>
+</div>
+</div>
+</div>
+<!-- New Child Detail Entry Card -->
+<div class="bg-surface-container-lowest rounded-lg p-6 border border-surface-container-high shadow-sm">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-outline">
+<span class="material-symbols-outlined" data-icon="person_add">person_add</span>
+</div>
+<h3 class="text-lg font-bold text-on-surface font-headline">Add details for Child 2</h3>
+</div>
+<form class="space-y-5">
+<div>
+<label class="block font-label text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Child's Name</label>
+<input class="w-full bg-surface-container-highest border-none rounded-lg p-3.5 focus:ring-2 focus:ring-primary/20 text-on-surface transition-all placeholder:text-outline" placeholder="Enter name" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block font-label text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Current Age</label>
+<input class="w-full bg-surface-container-highest border-none rounded-lg p-3.5 focus:ring-2 focus:ring-primary/20 text-on-surface transition-all placeholder:text-outline" placeholder="0" type="number"/>
+</div>
+<div>
+<label class="block font-label text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Target Level</label>
+<div class="relative">
+<select class="w-full bg-surface-container-highest border-none rounded-lg p-3.5 focus:ring-2 focus:ring-primary/20 text-on-surface appearance-none transition-all">
+<option>Select level</option>
+<option>Preschool</option>
+<option>Primary</option>
+<option>Secondary</option>
+<option>Higher Ed</option>
+</select>
+<span class="material-symbols-outlined absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-outline" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary py-4 rounded-lg font-bold text-base hover:opacity-90 transition-all active:scale-[0.98] shadow-sm mt-2" type="button">
+                    Save Child Details
+                </button>
+</form>
+</div>
+</div>
+<!-- Why this matters Tip Box -->
+<section class="mt-12 bg-primary-container/50 border border-primary/10 rounded-lg p-6 flex gap-5 items-start">
+<div class="bg-primary text-on-primary p-2.5 rounded-lg shrink-0">
+<span class="material-symbols-outlined" data-icon="lightbulb">lightbulb</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-on-primary-container mb-1">Why this matters</h4>
+<p class="text-on-primary-container leading-relaxed text-sm">
+                EduCal uses age and target levels to calibrate your financial horizon. Knowing your children's stages allows us to project inflation-adjusted tuition costs and milestone funding exactly when you'll need them.
+            </p>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+</body></html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>EduCal - Family Profile</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Google Fonts - Using Inter as per Design System 1 -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#2196F3", // Azure blue from design system
+              "primary-container": "#E3F2FD",
+              "on-primary-container": "#1976D2",
+              "surface": "#F8FAFC",
+              "surface-container-highest": "#F1F5F9",
+              "on-surface": "#1E293B",
+              "on-surface-variant": "#64748B",
+              "outline": "#CBD5E1",
+              "secondary": "#2196F3", // Consistent with action color
+            },
+            fontFamily: {
+              "headline": ["Inter", "sans-serif"],
+              "body": ["Inter", "sans-serif"],
+              "label": ["Inter", "sans-serif"]
+            },
+            borderRadius: {
+              "DEFAULT": "8px", // ROUND_EIGHT
+              "lg": "8px", 
+              "xl": "8px",
+              "full": "9999px"
+            },
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            min-height: max(884px, 100dvh);
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased min-h-[884px] flex flex-col" data-mode="connect">
+<!-- TopAppBar -->
+<header class="bg-white/80 backdrop-blur-xl docked full-width top-0 sticky z-50 border-b border-slate-100">
+<div class="flex items-center justify-between px-6 h-16 w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-4">
+<span class="font-bold text-lg tracking-tight text-primary" style="">EduCal</span>
+</div>
+<div class="hidden md:flex gap-8 items-center">
+<span class="text-primary font-semibold cursor-pointer" style="">Onboarding</span>
+<span class="text-on-surface-variant font-medium cursor-pointer" style="">Support</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="person" style="">person</span>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col items-center px-6 pt-10 pb-32 max-w-2xl mx-auto w-full">
+<!-- Image Header -->
+<div class="w-full mb-8 -mt-10 mx-[-1.5rem] w-[calc(100%+3rem)] overflow-hidden rounded-b-lg shadow-lg">
+<img alt="Happy Asian family looking towards the horizon" class="w-full h-64 md:h-80 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjMM5Kp08SWyOdkdPGpK9btz8r3DO8Hy1QBD8uhT5qeZh8tulSjZZu18ORcRTYMn5ULoi2Tzf2pNbig7AKKucPG9nrdzxLH1bulyEo6KThN2dqg1u8binD2NzU0vwxo3Y9jEMuU7F4RQt9riY3wwIhz08Y2ubNnDpiohs4G7J9ON5qX0R4WM3rt0SKCmPWuk5WcmCQeUH7c6V3L8DGK-FuwwCEIkeKvoBoirj6BcY6ruek63xN6asc61qPoH2wImyNS5K0aZAqIKA" style="">
+</div>
+<!-- Progress Section -->
+<div class="w-full mb-12">
+<div class="flex justify-between items-end mb-3">
+<span class="font-label text-primary font-bold text-sm uppercase tracking-widest" style="">Step 1 of 4</span>
+<span class="font-headline font-extrabold text-primary text-xl" style="">25%</span>
+</div>
+<div class="h-2 w-full bg-primary-container rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full w-1/4"></div>
+</div>
+</div>
+<!-- Hero Heading -->
+<div class="w-full mb-10">
+<h1 class="font-headline font-extrabold text-4xl md:text-5xl text-primary leading-tight tracking-tight mb-4" style="">Secure their Academic Future&nbsp;</h1>
+<p class="text-on-surface-variant text-lg max-w-md" style="">
+            Add your family members to create a personalized educational roadmap and savings strategy.
+        </p>
+</div>
+<!-- Add Child Card Group -->
+<div class="w-full space-y-6">
+<!-- Main Form Card (ROUND_EIGHT) -->
+<div class="bg-white p-8 rounded-lg border border-slate-100 shadow-sm transition-all duration-300">
+<div class="flex items-center gap-4 mb-8">
+<div class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="child_care" style="">child_care</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-xl text-primary" style="">Add a child</h3>
+<p class="text-sm text-on-surface-variant" style="">Enter details to begin the calculation</p>
+</div>
+</div>
+<div class="space-y-6">
+<div>
+<label class="font-label text-sm font-semibold text-primary mb-2 block tracking-tight" style="">CHILD'S NAME</label>
+<input class="w-full bg-surface-container-highest border-none rounded-lg py-4 px-5 text-on-surface placeholder:text-on-surface-variant focus:ring-2 focus:ring-primary/20 transition-all" placeholder="e.g. Sophia" type="text">
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="font-label text-sm font-semibold text-primary mb-2 block tracking-tight" style="">CURRENT AGE</label>
+<input class="w-full bg-surface-container-highest border-none rounded-lg py-4 px-5 text-on-surface placeholder:text-on-surface-variant focus:ring-2 focus:ring-primary/20 transition-all" placeholder="0" type="number">
+</div>
+<div>
+<label class="font-label text-sm font-semibold text-primary mb-2 block tracking-tight" style="">TARGET LEVEL</label>
+<div class="relative">
+<select class="w-full bg-surface-container-highest border-none rounded-lg py-4 px-5 text-on-surface appearance-none focus:ring-2 focus:ring-primary/20 transition-all">
+<option>University</option>
+<option>High School</option>
+<option>Primary</option>
+</select>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="unfold_more" style="">unfold_more</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-8 border-t border-slate-100 flex justify-between items-center">
+<button class="flex items-center gap-2 text-primary font-bold hover:opacity-80 transition-opacity" style="">
+<span class="material-symbols-outlined" data-icon="add_circle" style="">add_circle</span>
+<span class="" style="">Add another child</span>
+</button>
+</div>
+</div>
+<!-- Guidance Card (ROUND_EIGHT) -->
+<div class="bg-primary-container text-on-primary-container p-8 rounded-lg relative overflow-hidden">
+<div class="relative z-10">
+<span class="material-symbols-outlined mb-4 block" data-icon="lightbulb" style="font-variation-settings: &quot;FILL&quot; 1;">lightbulb</span>
+<h4 class="font-headline font-bold text-lg mb-2" style="">Why this matters</h4>
+<p class="text-sm text-on-primary-container/80 leading-relaxed" style="">
+                    Age and name help us calculate inflation-adjusted tuition costs for their specific graduation year.
+                </p>
+</div>
+<!-- Decorative graphic -->
+<div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/20 rounded-full blur-3xl"></div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (ROUND_EIGHT on main button) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-8 pt-4 bg-white/90 backdrop-blur-2xl rounded-t-lg shadow-[0_-4px_24px_0_rgba(0,0,0,0.05)] border-t border-slate-100">
+<button class="flex flex-col items-center justify-center bg-primary text-white rounded-lg px-12 py-4 hover:opacity-90 transition-opacity active:scale-[0.98] shadow-lg shadow-primary/20" style="">
+<div class="flex items-center gap-2">
+<span class="font-inter text-[11px] font-semibold uppercase tracking-wider" style="">Next</span>
+<span class="material-symbols-outlined text-sm" data-icon="arrow_forward" style="">arrow_forward</span>
+</div>
+</button>
+</nav>
+</body></html>

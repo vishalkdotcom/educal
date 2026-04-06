@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Education Wealth Report - EduCal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#2196F3", // Azure Blue
+              "on-primary": "#ffffff",
+              "background": "#F8FAFC",
+              "surface": "#ffffff",
+              "surface-container": "#F1F5F9",
+              "surface-container-low": "#F8FAFC",
+              "surface-container-lowest": "#ffffff",
+              "on-surface": "#0F172A",
+              "on-surface-variant": "#64748B",
+              "outline": "#E2E8F0",
+              "secondary": "#10B981", // Green for growth
+              "secondary-container": "#D1FAE5",
+              "on-secondary-container": "#065F46",
+              "primary-container": "#DBEAFE",
+              "on-primary-container": "#1E40AF"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {
+              "DEFAULT": "0.5rem", // ROUND_EIGHT
+              "lg": "0.5rem", 
+              "xl": "0.5rem",
+              "full": "9999px"
+            },
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, .font-headline { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen pb-32">
+<!-- Top Navigation -->
+<header class="docked w-full top-0 sticky z-50 glass-header border-b border-outline">
+<div class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP4glblNsRhArMD2enVs18KK_qO9DJuGcvzZX3rSutpFUtW1nCLSJqUXNe8dd5mSelnNV6hRxz2zIRDR5U10epPDBLzx2DlM_nQ_MR-lgVGxy45uzoFB0n2atlta6U-4_a_9-wWcBqVcIZmUmaUeZWnUtfAFvkBVmJQRzt3oexwSR1A_kcKe26tvZ1PTKCrB8pCWxkKzGS4PDlbu-I7zva6PyZGVHutWsHnf7RGPe4u_T9JFGSkwZudHL9a8WsnpUAyzkddL65qvM"/>
+</div>
+<span class="text-xl font-bold tracking-tight text-primary">EduCal</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant p-2 hover:bg-surface-container rounded-lg transition-colors">notifications</button>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-6 pt-8">
+<!-- Hero: Report Title -->
+<section class="mb-10">
+<p class="font-label text-[10px] uppercase tracking-widest font-bold text-primary mb-2">Quarterly Analysis</p>
+<h1 class="text-4xl font-extrabold tracking-tight leading-tight text-primary">Education Wealth Report</h1>
+<p class="text-on-surface-variant mt-4 max-w-2xl leading-relaxed">Your horizon is clearing. Based on current contributions and projected growth, you are on track to fund 84% of total estimated university costs for Maya and Leo.</p>
+</section>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<!-- Main Projection Chart: Total Goal Reached -->
+<div class="md:col-span-8 bg-surface rounded-lg p-8 shadow-sm border border-outline relative overflow-hidden">
+<div class="flex justify-between items-start mb-10">
+<div>
+<h3 class="text-xl font-bold text-on-surface mb-1">Growth Projection</h3>
+<p class="text-sm text-on-surface-variant font-medium">Estimated value until oldest child reaches 18</p>
+</div>
+<div class="text-right">
+<span class="block text-3xl font-extrabold text-secondary">$412,850</span>
+<span class="text-[10px] font-bold uppercase tracking-tight text-on-secondary-container bg-secondary-container px-2 py-1 rounded-lg">Projected Total</span>
+</div>
+</div>
+<!-- Custom SVG Chart -->
+<div class="h-64 w-full relative">
+<svg class="w-full h-full" viewbox="0 0 800 200">
+<path d="M0 180 Q 200 160, 400 120 T 800 40 L 800 200 L 0 200 Z" fill="url(#grad1)" opacity="0.1"></path>
+<path d="M0 180 Q 200 160, 400 120 T 800 40" fill="none" stroke="#10B981" stroke-linecap="round" stroke-width="4"></path>
+<path d="M0 180 L 800 180" stroke="#E2E8F0" stroke-dasharray="8 4" stroke-width="1"></path>
+<circle cx="400" cy="120" fill="#10B981" r="6"></circle>
+<circle cx="800" cy="40" fill="#10B981" r="8"></circle>
+<defs>
+<lineargradient id="grad1" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" style="stop-color:#10B981;stop-opacity:1"></stop>
+<stop offset="100%" style="stop-color:#10B981;stop-opacity:0"></stop>
+</lineargradient>
+</defs>
+</svg>
+<!-- Floating Labels -->
+<div class="absolute top-4 right-0 bg-primary text-white px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm">Target: 2038</div>
+<div class="absolute bottom-16 left-1/2 -translate-x-1/2 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Growth Acceleration Phase</div>
+</div>
+<div class="grid grid-cols-4 mt-8 pt-8 border-t border-outline">
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Today</p>
+<p class="text-lg font-bold text-on-surface">$124k</p>
+</div>
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">2028</p>
+<p class="text-lg font-bold text-on-surface">$210k</p>
+</div>
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">2033</p>
+<p class="text-lg font-bold text-on-surface">$305k</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Final</p>
+<p class="text-lg font-bold text-on-surface">$412k</p>
+</div>
+</div>
+</div>
+<!-- Tax Advantage Estimates -->
+<div class="md:col-span-4 bg-primary text-white rounded-lg p-8 relative overflow-hidden flex flex-col justify-between shadow-sm">
+<div class="relative z-10">
+<span class="material-symbols-outlined text-white/40 text-4xl mb-4">account_balance</span>
+<h3 class="text-2xl font-bold leading-tight mb-2">Tax Savings Advantage</h3>
+<p class="text-white/80 text-sm leading-relaxed">Estimated federal &amp; state tax benefits by using your 529 plan versus a standard brokerage.</p>
+</div>
+<div class="mt-8 relative z-10">
+<div class="text-5xl font-extrabold tracking-tighter mb-1 text-white">$68,400</div>
+<p class="text-[10px] font-bold uppercase tracking-widest opacity-70">Lifetime Projected Benefit</p>
+</div>
+<div class="absolute -bottom-12 -right-12 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+</div>
+<!-- Funding Sources Breakdown -->
+<div class="md:col-span-5 bg-surface-container-low rounded-lg p-8 border border-outline">
+<h3 class="text-xl font-bold text-on-surface mb-6">Funding Sources</h3>
+<div class="space-y-6">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined">savings</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-end mb-1">
+<span class="text-sm font-bold text-on-surface">Personal Savings</span>
+<span class="text-sm font-bold text-on-surface">$85,000</span>
+</div>
+<div class="h-2 w-full bg-outline rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[70%] rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface flex items-center justify-center text-secondary shadow-sm">
+<span class="material-symbols-outlined">trending_up</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-end mb-1">
+<span class="text-sm font-bold text-on-surface">529 Market Growth</span>
+<span class="text-sm font-bold text-on-surface">$290,000</span>
+</div>
+<div class="h-2 w-full bg-outline rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[90%] rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface flex items-center justify-center text-primary/60 shadow-sm">
+<span class="material-symbols-outlined">auto_awesome</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-end mb-1">
+<span class="text-sm font-bold text-on-surface">Potential Grants</span>
+<span class="text-sm font-bold text-on-surface">$37,850</span>
+</div>
+<div class="h-2 w-full bg-outline rounded-full overflow-hidden">
+<div class="h-full bg-primary/40 w-[40%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Individual Progress Trackers -->
+<div class="md:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Leo's Progress -->
+<div class="bg-surface rounded-lg p-6 shadow-sm border border-outline">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-primary font-bold">L</div>
+<div>
+<h4 class="text-lg font-bold text-on-surface leading-none">Leo</h4>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter mt-1">Class of 2038</p>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Est. Future Cost (Adjusted)</p>
+<p class="text-xl font-extrabold text-on-surface">$204,500</p>
+</div>
+<div class="bg-surface-container rounded-lg p-3">
+<div class="flex justify-between text-[11px] font-bold text-on-surface mb-2">
+<span>Goal Progress</span>
+<span>88%</span>
+</div>
+<div class="h-1.5 w-full bg-outline rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[88%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Maya's Progress -->
+<div class="bg-surface rounded-lg p-6 shadow-sm border border-outline">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold">M</div>
+<div>
+<h4 class="text-lg font-bold text-on-surface leading-none">Maya</h4>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter mt-1">Class of 2035</p>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Est. Future Cost (Adjusted)</p>
+<p class="text-xl font-extrabold text-on-surface">$208,350</p>
+</div>
+<div class="bg-surface-container rounded-lg p-3">
+<div class="flex justify-between text-[11px] font-bold text-on-surface mb-2">
+<span>Goal Progress</span>
+<span>79%</span>
+</div>
+<div class="h-1.5 w-full bg-outline rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[79%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Milestones & Next Steps -->
+<div class="md:col-span-12 bg-surface rounded-lg p-8 border border-outline shadow-sm">
+<div class="flex justify-between items-center mb-8">
+<h3 class="text-xl font-bold text-on-surface">Strategic Milestones</h3>
+<button class="text-primary font-bold text-sm hover:underline">View Roadmap</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="flex gap-4">
+<div class="flex-shrink-0 w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<h5 class="font-bold text-on-surface mb-1">Portfolio Rebalance</h5>
+<p class="text-sm text-on-surface-variant leading-relaxed">Completed: Adjusted Maya's portfolio to moderate risk as she nears 14.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">pending_actions</span>
+</div>
+<div>
+<h5 class="font-bold text-on-surface mb-1">Max Contribution</h5>
+<p class="text-sm text-on-surface-variant leading-relaxed">Next Step: Consider increasing monthly deposits by $200 to reach 100% funding.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex-shrink-0 w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">lock</span>
+</div>
+<div>
+<h5 class="font-bold text-on-surface mb-1">Grant Lock-in</h5>
+<p class="text-sm text-on-surface-variant leading-relaxed">Upcoming (2026): Verification for state-specific merit scholarship eligibility.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/90 backdrop-blur-xl border-t border-outline">
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-2 active:scale-95 transition-all hover:text-primary">
+<span class="material-symbols-outlined text-2xl">analytics</span>
+<span class="text-[10px] uppercase tracking-widest font-bold mt-1">Horizon</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-primary/10 text-primary rounded-lg px-5 py-2 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-2xl">query_stats</span>
+<span class="text-[10px] uppercase tracking-widest font-bold mt-1">Insights</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-2 active:scale-95 transition-all hover:text-primary">
+<span class="material-symbols-outlined text-2xl">account_balance_wallet</span>
+<span class="text-[10px] uppercase tracking-widest font-bold mt-1">Funding</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-2 active:scale-95 transition-all hover:text-primary">
+<span class="material-symbols-outlined text-2xl">person</span>
+<span class="text-[10px] uppercase tracking-widest font-bold mt-1">Profile</span>
+</button>
+</nav>
+</body></html>
