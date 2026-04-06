@@ -7,7 +7,6 @@ import { useOnboardingStore } from '@/stores/useOnboardingStore';
 import {
   useWealthReport,
   useGrowthProjection,
-  useTaxSavings,
   useFundingSources,
 } from '@/stores/useDashboardStore';
 import { formatCurrency, formatCurrencyCompact } from '@/utils/format';
@@ -60,7 +59,6 @@ export default function InsightsScreen() {
   const report = useWealthReport();
   const children = useOnboardingStore((s) => s.children);
   const projections = useGrowthProjection();
-  const taxSavings = useTaxSavings();
   const fundingSources = useFundingSources();
 
   const childNames = children.map((c) => c.name).join(' & ');
@@ -111,20 +109,6 @@ export default function InsightsScreen() {
           </Card>
         )}
 
-        {/* Tax Savings */}
-        {report && (
-          <Card style={styles.taxCard} testID="tax-savings-card">
-            <MaterialIcons name="account-balance-wallet" size={24} color="#FFFFFF" />
-            <Text style={styles.taxTitle}>Tax Savings Advantage</Text>
-            <Text style={styles.taxDesc}>
-              Estimated federal & state tax benefits by using your 529 plan versus a standard brokerage.
-            </Text>
-            <Text style={styles.taxAmount} testID="tax-savings-amount">
-              {formatCurrency(taxSavings)}
-            </Text>
-            <Text style={styles.taxSub}>LIFETIME PROJECTED BENEFIT</Text>
-          </Card>
-        )}
 
         {/* Funding Sources */}
         {report && (

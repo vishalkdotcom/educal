@@ -1,10 +1,7 @@
 import { useMemo } from 'react';
 import { useOnboardingStore } from './useOnboardingStore';
-import {
-  calculateGrowthProjection,
-  calculateTaxSavings,
-} from '@/services/calculator';
-import { DEFAULT_GROWTH_RATE, TAX_ADVANTAGE_RATE } from '@/constants/schools';
+import { calculateGrowthProjection } from '@/services/calculator';
+import { DEFAULT_GROWTH_RATE } from '@/constants/schools';
 import type { WealthReport } from '@/types';
 
 export function useMonthlyGoal(): number {
@@ -42,17 +39,6 @@ export function useGrowthProjection() {
   }, [monthlyGoal, targetYear]);
 }
 
-export function useTaxSavings(): number {
-  const monthlyGoal = useOnboardingStore((s) => s.savingsResult?.totalMonthly ?? 0);
-  const targetYear = useOnboardingStore((s) => s.savingsResult?.targetYear ?? new Date().getFullYear());
-
-  return useMemo(() => {
-    const years = targetYear - new Date().getFullYear();
-    const totalContributions = monthlyGoal * 12 * years;
-    return calculateTaxSavings(totalContributions, TAX_ADVANTAGE_RATE);
-  }, [monthlyGoal, targetYear]);
-}
-
 export function useFundingSources(): {
   personalSavings: number;
   marketGrowth: number;
@@ -79,7 +65,6 @@ export function useWealthReport(): WealthReport | null {
   const children = useOnboardingStore((s) => s.children);
   const currentSavings = useOnboardingStore((s) => s.currentSavings);
   const projections = useGrowthProjection();
-  const taxSavings = useTaxSavings();
   const fundingSources = useFundingSources();
 
   return useMemo(() => {
@@ -95,7 +80,6 @@ export function useWealthReport(): WealthReport | null {
         targetYear: savingsResult.targetYear,
         milestones: projections,
       },
-      taxSavingsAdvantage: taxSavings,
       fundingSources,
       childGoals: savingsResult.perChild.map((c) => ({
         childId: c.childId,
@@ -110,5 +94,5 @@ export function useWealthReport(): WealthReport | null {
         { title: 'Grant Lock-in', description: 'Apply for education grants and scholarships', status: 'pending' as const },
       ],
     };
-  }, [savingsResult, children, currentSavings, projections, taxSavings, fundingSources]);
+  }, [savingsResult, children, currentSavings, projections, fundingSources]);
 }

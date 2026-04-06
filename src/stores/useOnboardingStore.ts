@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {
   Child,
+  CountryCode,
   Location,
   SavingsResult,
   SchoolResult,
@@ -10,6 +11,7 @@ import type {
 } from '@/types';
 
 interface OnboardingState {
+  countryCode: CountryCode;
   children: Child[];
   monthlyIncome: number;
   currentSavings: number;
@@ -22,6 +24,7 @@ interface OnboardingState {
 }
 
 interface OnboardingActions {
+  setCountryCode: (code: CountryCode) => void;
   addChild: (child: Child) => void;
   removeChild: (id: string) => void;
   updateChild: (id: string, updates: Partial<Child>) => void;
@@ -37,6 +40,7 @@ interface OnboardingActions {
 }
 
 const initialState: OnboardingState = {
+  countryCode: 'US',
   children: [],
   monthlyIncome: 0,
   currentSavings: 0,
@@ -52,6 +56,8 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
   persist(
     (set) => ({
       ...initialState,
+
+      setCountryCode: (code) => set({ countryCode: code }),
 
       addChild: (child) =>
         set((state) => ({ children: [...state.children, child] })),

@@ -1,3 +1,14 @@
+export type CountryCode = 'US' | 'IN' | 'ID';
+
+export interface CountryConfig {
+  code: CountryCode;
+  name: string;
+  currency: { code: string; locale: string; symbol: string };
+  inflationRate: number;
+  growthRate: number;
+  schoolTiers: SchoolTier[];
+}
+
 export type TargetLevel = 'primary' | 'high_school' | 'university';
 
 export const TARGET_AGES: Record<TargetLevel, number> = {
@@ -69,7 +80,6 @@ export interface WealthReport {
     targetYear: number;
     milestones: GrowthProjection[];
   };
-  taxSavingsAdvantage: number;
   fundingSources: {
     personalSavings: number;
     marketGrowth: number;
@@ -92,5 +102,4 @@ export interface WealthReport {
 export interface CalculationFactors {
   inflationRate: number;
   growthRate: number;
-  taxAdvantageRate: number;
 }
