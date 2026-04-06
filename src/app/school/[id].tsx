@@ -6,7 +6,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Layout, Spacing, Radius, Shadows } from '@/constants/theme';
 import { Card, Button } from '@/components/ui';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
-import { calculateProjectedCost, calculateFourYearTotal } from '@/services/calculator';
+import { calculateProjectedCost, calculateDegreeTotal } from '@/services/calculator';
 import { COUNTRY_CONFIGS } from '@/constants/countries';
 import { formatCurrency } from '@/utils/format';
 import type { CountryCode, SchoolResult } from '@/types';
@@ -91,9 +91,10 @@ export default function SchoolDetailScreen() {
     ? new Date().getFullYear() + (oldestChild.targetAge - oldestChild.currentAge)
     : new Date().getFullYear() + 10;
 
-  const fourYearTotal = calculateFourYearTotal(annualTuition, INFLATION_RATE, enrollmentYear);
-  const baseFourYear = annualTuition * 4;
-  const inflationImpact = fourYearTotal - baseFourYear;
+  const universityYears = COUNTRY_CONFIGS[countryCode].universityYears;
+  const degreeTotal = calculateDegreeTotal(annualTuition, INFLATION_RATE, enrollmentYear, universityYears);
+  const baseDegree = annualTuition * universityYears;
+  const inflationImpact = degreeTotal - baseDegree;
 
   return (
     <SafeAreaView style={styles.safe} testID="school-detail-screen">
@@ -174,15 +175,15 @@ export default function SchoolDetailScreen() {
 
         {/* 4-Year Degree Total */}
         <Card style={styles.degreeCard} testID="degree-total-card">
-          <Text style={styles.degreeLabel}>4-Year Degree Total</Text>
+          <Text style={styles.degreeLabel}>{universityYears}-Year Degree Total</Text>
           <Text style={styles.degreeSubLabel}>Projected for Class of {enrollmentYear}</Text>
           <Text style={styles.degreeTotal} testID="degree-total-amount">
-            {formatCurrency(fourYearTotal, countryCode)}
+            {formatCurrency(degreeTotal, countryCode)}
           </Text>
           <View style={styles.degreeBreakdown}>
             <View style={styles.degreeRow}>
-              <Text style={styles.degreeRowLabel}>Base Cost (4 × {formatCurrency(annualTuition, countryCode)})</Text>
-              <Text style={styles.degreeRowValue}>{formatCurrency(baseFourYear, countryCode)}</Text>
+              <Text style={styles.degreeRowLabel}>Base Cost ({universityYears} × {formatCurrency(annualTuition, countryCode)})</Text>
+              <Text style={styles.degreeRowValue}>{formatCurrency(baseDegree, countryCode)}</Text>
             </View>
             <View style={styles.degreeRow}>
               <Text style={styles.degreeRowLabel}>Inflation Impact</Text>

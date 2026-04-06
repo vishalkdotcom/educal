@@ -13,9 +13,18 @@ export function calculateFourYearTotal(
   inflationRate: number,
   enrollmentYear: number,
 ): number {
+  return calculateDegreeTotal(annualTuition, inflationRate, enrollmentYear, 4);
+}
+
+export function calculateDegreeTotal(
+  annualTuition: number,
+  inflationRate: number,
+  enrollmentYear: number,
+  years: number,
+): number {
   const currentYear = new Date().getFullYear();
   const yearsOut = enrollmentYear - currentYear;
-  return [0, 1, 2, 3].reduce(
+  return Array.from({ length: years }, (_, i) => i).reduce(
     (sum, i) => sum + annualTuition * Math.pow(1 + inflationRate, yearsOut + i),
     0,
   );

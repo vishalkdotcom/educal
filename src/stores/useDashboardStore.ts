@@ -4,6 +4,44 @@ import { calculateGrowthProjection } from '@/services/calculator';
 import { COUNTRY_CONFIGS } from '@/constants/countries';
 import type { WealthReport } from '@/types';
 
+type MilestoneStatus = 'completed' | 'upcoming' | 'pending';
+
+function milestoneStatus(completed: boolean, upcoming: boolean): MilestoneStatus {
+  if (completed) return 'completed';
+  if (upcoming) return 'upcoming';
+  return 'pending';
+}
+
+function buildProgressMilestones(fundedPercent: number) {
+  return [
+    {
+      title: 'Start Saving',
+      description: 'Begin your education savings journey',
+      status: milestoneStatus(fundedPercent > 0, true),
+    },
+    {
+      title: '25% Funded',
+      description: 'Quarter of your goal reached',
+      status: milestoneStatus(fundedPercent >= 25, fundedPercent > 0),
+    },
+    {
+      title: '50% Funded',
+      description: 'Halfway to your education goal',
+      status: milestoneStatus(fundedPercent >= 50, fundedPercent >= 25),
+    },
+    {
+      title: 'Apply for Scholarships',
+      description: 'Research and apply for education grants',
+      status: milestoneStatus(false, fundedPercent >= 50),
+    },
+    {
+      title: '100% Funded',
+      description: 'Education fully funded!',
+      status: milestoneStatus(fundedPercent >= 100, fundedPercent >= 50),
+    },
+  ];
+}
+
 export function useMonthlyGoal(): number {
   return useOnboardingStore((s) => s.savingsResult?.totalMonthly ?? 0);
 }
@@ -28,6 +66,35 @@ export function usePerChildProgress(): { childId: string; childName: string; per
   }, [savingsResult, currentSavings, childCount]);
 }
 
+export function useTotalSaved(): number {
+  const savingsLog = useOnboardingStore((s) => s.savingsLog);
+  return useMemo(() => savingsLog.reduce((sum, e) => sum + e.amount, 0), [savingsLog]);
+}
+
+export function useSavingsProgress(): {
+  totalSaved: number;
+  monthlyGoal: number;
+  monthsTracked: number;
+  monthlyAverage: number;
+  onTrack: boolean;
+} {
+  const savingsLog = useOnboardingStore((s) => s.savingsLog);
+  const monthlyGoal = useOnboardingStore((s) => s.savingsResult?.totalMonthly ?? 0);
+
+  return useMemo(() => {
+    const totalSaved = savingsLog.reduce((sum, e) => sum + e.amount, 0);
+
+    // Count distinct months tracked
+    const months = new Set(savingsLog.map((e) => e.date.slice(0, 7)));
+    const monthsTracked = months.size;
+
+    const monthlyAverage = monthsTracked > 0 ? totalSaved / monthsTracked : 0;
+    const onTrack = monthlyAverage >= monthlyGoal * 0.9; // within 90% of goal
+
+    return { totalSaved, monthlyGoal, monthsTracked, monthlyAverage, onTrack };
+  }, [savingsLog, monthlyGoal]);
+}
+
 export function useGrowthProjection() {
   const monthlyGoal = useOnboardingStore((s) => s.savingsResult?.totalMonthly ?? 0);
   const targetYear = useOnboardingStore((s) => s.savingsResult?.targetYear ?? new Date().getFullYear());
@@ -47,19 +114,22 @@ export function useFundingSources(): {
   potentialGrants: number;
 } {
   const currentSavings = useOnboardingStore((s) => s.currentSavings);
+  const savingsLog = useOnboardingStore((s) => s.savingsLog);
   const projections = useGrowthProjection();
 
   return useMemo(() => {
+    const totalLogged = savingsLog.reduce((sum, e) => sum + e.amount, 0);
+    const totalPersonal = currentSavings + totalLogged;
     const finalProjection = projections.length > 0 ? projections[projections.length - 1].amount : 0;
-    const marketGrowth = Math.max(0, finalProjection - currentSavings);
+    const marketGrowth = Math.max(0, finalProjection - totalPersonal);
     const potentialGrants = Math.round(finalProjection * 0.05);
 
     return {
-      personalSavings: currentSavings,
+      personalSavings: totalPersonal,
       marketGrowth: Math.round(marketGrowth),
       potentialGrants,
     };
-  }, [currentSavings, projections]);
+  }, [currentSavings, savingsLog, projections]);
 }
 
 export function useWealthReport(): WealthReport | null {
@@ -76,6 +146,18 @@ export function useWealthReport(): WealthReport | null {
     const childCount = children.length;
     const savingsPerChild = childCount > 0 ? currentSavings / childCount : 0;
 
+    const childGoals = savingsResult.perChild.map((c) => ({
+      childId: c.childId,
+      childName: c.childName,
+      classOf: c.classOf,
+      adjustedCost: c.projectedCost,
+      progressPercent: c.projectedCost > 0 ? (savingsPerChild / c.projectedCost) * 100 : 0,
+    }));
+
+    const avgFunded = childGoals.length > 0
+      ? childGoals.reduce((s, c) => s + c.progressPercent, 0) / childGoals.length
+      : 0;
+
     return {
       growthProjection: {
         projectedTotal: finalProjection,
@@ -83,18 +165,8 @@ export function useWealthReport(): WealthReport | null {
         milestones: projections,
       },
       fundingSources,
-      childGoals: savingsResult.perChild.map((c) => ({
-        childId: c.childId,
-        childName: c.childName,
-        classOf: c.classOf,
-        adjustedCost: c.projectedCost,
-        progressPercent: c.projectedCost > 0 ? (savingsPerChild / c.projectedCost) * 100 : 0,
-      })),
-      milestones: [
-        { title: 'Annual Review', description: 'Review and adjust your savings plan', status: 'upcoming' as const },
-        { title: 'Savings Milestone', description: 'Reach your next savings target', status: 'pending' as const },
-        { title: 'Scholarship Applications', description: 'Apply for education grants and scholarships', status: 'pending' as const },
-      ],
+      childGoals,
+      milestones: buildProgressMilestones(avgFunded),
     };
   }, [savingsResult, children, currentSavings, projections, fundingSources]);
 }

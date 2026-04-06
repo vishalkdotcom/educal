@@ -9,6 +9,8 @@ import {
   useWealthReport,
   useGrowthProjection,
   useFundingSources,
+  useTotalSaved,
+  useSavingsProgress,
 } from '@/stores/useDashboardStore';
 import { formatCurrency, formatCurrencyCompact } from '@/utils/format';
 
@@ -65,6 +67,9 @@ export default function InsightsScreen() {
   const projections = useGrowthProjection();
   const fundingSources = useFundingSources();
 
+  const totalSaved = useTotalSaved();
+  const savingsProgress = useSavingsProgress();
+
   const childNames = children.map((c) => c.name).join(' & ');
   const fundedPercent = report
     ? Math.round(
@@ -114,6 +119,39 @@ export default function InsightsScreen() {
         )}
 
 
+        {/* Savings Progress */}
+        {report && totalSaved > 0 && (
+          <Card style={styles.savingsCard} testID="savings-progress-card">
+            <View style={styles.savingsHeader}>
+              <MaterialIcons name="savings" size={20} color={Colors.success} />
+              <Text style={styles.savingsTitle}>Savings Progress</Text>
+            </View>
+            <View style={styles.savingsRow}>
+              <View style={styles.savingsStat}>
+                <Text style={styles.savingsStatValue}>{formatCurrency(totalSaved, countryCode)}</Text>
+                <Text style={styles.savingsStatLabel}>Total Saved</Text>
+              </View>
+              <View style={styles.savingsStat}>
+                <Text style={styles.savingsStatValue}>
+                  {formatCurrency(savingsProgress.monthlyAverage, countryCode)}
+                </Text>
+                <Text style={styles.savingsStatLabel}>Monthly Avg</Text>
+              </View>
+              <View style={styles.savingsStat}>
+                <Text style={[styles.savingsStatValue, { color: savingsProgress.onTrack ? Colors.success : Colors.warning }]}>
+                  {savingsProgress.onTrack ? 'On Track' : 'Behind'}
+                </Text>
+                <Text style={styles.savingsStatLabel}>Status</Text>
+              </View>
+            </View>
+            <ProgressBar
+              progress={Math.min(totalSaved / (report.growthProjection.projectedTotal || 1), 1)}
+              label={`${Math.round((totalSaved / (report.growthProjection.projectedTotal || 1)) * 100)}% of projected goal`}
+              testID="savings-overall-progress"
+            />
+          </Card>
+        )}
+
         {/* Funding Sources */}
         {report && (
           <View style={styles.section}>
@@ -121,7 +159,7 @@ export default function InsightsScreen() {
             <Card variant="outlined">
               <FundingRow label="Personal Savings" amount={fundingSources.personalSavings} icon="savings" index={0} countryCode={countryCode} />
               <FundingRow label="Investment Growth" amount={fundingSources.marketGrowth} icon="show-chart" index={1} countryCode={countryCode} />
-              <FundingRow label="Potential Grants" amount={fundingSources.potentialGrants} icon="card-giftcard" index={2} countryCode={countryCode} />
+              <FundingRow label="Potential Scholarships" amount={fundingSources.potentialGrants} icon="card-giftcard" index={2} countryCode={countryCode} />
             </Card>
           </View>
         )}
@@ -233,6 +271,13 @@ const styles = StyleSheet.create({
   title: { ...Typography.screenTitle, marginBottom: Spacing.sm },
   narrative: { ...Typography.body, color: Colors.onSurfaceVariant, marginBottom: Spacing.lg, lineHeight: 24 },
   growthCard: { marginBottom: Spacing.lg },
+  savingsCard: { marginBottom: Spacing.lg, backgroundColor: '#F0FDF4', borderWidth: 1, borderColor: '#BBF7D0', borderRadius: Radius.default },
+  savingsHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginBottom: Spacing.md },
+  savingsTitle: { ...Typography.cardHeading, color: Colors.success },
+  savingsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: Spacing.md },
+  savingsStat: { alignItems: 'center', flex: 1 },
+  savingsStatValue: { fontSize: 15, fontWeight: '700', color: Colors.onSurface, marginBottom: 2 },
+  savingsStatLabel: { ...Typography.smallStat, fontSize: 10, color: Colors.onSurfaceVariant },
   growthHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.sm },
   growthLabel: { ...Typography.cardHeading },
   badge: { backgroundColor: Colors.primaryContainer, paddingHorizontal: Spacing.sm, paddingVertical: 2, borderRadius: 4 },

@@ -1,12 +1,14 @@
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Layout, Spacing, Radius } from '@/constants/theme';
 import { Card, Button } from '@/components/ui';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
+import { useTotalSaved } from '@/stores/useDashboardStore';
 import { COUNTRY_CONFIGS } from '@/constants/countries';
 import { formatCurrency, formatAge } from '@/utils/format';
+import type { CountryCode } from '@/types';
 
 function InfoRow({
   icon,
@@ -36,7 +38,27 @@ export default function ProfileScreen() {
   const location = useOnboardingStore((s) => s.location);
   const selectedTier = useOnboardingStore((s) => s.selectedTier);
   const countryCode = useOnboardingStore((s) => s.countryCode);
+  const setCountryCode = useOnboardingStore((s) => s.setCountryCode);
   const reset = useOnboardingStore((s) => s.reset);
+  const totalSaved = useTotalSaved();
+
+  const handleCountryChange = (code: CountryCode) => {
+    if (code === countryCode) return;
+    Alert.alert(
+      'Change Country',
+      `Switch to ${COUNTRY_CONFIGS[code].name}? Your savings plan will need to be recalculated with new rates and currency.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Change',
+          onPress: () => {
+            setCountryCode(code);
+            router.push('/onboarding/step1');
+          },
+        },
+      ],
+    );
+  };
 
   const handleReset = () => {
     Alert.alert(
@@ -115,9 +137,37 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Financial Details</Text>
           <Card variant="outlined">
-            <InfoRow icon="public" label="Country" value={COUNTRY_CONFIGS[countryCode].name} />
+            <View style={rowStyles.row}>
+              <View style={rowStyles.iconWrap}>
+                <MaterialIcons name="public" size={18} color={Colors.primary} />
+              </View>
+              <Text style={rowStyles.label}>Country</Text>
+              <View style={countryStyles.options}>
+                {(Object.keys(COUNTRY_CONFIGS) as CountryCode[]).map((code) => (
+                  <Pressable
+                    key={code}
+                    testID={`country-option-${code}`}
+                    onPress={() => handleCountryChange(code)}
+                    style={[
+                      countryStyles.pill,
+                      code === countryCode && countryStyles.pillActive,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        countryStyles.pillText,
+                        code === countryCode && countryStyles.pillTextActive,
+                      ]}
+                    >
+                      {COUNTRY_CONFIGS[code].name}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
             <InfoRow icon="attach-money" label="Monthly Income" value={formatCurrency(monthlyIncome, countryCode)} />
             <InfoRow icon="savings" label="Current Savings" value={formatCurrency(currentSavings, countryCode)} />
+            <InfoRow icon="account-balance-wallet" label="Total Saved" value={formatCurrency(totalSaved, countryCode)} />
             <InfoRow icon="location-on" label="Location" value={location?.name ?? 'Not set'} />
             <InfoRow
               icon="school"
@@ -230,4 +280,22 @@ const styles = StyleSheet.create({
   button: { marginBottom: Spacing.sm },
   appInfo: { alignItems: 'center', paddingVertical: Spacing.xl },
   appInfoText: { ...Typography.muted, fontSize: 12 },
+});
+
+const countryStyles = StyleSheet.create({
+  options: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
+  pill: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: Radius.full,
+    borderWidth: 1,
+    borderColor: Colors.outlineLight,
+    backgroundColor: Colors.surface,
+  },
+  pillActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  pillText: { fontSize: 12, fontWeight: '500', color: Colors.onSurfaceVariant },
+  pillTextActive: { color: '#FFFFFF' },
 });

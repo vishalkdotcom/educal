@@ -7,6 +7,8 @@ export const COUNTRY_CONFIGS: Record<CountryCode, CountryConfig> = {
     currency: { code: 'USD', locale: 'en-US', symbol: '$' },
     inflationRate: 0.042,
     growthRate: 0.07,
+    universityYears: 4,
+    educationSystemNote: 'K-12 system with 4-year bachelor\'s degree',
     schoolTiers: [
       {
         id: 'public',
@@ -58,6 +60,8 @@ export const COUNTRY_CONFIGS: Record<CountryCode, CountryConfig> = {
     currency: { code: 'INR', locale: 'en-IN', symbol: '₹' },
     inflationRate: 0.1,
     growthRate: 0.12,
+    universityYears: 4,
+    educationSystemNote: '10+2 system with 4-year undergraduate degree',
     schoolTiers: [
       {
         id: 'public',
@@ -109,6 +113,8 @@ export const COUNTRY_CONFIGS: Record<CountryCode, CountryConfig> = {
     currency: { code: 'IDR', locale: 'id-ID', symbol: 'Rp' },
     inflationRate: 0.08,
     growthRate: 0.09,
+    universityYears: 4,
+    educationSystemNote: '6-3-3 system with 4-year Sarjana (S1) degree',
     schoolTiers: [
       {
         id: 'public',

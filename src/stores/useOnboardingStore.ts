@@ -6,6 +6,7 @@ import type {
   CostSource,
   CountryCode,
   Location,
+  SavingsEntry,
   SavingsResult,
   SchoolResult,
   SchoolTierId,
@@ -22,6 +23,7 @@ interface OnboardingState {
   costSource: CostSource | null;
   schoolResults: SchoolResult[];
   savingsResult: SavingsResult | null;
+  savingsLog: SavingsEntry[];
   currentStep: number;
   onboardingComplete: boolean;
 }
@@ -39,6 +41,8 @@ interface OnboardingActions {
   setSchoolResults: (results: SchoolResult[]) => void;
   setSavingsResult: (result: SavingsResult) => void;
   setCurrentStep: (step: number) => void;
+  addSavingsEntry: (entry: SavingsEntry) => void;
+  removeSavingsEntry: (id: string) => void;
   completeOnboarding: () => void;
   reset: () => void;
 }
@@ -54,6 +58,7 @@ const initialState: OnboardingState = {
   costSource: null,
   schoolResults: [],
   savingsResult: null,
+  savingsLog: [],
   currentStep: 1,
   onboardingComplete: false,
 };
@@ -89,6 +94,14 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
       setSchoolResults: (results) => set({ schoolResults: results }),
       setSavingsResult: (result) => set({ savingsResult: result }),
       setCurrentStep: (step) => set({ currentStep: step }),
+
+      addSavingsEntry: (entry) =>
+        set((state) => ({ savingsLog: [entry, ...state.savingsLog] })),
+
+      removeSavingsEntry: (id) =>
+        set((state) => ({
+          savingsLog: state.savingsLog.filter((e) => e.id !== id),
+        })),
 
       completeOnboarding: () =>
         set({ onboardingComplete: true, currentStep: 5 }),

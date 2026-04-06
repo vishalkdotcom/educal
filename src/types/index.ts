@@ -8,6 +8,8 @@ export interface CountryConfig {
   currency: { code: string; locale: string; symbol: string };
   inflationRate: number;
   growthRate: number;
+  universityYears: number;
+  educationSystemNote: string;
   schoolTiers: SchoolTier[];
 }
 
@@ -106,6 +108,13 @@ export interface WealthReport {
     description: string;
     status: 'completed' | 'upcoming' | 'pending';
   }[];
+}
+
+export interface SavingsEntry {
+  id: string;
+  amount: number;
+  date: string;
+  note?: string;
 }
 
 export interface CalculationFactors {
