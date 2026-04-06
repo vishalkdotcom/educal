@@ -1,0 +1,49 @@
+appId: ${APP_ID}
+name: "Step 1 - Add multiple children"
+---
+- assertVisible:
+    id: "step1-screen"
+
+# Add first child
+- tapOn:
+    id: "child-name-input"
+- inputText: "Sophia"
+- tapOn:
+    id: "child-age-input"
+- inputText: "8"
+- tapOn:
+    id: "child-target-level"
+- tapOn: "University"
+- tapOn:
+    id: "save-child-button"
+
+# Verify child card appears
+- assertVisible:
+    id: "child-card-0"
+
+# Add second child
+- tapOn:
+    id: "add-another-child"
+- tapOn:
+    id: "child-name-input"
+- inputText: "Liam"
+- tapOn:
+    id: "child-age-input"
+- inputText: "5"
+- tapOn:
+    id: "child-target-level"
+- tapOn: "High School"
+- tapOn:
+    id: "save-child-button"
+
+# Verify both child cards are visible
+- assertVisible:
+    id: "child-card-0"
+- assertVisible:
+    id: "child-card-1"
+
+# Proceed to Step 2
+- tapOn:
+    id: "step1-next-button"
+- assertVisible:
+    id: "step2-screen"

@@ -1,0 +1,25 @@
+appId: ${APP_ID}
+name: "Step 4 - View savings result"
+---
+- assertVisible:
+    id: "step4-screen"
+
+# Verify the main savings amount is displayed
+- assertVisible:
+    id: "savings-goal-amount"
+
+# Verify per-child breakdown is visible
+- assertVisible:
+    id: "child-breakdown-0"
+- assertVisible:
+    id: "child-share-0"
+
+# Verify calculation factors section
+- assertVisible:
+    id: "calculation-factors"
+
+# Verify CTA buttons
+- assertVisible:
+    id: "cta-get-started"
+- assertVisible:
+    id: "cta-talk-advisor"

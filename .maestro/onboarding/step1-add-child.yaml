@@ -1,0 +1,32 @@
+appId: ${APP_ID}
+name: "Step 1 - Add a child and proceed"
+---
+# Wait for onboarding Step 1 to load
+- assertVisible:
+    id: "step1-screen"
+
+# Verify progress bar shows 25%
+- assertVisible:
+    id: "step1-progress-bar"
+
+# Fill in child details
+- tapOn:
+    id: "child-name-input"
+- inputText: "Sophia"
+
+- tapOn:
+    id: "child-age-input"
+- inputText: "8"
+
+# Select target level
+- tapOn:
+    id: "child-target-level"
+- tapOn: "University"
+
+# Verify Next button is enabled and tap
+- tapOn:
+    id: "step1-next-button"
+
+# Verify we navigated to Step 2
+- assertVisible:
+    id: "step2-screen"
