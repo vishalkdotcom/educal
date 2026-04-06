@@ -20,6 +20,7 @@ import {
   useTotalSaved,
   useSavingsProgress,
 } from '@/stores/useDashboardStore';
+import { COUNTRY_CONFIGS } from '@/constants/countries';
 import { formatCurrency } from '@/utils/format';
 
 export default function HorizonScreen() {
@@ -40,8 +41,7 @@ export default function HorizonScreen() {
   const [entryAmount, setEntryAmount] = useState('');
   const [entryNote, setEntryNote] = useState('');
 
-  const currencySymbol =
-    countryCode === 'US' ? '$' : countryCode === 'IN' ? '₹' : 'Rp';
+  const currencySymbol = COUNTRY_CONFIGS[countryCode].currency.symbol;
 
   const handleLogSavings = () => {
     const amount = Number(entryAmount);

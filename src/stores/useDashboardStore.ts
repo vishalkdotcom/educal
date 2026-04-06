@@ -32,7 +32,7 @@ function buildProgressMilestones(fundedPercent: number) {
     {
       title: 'Apply for Scholarships',
       description: 'Research and apply for education grants',
-      status: milestoneStatus(false, fundedPercent >= 50),
+      status: milestoneStatus(fundedPercent >= 75, fundedPercent >= 50),
     },
     {
       title: '100% Funded',

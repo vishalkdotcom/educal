@@ -42,18 +42,24 @@ export default function ProfileScreen() {
   const reset = useOnboardingStore((s) => s.reset);
   const totalSaved = useTotalSaved();
 
+  const setSelectedTier = useOnboardingStore((s) => s.setSelectedTier);
+  const setCustomAnnualCost = useOnboardingStore((s) => s.setCustomAnnualCost);
+  const setSavingsResult = useOnboardingStore((s) => s.setSavingsResult);
+
   const handleCountryChange = (code: CountryCode) => {
     if (code === countryCode) return;
     Alert.alert(
       'Change Country',
-      `Switch to ${COUNTRY_CONFIGS[code].name}? Your savings plan will need to be recalculated with new rates and currency.`,
+      `Switch to ${COUNTRY_CONFIGS[code].name}? Your savings plan will be reset and you'll need to reconfigure costs and goals.`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Change',
           onPress: () => {
             setCountryCode(code);
-            router.push('/onboarding/step1');
+            setCustomAnnualCost(null, 'user');
+            setSavingsResult(null);
+            router.push('/onboarding/step2');
           },
         },
       ],

@@ -39,7 +39,7 @@ interface OnboardingActions {
   setSelectedTier: (tier: SchoolTierId) => void;
   setCustomAnnualCost: (amount: number | null, source: CostSource) => void;
   setSchoolResults: (results: SchoolResult[]) => void;
-  setSavingsResult: (result: SavingsResult) => void;
+  setSavingsResult: (result: SavingsResult | null) => void;
   setCurrentStep: (step: number) => void;
   addSavingsEntry: (entry: SavingsEntry) => void;
   removeSavingsEntry: (id: string) => void;

@@ -62,7 +62,7 @@ export default function SchoolDetailScreen() {
     return undefined;
   }, [id, schoolResults]);
 
-  const annualTuition = school?.annualTuition ?? 55000;
+  const annualTuition = school?.annualTuition ?? COUNTRY_CONFIGS[countryCode].schoolTiers[0].midpointCost;
   const schoolName = school?.name ?? decodeURIComponent(id ?? 'Unknown School');
 
   const forecasts = useMemo(() => {
