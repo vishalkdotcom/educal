@@ -50,6 +50,9 @@ export default function Step2Screen() {
   const [incomeError, setIncomeError] = useState<string | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationDenied, setLocationDenied] = useState(false);
+  const [cityInput, setCityInput] = useState('');
+  const [citySearching, setCitySearching] = useState(false);
+  const [cityError, setCityError] = useState<string | null>(null);
 
   const handleIncomeChange = (text: string) => {
     const clean = text.replace(/[^0-9.]/g, '');
@@ -101,6 +104,31 @@ export default function Step2Screen() {
       Alert.alert('Location Error', 'Unable to get your location. You can proceed without it.');
     } finally {
       setLocationLoading(false);
+    }
+  };
+
+  const handleCitySearch = async () => {
+    const query = cityInput.trim();
+    if (!query) return;
+    setCitySearching(true);
+    setCityError(null);
+    try {
+      const results = await Location.geocodeAsync(query);
+      if (results.length === 0) {
+        setCityError('Could not find that location. Try a different city name.');
+        return;
+      }
+      const { latitude, longitude } = results[0];
+      const [geocode] = await Location.reverseGeocodeAsync({ latitude, longitude });
+      const name = geocode
+        ? [geocode.city, geocode.region].filter(Boolean).join(', ')
+        : query;
+      setLocation({ lat: latitude, lng: longitude, name });
+      setLocationDenied(false);
+    } catch {
+      setCityError('Search failed. Check your connection and try again.');
+    } finally {
+      setCitySearching(false);
     }
   };
 
@@ -230,39 +258,68 @@ export default function Step2Screen() {
             </Text>
 
             {location ? (
-              <View testID="location-status" style={styles.locationSuccess}>
-                <MaterialIcons
-                  name="check-circle"
-                  size={20}
-                  color={Colors.success}
-                />
-                <Text style={styles.locationName}>{location.name}</Text>
+              <View>
+                <View testID="location-status" style={styles.locationSuccess}>
+                  <MaterialIcons
+                    name="check-circle"
+                    size={20}
+                    color={Colors.success}
+                  />
+                  <Text style={styles.locationName}>{location.name}</Text>
+                  <Pressable
+                    testID="location-change"
+                    onPress={() => setLocation(null)}
+                    style={styles.changeLink}
+                  >
+                    <Text style={styles.changeLinkText}>Change</Text>
+                  </Pressable>
+                </View>
+                <View testID="location-map" style={styles.mapPlaceholder}>
+                  <MaterialIcons name="map" size={40} color={Colors.onSurfaceVariant} />
+                  <Text style={styles.mapText}>
+                    {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
+                  </Text>
+                </View>
               </View>
             ) : (
-              <>
+              <View style={styles.locationOptions}>
                 <Button
                   testID="use-location-button"
                   title="Use Current Location"
                   onPress={handleUseLocation}
                   icon="my-location"
                   loading={locationLoading}
-                  style={{ marginTop: Spacing.md }}
                 />
                 {locationDenied && (
                   <Text testID="location-status" style={styles.locationDenied}>
-                    Location helps us find local schools. You can enter manually
-                    in the next step.
+                    Location permission denied. Enter a city below instead.
                   </Text>
                 )}
-              </>
-            )}
-
-            {location && (
-              <View testID="location-map" style={styles.mapPlaceholder}>
-                <MaterialIcons name="map" size={40} color={Colors.onSurfaceVariant} />
-                <Text style={styles.mapText}>
-                  {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
-                </Text>
+                <View style={styles.dividerRow}>
+                  <View style={styles.dividerLine} />
+                  <Text style={styles.dividerText}>or</Text>
+                  <View style={styles.dividerLine} />
+                </View>
+                <View style={styles.cityRow}>
+                  <Input
+                    testID="city-input"
+                    label=""
+                    placeholder="Enter a city (e.g. Mumbai, Jakarta)"
+                    value={cityInput}
+                    onChangeText={(t) => { setCityInput(t); setCityError(null); }}
+                    error={cityError ?? undefined}
+                    containerStyle={{ flex: 1 }}
+                  />
+                  <Button
+                    testID="city-search-button"
+                    title=""
+                    icon="search"
+                    onPress={handleCitySearch}
+                    loading={citySearching}
+                    disabled={!cityInput.trim()}
+                    style={styles.citySearchBtn}
+                  />
+                </View>
               </View>
             )}
           </Card>
@@ -390,6 +447,45 @@ const styles = StyleSheet.create({
     ...Typography.body,
     color: Colors.success,
     fontWeight: '600',
+    flex: 1,
+  },
+  changeLink: {
+    marginLeft: 'auto',
+  },
+  changeLinkText: {
+    ...Typography.label,
+    color: Colors.primary,
+    fontSize: 12,
+  },
+  locationOptions: {
+    marginTop: Spacing.md,
+    gap: Spacing.sm,
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: Spacing.xs,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: Colors.outlineLight,
+  },
+  dividerText: {
+    ...Typography.muted,
+    fontSize: 12,
+    marginHorizontal: Spacing.md,
+  },
+  cityRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+  },
+  citySearchBtn: {
+    marginTop: 0,
+    height: 48,
+    width: 48,
+    paddingHorizontal: 0,
   },
   locationDenied: {
     ...Typography.muted,

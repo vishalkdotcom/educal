@@ -35,7 +35,7 @@ interface OnboardingActions {
   updateChild: (id: string, updates: Partial<Child>) => void;
   setMonthlyIncome: (amount: number) => void;
   setCurrentSavings: (amount: number) => void;
-  setLocation: (location: Location) => void;
+  setLocation: (location: Location | null) => void;
   setSelectedTier: (tier: SchoolTierId) => void;
   setCustomAnnualCost: (amount: number | null, source: CostSource) => void;
   setSchoolResults: (results: SchoolResult[]) => void;
