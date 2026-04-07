@@ -8,10 +8,20 @@ import {
   Pressable,
   Alert,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Colors, Typography, Layout, Spacing, Radius, Shadows } from '@/constants/theme';
+import {
+  Colors,
+  Typography,
+  Layout,
+  Spacing,
+  Radius,
+  Shadows,
+} from '@/constants/theme';
 import { Card, Button, ProgressBar, Input } from '@/components/ui';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
 import {
@@ -27,8 +37,10 @@ import type { SavingsEntry } from '@/types';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const monthlyGoal = useMonthlyGoal();
-  const { adjusted: adjustedMonthly, aheadOfSchedule } = useAdjustedMonthlyGoal();
+  const { adjusted: adjustedMonthly, aheadOfSchedule } =
+    useAdjustedMonthlyGoal();
   const childProgress = usePerChildProgress();
   const totalSaved = useTotalSaved();
   const savingsProgress = useSavingsProgress();
@@ -82,14 +94,18 @@ export default function HomeScreen() {
   const handleDeleteEntry = (id: string) => {
     Alert.alert('Remove Entry', 'Remove this savings entry?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Remove', style: 'destructive', onPress: () => removeSavingsEntry(id) },
+      {
+        text: 'Remove',
+        style: 'destructive',
+        onPress: () => removeSavingsEntry(id),
+      },
     ]);
   };
 
   const recentEntries = savingsLog.slice(0, 5);
 
   return (
-    <SafeAreaView style={styles.safe} testID="home-screen">
+    <SafeAreaView style={styles.safe} testID='home-screen'>
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
@@ -99,7 +115,7 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <Text style={styles.logo}>EduCal</Text>
           <MaterialIcons
-            name="notifications-none"
+            name='notifications-none'
             size={24}
             color={Colors.onSurfaceVariant}
           />
@@ -113,9 +129,13 @@ export default function HomeScreen() {
         </Text>
 
         {/* Monthly Goal Card */}
-        <Card style={styles.goalCard} testID="home-goal-card">
+        <Card style={styles.goalCard} testID='home-goal-card'>
           <View style={styles.goalHeader}>
-            <MaterialIcons name="trending-up" size={20} color={Colors.primary} />
+            <MaterialIcons
+              name='trending-up'
+              size={20}
+              color={Colors.primary}
+            />
             <Text style={styles.goalLabel}>MONTHLY SAVINGS GOAL</Text>
           </View>
           <Text style={styles.goalAmount}>
@@ -128,7 +148,8 @@ export default function HomeScreen() {
           </Text>
           {savingsLog.length > 0 && aheadOfSchedule && (
             <Text style={styles.adjustedHint}>
-              Adjusted: {formatCurrency(adjustedMonthly, countryCode)}/mo based on your savings
+              Adjusted: {formatCurrency(adjustedMonthly, countryCode)}/mo based
+              on your savings
             </Text>
           )}
           {savingsResult && (
@@ -160,12 +181,16 @@ export default function HomeScreen() {
         {/* Savings Progress Summary */}
         {savingsLog.length > 0 && (
           <Card
-            testID="savings-progress-card"
-            variant="filled"
+            testID='savings-progress-card'
+            variant='filled'
             style={styles.progressCard}
           >
             <View style={styles.progressHeader}>
-              <MaterialIcons name="savings" size={20} color={Colors.primaryDark} />
+              <MaterialIcons
+                name='savings'
+                size={20}
+                color={Colors.primaryDark}
+              />
               <Text style={styles.progressTitle}>Savings Progress</Text>
             </View>
             <View style={styles.progressStats}>
@@ -186,7 +211,9 @@ export default function HomeScreen() {
                   <MaterialIcons
                     name={savingsProgress.onTrack ? 'check-circle' : 'warning'}
                     size={14}
-                    color={savingsProgress.onTrack ? Colors.success : Colors.warning}
+                    color={
+                      savingsProgress.onTrack ? Colors.success : Colors.warning
+                    }
                   />
                   <Text
                     style={[
@@ -209,10 +236,10 @@ export default function HomeScreen() {
 
         {/* Log Savings Button */}
         <Button
-          testID="log-savings-button"
-          title="Log Savings"
-          variant="primary"
-          icon="add"
+          testID='log-savings-button'
+          title='Log Savings'
+          variant='primary'
+          icon='add'
           onPress={() => {
             setEditingEntry(null);
             setEntryAmount('');
@@ -224,8 +251,16 @@ export default function HomeScreen() {
 
         {/* Empty state for savings */}
         {savingsLog.length === 0 && (
-          <Card variant="outlined" style={styles.emptyState} testID="home-empty-savings">
-            <MaterialIcons name="savings" size={36} color={Colors.outlineLight} />
+          <Card
+            variant='outlined'
+            style={styles.emptyState}
+            testID='home-empty-savings'
+          >
+            <MaterialIcons
+              name='savings'
+              size={36}
+              color={Colors.outlineLight}
+            />
             <Text style={styles.emptyTitle}>No savings logged yet</Text>
             <Text style={styles.emptySubtitle}>
               Tap "Log Savings" above to start tracking your contributions.
@@ -247,7 +282,7 @@ export default function HomeScreen() {
               >
                 <View style={styles.entryIcon}>
                   <MaterialIcons
-                    name="account-balance-wallet"
+                    name='account-balance-wallet'
                     size={18}
                     color={Colors.primary}
                   />
@@ -284,14 +319,14 @@ export default function HomeScreen() {
               return (
                 <Card
                   key={child.childId}
-                  variant="outlined"
+                  variant='outlined'
                   style={styles.childCard}
                   testID={`horizon-child-${index}`}
                 >
                   <View style={styles.childHeader}>
                     <View style={styles.childAvatar}>
                       <MaterialIcons
-                        name="face"
+                        name='face'
                         size={24}
                         color={Colors.primary}
                       />
@@ -301,7 +336,8 @@ export default function HomeScreen() {
                       {breakdown && (
                         <Text style={styles.childMeta}>
                           {breakdown.yearsToSave} years to save •{' '}
-                          {formatCurrency(breakdown.monthlyShare, countryCode)}/mo
+                          {formatCurrency(breakdown.monthlyShare, countryCode)}
+                          /mo
                         </Text>
                       )}
                     </View>
@@ -320,21 +356,21 @@ export default function HomeScreen() {
         {/* Quick Actions */}
         <View style={styles.actions}>
           <Button
-            title="Update Plan"
-            variant="outlined"
-            icon="edit"
+            title='Update Plan'
+            variant='outlined'
+            icon='edit'
             onPress={() => router.push('/onboarding/step1')}
             style={styles.actionButton}
-            testID="home-update-plan"
+            testID='home-update-plan'
           />
           <Button
-            title="View Progress"
-            variant="primary"
-            icon="analytics"
-            iconPosition="right"
+            title='View Progress'
+            variant='primary'
+            icon='analytics'
+            iconPosition='right'
             onPress={() => router.push('/(tabs)/progress')}
             style={styles.actionButton}
-            testID="home-view-report"
+            testID='home-view-report'
           />
         </View>
       </ScrollView>
@@ -342,20 +378,33 @@ export default function HomeScreen() {
       {/* Log Savings Modal */}
       <Modal
         visible={modalVisible}
-        animationType="slide"
+        animationType='slide'
         transparent
-        onRequestClose={() => { setEditingEntry(null); setModalVisible(false); }}
+        onRequestClose={() => {
+          setEditingEntry(null);
+          setModalVisible(false);
+        }}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View
+            style={[
+              styles.modalContent,
+              { paddingBottom: Math.max(40, insets.bottom + 20) },
+            ]}
+          >
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{editingEntry ? 'Edit Entry' : 'Log Savings'}</Text>
+              <Text style={styles.modalTitle}>
+                {editingEntry ? 'Edit Entry' : 'Log Savings'}
+              </Text>
               <Pressable
-                testID="modal-close"
-                onPress={() => { setEditingEntry(null); setModalVisible(false); }}
+                testID='modal-close'
+                onPress={() => {
+                  setEditingEntry(null);
+                  setModalVisible(false);
+                }}
               >
                 <MaterialIcons
-                  name="close"
+                  name='close'
                   size={24}
                   color={Colors.onSurfaceVariant}
                 />
@@ -363,32 +412,34 @@ export default function HomeScreen() {
             </View>
 
             <Input
-              testID="savings-amount-input"
-              label="AMOUNT"
+              testID='savings-amount-input'
+              label='AMOUNT'
               prefix={currencySymbol}
               value={entryAmount}
-              onChangeText={(text) => setEntryAmount(text.replace(/[^0-9]/g, ''))}
-              keyboardType="numeric"
-              placeholder="Enter amount saved"
+              onChangeText={(text) =>
+                setEntryAmount(text.replace(/[^0-9]/g, ''))
+              }
+              keyboardType='numeric'
+              placeholder='Enter amount saved'
               containerStyle={{ marginBottom: Spacing.md }}
             />
 
             <Input
-              testID="savings-note-input"
-              label="NOTE (OPTIONAL)"
+              testID='savings-note-input'
+              label='NOTE (OPTIONAL)'
               value={entryNote}
               onChangeText={setEntryNote}
-              placeholder="e.g. Monthly contribution"
+              placeholder='e.g. Monthly contribution'
               containerStyle={{ marginBottom: Spacing.xl }}
             />
 
             <Button
-              testID="savings-submit-button"
+              testID='savings-submit-button'
               title={editingEntry ? 'Update Entry' : 'Save Entry'}
               onPress={handleLogSavings}
               disabled={!entryAmount || Number(entryAmount) <= 0}
-              icon="check"
-              iconPosition="right"
+              icon='check'
+              iconPosition='right'
             />
           </View>
         </View>

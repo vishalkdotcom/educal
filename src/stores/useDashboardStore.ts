@@ -90,7 +90,8 @@ export function usePerChildProgress(): { childId: string; childName: string; per
 
 export function useTotalSaved(): number {
   const savingsLog = useOnboardingStore((s) => s.savingsLog);
-  return useMemo(() => savingsLog.reduce((sum, e) => sum + e.amount, 0), [savingsLog]);
+  const currentSavings = useOnboardingStore((s) => s.currentSavings);
+  return useMemo(() => currentSavings + savingsLog.reduce((sum, e) => sum + e.amount, 0), [savingsLog, currentSavings]);
 }
 
 export function useSavingsProgress(): {
@@ -101,10 +102,11 @@ export function useSavingsProgress(): {
   onTrack: boolean;
 } {
   const savingsLog = useOnboardingStore((s) => s.savingsLog);
+  const currentSavings = useOnboardingStore((s) => s.currentSavings);
   const monthlyGoal = useOnboardingStore((s) => s.savingsResult?.totalMonthly ?? 0);
 
   return useMemo(() => {
-    const totalSaved = savingsLog.reduce((sum, e) => sum + e.amount, 0);
+    const totalSaved = currentSavings + savingsLog.reduce((sum, e) => sum + e.amount, 0);
 
     // Count distinct months tracked
     const months = new Set(savingsLog.map((e) => e.date.slice(0, 7)));
@@ -114,20 +116,21 @@ export function useSavingsProgress(): {
     const onTrack = monthlyAverage >= monthlyGoal * 0.9; // within 90% of goal
 
     return { totalSaved, monthlyGoal, monthsTracked, monthlyAverage, onTrack };
-  }, [savingsLog, monthlyGoal]);
+  }, [savingsLog, currentSavings, monthlyGoal]);
 }
 
 export function useGrowthProjection() {
   const monthlyGoal = useOnboardingStore((s) => s.savingsResult?.totalMonthly ?? 0);
   const targetYear = useOnboardingStore((s) => s.savingsResult?.targetYear ?? new Date().getFullYear());
+  const currentSavings = useOnboardingStore((s) => s.currentSavings);
   const countryCode = useOnboardingStore((s) => s.countryCode);
   const growthRate = COUNTRY_CONFIGS[countryCode].growthRate;
 
   return useMemo(() => {
     const years = targetYear - new Date().getFullYear();
     if (years <= 0 || monthlyGoal <= 0) return [];
-    return calculateGrowthProjection(monthlyGoal, growthRate, years);
-  }, [monthlyGoal, targetYear, growthRate]);
+    return calculateGrowthProjection(monthlyGoal, growthRate, years, currentSavings);
+  }, [monthlyGoal, targetYear, growthRate, currentSavings]);
 }
 
 export function useFundingSources(): {

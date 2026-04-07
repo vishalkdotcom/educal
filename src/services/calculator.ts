@@ -69,6 +69,7 @@ export function calculateGrowthProjection(
   monthlySavings: number,
   growthRate: number,
   years: number,
+  initialSavings = 0,
 ): GrowthProjection[] {
   const annualContribution = monthlySavings * 12;
   const currentYear = new Date().getFullYear();
@@ -76,12 +77,13 @@ export function calculateGrowthProjection(
 
   for (let y = 0; y <= years; y++) {
     if (y === 0 || y === 5 || y === 10 || y === years) {
-      const amount =
+      const compoundedInitial = initialSavings * Math.pow(1 + growthRate, y);
+      const contributionGrowth =
         growthRate > 0
           ? annualContribution *
             ((Math.pow(1 + growthRate, y) - 1) / growthRate)
           : annualContribution * y;
-      milestones.push({ year: currentYear + y, amount: Math.round(amount) });
+      milestones.push({ year: currentYear + y, amount: Math.round(compoundedInitial + contributionGrowth) });
     }
   }
 

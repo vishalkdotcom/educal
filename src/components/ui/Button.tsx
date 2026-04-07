@@ -7,7 +7,13 @@ import {
   type TextStyle,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Colors, Typography, Radius, Shadows, Spacing } from '@/constants/theme';
+import {
+  Colors,
+  Typography,
+  Radius,
+  Shadows,
+  Spacing,
+} from '@/constants/theme';
 
 type Variant = 'primary' | 'outlined' | 'text';
 
@@ -55,7 +61,7 @@ export function Button({
     >
       {loading ? (
         <ActivityIndicator
-          size="small"
+          size='small'
           color={variant === 'primary' ? '#FFFFFF' : Colors.primary}
         />
       ) : (
@@ -98,8 +104,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.xl + Spacing.md,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
     borderRadius: Radius.default,
     minHeight: 48,
   },
