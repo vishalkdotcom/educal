@@ -29,6 +29,10 @@ interface OnboardingState {
   savingsLog: SavingsEntry[];
   currentStep: number;
   onboardingComplete: boolean;
+  searchStatus: 'idle' | 'searching' | 'done' | 'error';
+  searchError: string | null;
+  lastSearchLocation: { lat: number; lng: number } | null;
+  lastSearchTimestamp: number | null;
 }
 
 interface OnboardingActions {
@@ -49,6 +53,8 @@ interface OnboardingActions {
   addSavingsEntry: (entry: SavingsEntry) => void;
   removeSavingsEntry: (id: string) => void;
   updateSavingsEntry: (id: string, updates: Partial<Omit<SavingsEntry, 'id'>>) => void;
+  setSearchStatus: (status: 'idle' | 'searching' | 'done' | 'error', error?: string | null) => void;
+  setLastSearchLocation: (loc: { lat: number; lng: number } | null) => void;
   completeOnboarding: () => void;
   reset: () => void;
 }
@@ -70,6 +76,10 @@ const initialState: OnboardingState = {
   savingsLog: [],
   currentStep: 1,
   onboardingComplete: false,
+  searchStatus: 'idle',
+  searchError: null,
+  lastSearchLocation: null,
+  lastSearchTimestamp: null,
 };
 
 export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
@@ -125,6 +135,13 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
           ),
         })),
 
+      setSearchStatus: (status, error) => set({
+        searchStatus: status,
+        searchError: error ?? null,
+        ...(status === 'done' || status === 'error' ? { lastSearchTimestamp: Date.now() } : {}),
+      }),
+      setLastSearchLocation: (loc) => set({ lastSearchLocation: loc }),
+
       completeOnboarding: () =>
         set({ onboardingComplete: true, currentStep: 4 }),
 
@@ -136,3 +153,16 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
     },
   ),
 );
+
+export function locationChangedMeaningfully(
+  prev: { lat: number; lng: number } | null,
+  next: { lat: number; lng: number } | null,
+): boolean {
+  if (!prev || !next) return true;
+  // ~1km threshold (0.01 degrees latitude ≈ 1.1km)
+  const threshold = 0.01;
+  return (
+    Math.abs(prev.lat - next.lat) > threshold ||
+    Math.abs(prev.lng - next.lng) > threshold
+  );
+}

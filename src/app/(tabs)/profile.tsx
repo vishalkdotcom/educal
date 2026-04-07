@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Colors, Typography, Layout, Spacing } from '@/constants/theme';
+import { Colors, Typography, Layout, Spacing, Radius } from '@/constants/theme';
 import { Card, Button } from '@/components/ui';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
 import { useTotalSaved } from '@/stores/useDashboardStore';
@@ -42,7 +42,6 @@ export default function ProfileScreen() {
   const reset = useOnboardingStore((s) => s.reset);
   const totalSaved = useTotalSaved();
 
-  const setSelectedTier = useOnboardingStore((s) => s.setSelectedTier);
   const setCustomAnnualCost = useOnboardingStore((s) => s.setCustomAnnualCost);
   const setSavingsResult = useOnboardingStore((s) => s.setSavingsResult);
 
@@ -98,16 +97,17 @@ export default function ProfileScreen() {
 
         <Text style={styles.title}>Profile & Settings</Text>
 
-        {/* Avatar Section */}
-        <View style={styles.avatarSection}>
-          <View style={styles.avatarCircle}>
-            <MaterialIcons name="person" size={40} color={Colors.primary} />
+        {/* Family Header */}
+        <View style={styles.familyHeader}>
+          <View style={styles.familyIconWrap}>
+            <MaterialIcons name="family-restroom" size={28} color={Colors.primary} />
           </View>
-          <Text style={styles.familyLabel}>
-            {children.length > 0
-              ? `${children.map((c) => c.name).join(' & ')}'s Family`
-              : 'Your Family'}
-          </Text>
+          <View>
+            <Text style={styles.familyTitle}>Family Overview</Text>
+            <Text style={styles.familySubtitle}>
+              {children.length} {children.length === 1 ? 'child' : 'children'} enrolled
+            </Text>
+          </View>
         </View>
 
         {/* Children */}
@@ -129,9 +129,6 @@ export default function ProfileScreen() {
                     <Text style={styles.childMeta}>
                       {formatAge(child.currentAge)} • Target: {child.targetLevel.replace('_', ' ')}
                     </Text>
-                  </View>
-                  <View style={styles.activeBadge}>
-                    <Text style={styles.activeBadgeText}>ACTIVE</Text>
                   </View>
                 </View>
               </Card>
@@ -243,17 +240,33 @@ const styles = StyleSheet.create({
   },
   logo: { fontSize: 24, fontWeight: '800', color: Colors.primary },
   title: { ...Typography.screenTitle, marginBottom: Spacing.lg },
-  avatarSection: { alignItems: 'center', marginBottom: Spacing.xl },
-  avatarCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+  familyHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    marginBottom: Spacing.xl,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.md,
     backgroundColor: Colors.primaryContainer,
+    borderRadius: Radius.default,
+  },
+  familyIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Spacing.md,
   },
-  familyLabel: { ...Typography.heading, textAlign: 'center' },
+  familyTitle: {
+    ...Typography.heading,
+    fontSize: 18,
+  },
+  familySubtitle: {
+    ...Typography.muted,
+    fontSize: 13,
+    marginTop: 2,
+  },
   section: { marginBottom: Spacing.lg },
   sectionTitle: { ...Typography.heading, fontSize: 18, marginBottom: Spacing.md },
   emptyText: { ...Typography.muted, textAlign: 'center' },
@@ -271,13 +284,6 @@ const styles = StyleSheet.create({
   childInfo: { flex: 1 },
   childName: { ...Typography.body, fontWeight: '600' },
   childMeta: { ...Typography.muted, fontSize: 13, textTransform: 'capitalize' },
-  activeBadge: {
-    backgroundColor: '#ECFDF5',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  activeBadgeText: { fontSize: 10, fontWeight: '700', color: Colors.success, letterSpacing: 1 },
   button: { marginBottom: Spacing.sm },
   appInfo: { alignItems: 'center', paddingVertical: Spacing.xl },
   appInfoText: { ...Typography.muted, fontSize: 12 },

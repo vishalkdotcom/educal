@@ -1,13 +1,14 @@
-import { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, Pressable } from 'react-native';
+import { useState, useMemo, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TextInput, Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Layout, Spacing, Radius, Shadows } from '@/constants/theme';
-import { Card, Button } from '@/components/ui';
+import { Card } from '@/components/ui';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
+import { LocationCard } from '@/components/LocationCard';
 import { COUNTRY_CONFIGS } from '@/constants/countries';
-import { searchAllSchoolTiers } from '@/services/gemini';
+import { useSchoolSearch } from '@/hooks/useSchoolSearch';
 import { formatCurrency } from '@/utils/format';
 import type { CountryCode, SchoolResult, SchoolTierId } from '@/types';
 
@@ -60,21 +61,34 @@ function SchoolCard({
   );
 }
 
+function formatTimeAgo(timestamp: number): string {
+  const mins = Math.round((Date.now() - timestamp) / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.round(mins / 60);
+  return `${hrs}h ago`;
+}
+
 export default function SchoolsScreen() {
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [tierFilter, setTierFilter] = useState<SchoolTierId | null>(null);
-  const [searching, setSearching] = useState(false);
   const schoolResults = useOnboardingStore((s) => s.schoolResults);
   const setSchoolResults = useOnboardingStore((s) => s.setSchoolResults);
-  const children = useOnboardingStore((s) => s.children);
   const selectedTier = useOnboardingStore((s) => s.selectedTier);
   const countryCode = useOnboardingStore((s) => s.countryCode);
   const location = useOnboardingStore((s) => s.location);
+  const setLocation = useOnboardingStore((s) => s.setLocation);
+  const setSearchStatus = useOnboardingStore((s) => s.setSearchStatus);
+  const setLastSearchLocation = useOnboardingStore((s) => s.setLastSearchLocation);
   const countryConfig = COUNTRY_CONFIGS[countryCode];
   const countryTiers = countryConfig.schoolTiers;
 
-  const hasGeminiResults = schoolResults.length > 0 && schoolResults.some((s) => s.source === 'gemini');
+  const { search: searchSchools, searchStatus, hasGeminiResults, lastSearchTimestamp } = useSchoolSearch();
+  const searching = searchStatus === 'searching';
+
+  // Search once on mount — hook handles dedup
+  useEffect(() => { searchSchools(); }, []);
 
   const allSchools = useMemo(() => {
     if (schoolResults.length > 0) return schoolResults;
@@ -97,33 +111,20 @@ export default function SchoolsScreen() {
     return list;
   }, [allSchools, search, tierFilter]);
 
-  const handleSearchNearby = async () => {
-    if (!location) return;
-    setSearching(true);
-    try {
-      const childAges = children.map((c) => c.currentAge);
-      const targetLevels = children.map((c) => c.targetLevel);
-      const tierResults = await searchAllSchoolTiers(
-        location.lat,
-        location.lng,
-        countryCode,
-        childAges,
-        targetLevels,
-      );
-      const allResults = [
-        ...tierResults.public,
-        ...tierResults.private,
-        ...tierResults.international,
-      ];
-      if (allResults.length > 0) {
-        setSchoolResults(allResults);
-      }
-    } catch {
-      // keep existing results
-    } finally {
-      setSearching(false);
-    }
+  const handleChangeLocation = () => {
+    setLocation(null);
+    setSchoolResults([]);
+    setSearchStatus('idle');
+    setLastSearchLocation(null);
   };
+
+  const subtitle = searching
+    ? `Searching near ${location?.name ?? 'your area'}...`
+    : hasGeminiResults
+      ? `Schools near ${location?.name ?? 'your area'}`
+      : location
+        ? `Browse schools in ${countryConfig.name}`
+        : 'Set your location to find schools';
 
   return (
     <SafeAreaView style={styles.safe} testID="schools-screen">
@@ -135,15 +136,31 @@ export default function SchoolsScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.logo}>EduCal</Text>
-          <MaterialIcons name="notifications-none" size={24} color={Colors.onSurfaceVariant} />
+          <View style={styles.headerRight}>
+            {location && (
+              <Pressable onPress={() => searchSchools(true)} testID="refresh-schools">
+                <MaterialIcons name="refresh" size={24} color={Colors.primary} />
+              </Pressable>
+            )}
+            <MaterialIcons name="notifications-none" size={24} color={Colors.onSurfaceVariant} />
+          </View>
         </View>
 
         <Text style={styles.title}>Schools</Text>
-        <Text style={styles.subtitle}>
-          {hasGeminiResults
-            ? `Schools near ${location?.name ?? 'your area'}`
-            : `Browse schools in ${countryConfig.name}`}
-        </Text>
+        <View style={styles.subtitleRow}>
+          <Text style={styles.subtitle}>{subtitle}</Text>
+          {lastSearchTimestamp && !searching && (
+            <Text style={styles.freshnessText}>Updated {formatTimeAgo(lastSearchTimestamp)}</Text>
+          )}
+        </View>
+
+        {/* Location Card */}
+        <LocationCard
+          location={location}
+          countryConfig={countryConfig}
+          onLocationSet={setLocation}
+          onChangeLocation={handleChangeLocation}
+        />
 
         {/* Search Bar */}
         <View style={styles.searchWrap}>
@@ -186,26 +203,32 @@ export default function SchoolsScreen() {
           ))}
         </View>
 
-        {/* Search Nearby */}
-        {location && !hasGeminiResults && (
-          <Button
-            testID="search-nearby-button"
-            title={searching ? 'Searching...' : 'Search schools near me'}
-            variant="outlined"
-            icon="location-on"
-            onPress={handleSearchNearby}
-            disabled={searching}
-            style={{ marginBottom: Spacing.lg }}
-          />
+        {/* Loading State */}
+        {searching && (
+          <View style={styles.loadingWrap}>
+            <ActivityIndicator size="large" color={Colors.primary} />
+            <Text style={styles.loadingText}>
+              Finding schools near {location?.name ?? 'you'}...
+            </Text>
+          </View>
         )}
 
         {/* Results */}
-        {filtered.length === 0 ? (
+        {!searching && filtered.length === 0 ? (
           <View style={styles.empty}>
-            <MaterialIcons name="search-off" size={48} color={Colors.outlineLight} />
-            <Text style={styles.emptyText}>No schools found</Text>
+            <MaterialIcons
+              name={location ? 'search-off' : 'location-on'}
+              size={48}
+              color={Colors.outlineLight}
+            />
+            <Text style={styles.emptyText}>
+              {location
+                ? 'No schools found. Try a different location or search term.'
+                : 'Set your location above to discover nearby schools'}
+            </Text>
           </View>
         ) : (
+          !searching &&
           filtered.map((school, index) => (
             <SchoolCard
               key={`${school.name}-${index}`}
@@ -267,9 +290,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.lg,
   },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
   logo: { fontSize: 24, fontWeight: '800', color: Colors.primary },
   title: { ...Typography.screenTitle, marginBottom: Spacing.xs },
-  subtitle: { ...Typography.muted, marginBottom: Spacing.lg },
+  subtitleRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.lg,
+  },
+  subtitle: { ...Typography.muted, flex: 1 },
+  freshnessText: {
+    ...Typography.muted,
+    fontSize: 11,
+    color: Colors.onSurfaceVariant,
+    marginLeft: Spacing.sm,
+  },
   filterRow: {
     flexDirection: 'row',
     gap: Spacing.sm,
@@ -313,10 +353,18 @@ const styles = StyleSheet.create({
     ...Typography.input,
     height: 48,
   },
+  loadingWrap: {
+    alignItems: 'center',
+    paddingVertical: Spacing.xl,
+    gap: Spacing.md,
+  },
+  loadingText: {
+    ...Typography.muted,
+  },
   empty: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: Spacing.xxl,
   },
-  emptyText: { ...Typography.muted, marginTop: Spacing.md },
+  emptyText: { ...Typography.muted, marginTop: Spacing.md, textAlign: 'center' },
 });
