@@ -36,6 +36,7 @@ export default function Step2Screen() {
     setLocation,
     selectedSchool,
     setSelectedSchool,
+    schoolResults,
     customAnnualCost,
     setCustomAnnualCost,
     setSchoolResults,
@@ -59,7 +60,16 @@ export default function Step2Screen() {
     public: SchoolResult[];
     private: SchoolResult[];
     international: SchoolResult[];
-  } | null>(null);
+  } | null>(() => {
+    if (schoolResults.length > 0) {
+      return {
+        public: schoolResults.filter((s) => s.type === 'public'),
+        private: schoolResults.filter((s) => s.type === 'private'),
+        international: schoolResults.filter((s) => s.type === 'international'),
+      };
+    }
+    return null;
+  });
 
   // Custom cost input
   const [costInput, setCostInput] = useState(
@@ -115,7 +125,7 @@ export default function Step2Screen() {
   }, [location, children, countryCode]);
 
   useEffect(() => {
-    if (location && !groupedResults && !searching) {
+    if (location && !groupedResults && !searching && schoolResults.length === 0) {
       searchSchools();
     }
   }, [location]);

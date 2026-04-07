@@ -46,6 +46,27 @@ export function useMonthlyGoal(): number {
   return useOnboardingStore((s) => s.savingsResult?.totalMonthly ?? 0);
 }
 
+export function useAdjustedMonthlyGoal(): {
+  baseline: number;
+  adjusted: number;
+  aheadOfSchedule: boolean;
+} {
+  const savingsResult = useOnboardingStore((s) => s.savingsResult);
+  const savingsLog = useOnboardingStore((s) => s.savingsLog);
+
+  return useMemo(() => {
+    const baseline = savingsResult?.totalMonthly ?? 0;
+    const projectedTotal = savingsResult?.projectedTotal ?? 0;
+    const targetYear = savingsResult?.targetYear ?? new Date().getFullYear();
+
+    const totalSaved = savingsLog.reduce((sum, e) => sum + e.amount, 0);
+    const remainingMonths = Math.max(1, (targetYear - new Date().getFullYear()) * 12);
+    const adjusted = Math.max(0, (projectedTotal - totalSaved) / remainingMonths);
+
+    return { baseline, adjusted: Math.round(adjusted), aheadOfSchedule: adjusted < baseline };
+  }, [savingsResult, savingsLog]);
+}
+
 export function useTotalProjectedCost(): number {
   return useOnboardingStore((s) => s.savingsResult?.projectedTotal ?? 0);
 }

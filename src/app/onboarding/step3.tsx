@@ -223,7 +223,7 @@ export default function Step3Screen() {
           />
           {incomePercent && (
             <Text testID="income-percent-hint" style={styles.contextHint}>
-              That's about {incomePercent}% of your income
+              Your savings goal is ~{incomePercent}% of your income
             </Text>
           )}
 
@@ -469,9 +469,8 @@ const styles = StyleSheet.create({
     ...Typography.muted,
     fontSize: 13,
     color: Colors.success,
-    marginTop: -Spacing.sm,
+    marginTop: Spacing.xs,
     marginBottom: Spacing.sm,
-    paddingLeft: Spacing.xs,
   },
 
   // What-if

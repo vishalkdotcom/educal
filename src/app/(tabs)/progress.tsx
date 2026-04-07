@@ -90,7 +90,7 @@ export default function ProgressScreen() {
           <MaterialIcons name="notifications-none" size={24} color={Colors.onSurfaceVariant} />
         </View>
 
-        <Text style={styles.label}>YOUR PROGRESS</Text>
+        <Text style={styles.label}>EDUCATION FUND</Text>
         <Text style={styles.title}>Your Progress</Text>
         <Text style={styles.narrative}>
           {report

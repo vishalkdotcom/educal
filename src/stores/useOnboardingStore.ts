@@ -46,6 +46,7 @@ interface OnboardingActions {
   setCurrentStep: (step: number) => void;
   addSavingsEntry: (entry: SavingsEntry) => void;
   removeSavingsEntry: (id: string) => void;
+  updateSavingsEntry: (id: string, updates: Partial<Omit<SavingsEntry, 'id'>>) => void;
   completeOnboarding: () => void;
   reset: () => void;
 }
@@ -111,6 +112,13 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
       removeSavingsEntry: (id) =>
         set((state) => ({
           savingsLog: state.savingsLog.filter((e) => e.id !== id),
+        })),
+
+      updateSavingsEntry: (id, updates) =>
+        set((state) => ({
+          savingsLog: state.savingsLog.map((e) =>
+            e.id === id ? { ...e, ...updates } : e,
+          ),
         })),
 
       completeOnboarding: () =>

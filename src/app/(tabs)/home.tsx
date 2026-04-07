@@ -16,16 +16,19 @@ import { Card, Button, ProgressBar, Input } from '@/components/ui';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
 import {
   useMonthlyGoal,
+  useAdjustedMonthlyGoal,
   usePerChildProgress,
   useTotalSaved,
   useSavingsProgress,
 } from '@/stores/useDashboardStore';
 import { COUNTRY_CONFIGS } from '@/constants/countries';
 import { formatCurrency } from '@/utils/format';
+import type { SavingsEntry } from '@/types';
 
 export default function HomeScreen() {
   const router = useRouter();
   const monthlyGoal = useMonthlyGoal();
+  const { adjusted: adjustedMonthly, aheadOfSchedule } = useAdjustedMonthlyGoal();
   const childProgress = usePerChildProgress();
   const totalSaved = useTotalSaved();
   const savingsProgress = useSavingsProgress();
@@ -34,12 +37,14 @@ export default function HomeScreen() {
   const savingsLog = useOnboardingStore((s) => s.savingsLog);
   const addSavingsEntry = useOnboardingStore((s) => s.addSavingsEntry);
   const removeSavingsEntry = useOnboardingStore((s) => s.removeSavingsEntry);
+  const updateSavingsEntry = useOnboardingStore((s) => s.updateSavingsEntry);
   const countryCode = useOnboardingStore((s) => s.countryCode);
 
   // Modal state
   const [modalVisible, setModalVisible] = useState(false);
   const [entryAmount, setEntryAmount] = useState('');
   const [entryNote, setEntryNote] = useState('');
+  const [editingEntry, setEditingEntry] = useState<SavingsEntry | null>(null);
 
   const currencySymbol = COUNTRY_CONFIGS[countryCode].currency.symbol;
 
@@ -47,16 +52,31 @@ export default function HomeScreen() {
     const amount = Number(entryAmount);
     if (amount <= 0) return;
 
-    addSavingsEntry({
-      id: Date.now().toString(),
-      amount,
-      date: new Date().toISOString().slice(0, 10),
-      note: entryNote.trim() || undefined,
-    });
+    if (editingEntry) {
+      updateSavingsEntry(editingEntry.id, {
+        amount,
+        note: entryNote.trim() || undefined,
+      });
+    } else {
+      addSavingsEntry({
+        id: Date.now().toString(),
+        amount,
+        date: new Date().toISOString().slice(0, 10),
+        note: entryNote.trim() || undefined,
+      });
+    }
 
+    setEditingEntry(null);
     setEntryAmount('');
     setEntryNote('');
     setModalVisible(false);
+  };
+
+  const handleEditEntry = (entry: SavingsEntry) => {
+    setEditingEntry(entry);
+    setEntryAmount(String(entry.amount));
+    setEntryNote(entry.note ?? '');
+    setModalVisible(true);
   };
 
   const handleDeleteEntry = (id: string) => {
@@ -106,6 +126,11 @@ export default function HomeScreen() {
               ? `Target reached by ${savingsResult.targetYear}`
               : 'No plan calculated yet'}
           </Text>
+          {savingsLog.length > 0 && aheadOfSchedule && (
+            <Text style={styles.adjustedHint}>
+              Adjusted: {formatCurrency(adjustedMonthly, countryCode)}/mo based on your savings
+            </Text>
+          )}
           {savingsResult && (
             <View style={styles.goalStats}>
               <View style={styles.goalStat}>
@@ -188,7 +213,12 @@ export default function HomeScreen() {
           title="Log Savings"
           variant="primary"
           icon="add"
-          onPress={() => setModalVisible(true)}
+          onPress={() => {
+            setEditingEntry(null);
+            setEntryAmount('');
+            setEntryNote('');
+            setModalVisible(true);
+          }}
           style={styles.logButton}
         />
 
@@ -211,6 +241,7 @@ export default function HomeScreen() {
               <Pressable
                 key={entry.id}
                 testID={`savings-entry-${entry.id}`}
+                onPress={() => handleEditEntry(entry)}
                 onLongPress={() => handleDeleteEntry(entry.id)}
                 style={styles.entryRow}
               >
@@ -313,15 +344,15 @@ export default function HomeScreen() {
         visible={modalVisible}
         animationType="slide"
         transparent
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={() => { setEditingEntry(null); setModalVisible(false); }}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Log Savings</Text>
+              <Text style={styles.modalTitle}>{editingEntry ? 'Edit Entry' : 'Log Savings'}</Text>
               <Pressable
                 testID="modal-close"
-                onPress={() => setModalVisible(false)}
+                onPress={() => { setEditingEntry(null); setModalVisible(false); }}
               >
                 <MaterialIcons
                   name="close"
@@ -353,7 +384,7 @@ export default function HomeScreen() {
 
             <Button
               testID="savings-submit-button"
-              title="Save Entry"
+              title={editingEntry ? 'Update Entry' : 'Save Entry'}
               onPress={handleLogSavings}
               disabled={!entryAmount || Number(entryAmount) <= 0}
               icon="check"
@@ -411,6 +442,13 @@ const styles = StyleSheet.create({
   },
   goalMeta: {
     ...Typography.muted,
+    marginBottom: Spacing.md,
+  },
+  adjustedHint: {
+    ...Typography.muted,
+    fontSize: 13,
+    color: Colors.success,
+    marginTop: -Spacing.xs,
     marginBottom: Spacing.md,
   },
   goalStats: {
