@@ -4,28 +4,35 @@ name: "Step 1 validation - Missing fields prevent navigation"
 - assertVisible:
     id: "step1-screen"
 
-# Try to proceed with empty form — button is disabled (canProceed = false)
+# Try to proceed with empty form — button is disabled (no saved children)
 - tapOn:
     id: "step1-next-button"
 - assertVisible:
     id: "step1-screen"
 
-# Fill only name (no age) — validateChild should fail on age
+# Fill only name (no age) and try to save — should fail validation
 - tapOn:
-    id: "child-name-input"
+    id: "child-name-input-0"
 - inputText: "Sophia"
 - tapOn:
-    id: "step1-next-button"
-# Should stay on step1 because age is invalid (NaN)
+    id: "child-save-0"
+# Should stay on step1 because age is invalid
 - assertVisible:
     id: "step1-screen"
 
-# Add valid age — now name + age + default university = valid
+# Add valid age — now save should succeed
 - tapOn:
-    id: "child-age-input"
+    id: "child-age-input-0"
 - inputText: "8"
 - tapOn:
+    id: "child-save-0"
+
+# Child card should now be in view mode
+- assertVisible:
+    id: "child-card-0"
+
+# Now Next should work
+- tapOn:
     id: "step1-next-button"
-# Should navigate to step 2 (target level defaults to university)
 - assertVisible:
     id: "step2-screen"

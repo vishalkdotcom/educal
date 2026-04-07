@@ -6,19 +6,26 @@ name: "Tab navigation - Switch between all tabs"
     id: "step1-screen"
 
 - tapOn:
-    id: "child-name-input"
+    id: "child-name-input-0"
 - inputText: "Sophia"
 - tapOn:
-    id: "child-age-input"
+    id: "child-age-input-0"
 - inputText: "8"
 - tapOn:
-    id: "child-target-level"
-- tapOn: "University"
+    id: "child-save-0"
 - tapOn:
     id: "step1-next-button"
 
 - assertVisible:
     id: "step2-screen"
+- tapOn:
+    id: "annual-cost-input"
+- inputText: "3000"
+- tapOn:
+    id: "step2-next-button"
+
+- assertVisible:
+    id: "step3-screen"
 - tapOn:
     id: "income-input"
 - inputText: "7000"
@@ -26,35 +33,23 @@ name: "Tab navigation - Switch between all tabs"
     id: "savings-input"
 - inputText: "10000"
 - tapOn:
-    id: "step2-next-button"
-
-- assertVisible:
-    id: "step3-screen"
-- tapOn:
-    id: "tier-card-public"
-- tapOn:
     id: "step3-next-button"
-
-- assertVisible:
-    id: "step4-screen"
-- tapOn:
-    id: "step4-next-button"
 
 # === Tab Switching ===
 
 # Start on Home
 - assertVisible:
-    id: "horizon-screen"
+    id: "home-screen"
 
 # Switch to Progress
 - tapOn: "Progress"
 - assertVisible:
-    id: "insights-screen"
+    id: "progress-screen"
 
 # Switch to Schools
 - tapOn: "Schools"
 - assertVisible:
-    id: "funding-screen"
+    id: "schools-screen"
 
 # Switch to Profile
 - tapOn: "Profile"
@@ -64,15 +59,15 @@ name: "Tab navigation - Switch between all tabs"
 # Switch back to Home
 - tapOn: "Home"
 - assertVisible:
-    id: "horizon-screen"
+    id: "home-screen"
 
 # Rapid switching - stress test
 - tapOn: "Schools"
 - assertVisible:
-    id: "funding-screen"
+    id: "schools-screen"
 - tapOn: "Progress"
 - assertVisible:
-    id: "insights-screen"
+    id: "progress-screen"
 - tapOn: "Home"
 - assertVisible:
-    id: "horizon-screen"
+    id: "home-screen"

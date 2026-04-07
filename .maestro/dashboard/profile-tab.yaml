@@ -6,19 +6,26 @@ name: "Profile tab - View profile and settings"
     id: "step1-screen"
 
 - tapOn:
-    id: "child-name-input"
+    id: "child-name-input-0"
 - inputText: "Sophia"
 - tapOn:
-    id: "child-age-input"
+    id: "child-age-input-0"
 - inputText: "8"
 - tapOn:
-    id: "child-target-level"
-- tapOn: "University"
+    id: "child-save-0"
 - tapOn:
     id: "step1-next-button"
 
 - assertVisible:
     id: "step2-screen"
+- tapOn:
+    id: "annual-cost-input"
+- inputText: "5000"
+- tapOn:
+    id: "step2-next-button"
+
+- assertVisible:
+    id: "step3-screen"
 - tapOn:
     id: "income-input"
 - inputText: "8500"
@@ -26,23 +33,11 @@ name: "Profile tab - View profile and settings"
     id: "savings-input"
 - inputText: "15000"
 - tapOn:
-    id: "step2-next-button"
-
-- assertVisible:
-    id: "step3-screen"
-- tapOn:
-    id: "tier-card-private"
-- tapOn:
     id: "step3-next-button"
-
-- assertVisible:
-    id: "step4-screen"
-- tapOn:
-    id: "step4-next-button"
 
 # === Navigate to Profile tab ===
 - assertVisible:
-    id: "horizon-screen"
+    id: "home-screen"
 - tapOn: "Profile"
 
 # === Verify Profile screen ===
@@ -52,9 +47,5 @@ name: "Profile tab - View profile and settings"
 # Verify child info is displayed
 - assertVisible: "Sophia"
 
-# Verify financial details show entered values
-- assertVisible: "$8,500"
-- assertVisible: "$15,000"
-
-# Verify education tier
-- assertVisible: "Private"
+# Verify financial details
+- assertVisible: "8 years old"

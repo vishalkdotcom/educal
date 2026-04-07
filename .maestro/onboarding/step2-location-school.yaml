@@ -1,22 +1,17 @@
 appId: ${APP_ID}
-name: "Step 2 - Enter financial details"
+name: "Step 2 - Set location and school cost"
 ---
 - assertVisible:
     id: "step2-screen"
 
-# Verify progress bar shows 50%
+# Verify progress bar shows 66%
 - assertVisible:
     id: "step2-progress-bar"
 
-# Enter monthly income
+# Enter annual cost directly (custom cost input is visible when no school selected)
 - tapOn:
-    id: "income-input"
-- inputText: "8500"
-
-# Enter current savings
-- tapOn:
-    id: "savings-input"
-- inputText: "15000"
+    id: "annual-cost-input"
+- inputText: "5000"
 
 # Proceed to Step 3
 - tapOn:

@@ -5,16 +5,15 @@ name: "Back navigation - Navigate backwards through onboarding"
 - assertVisible:
     id: "step1-screen"
 
-# Fill Step 1
+# Fill and save a child
 - tapOn:
-    id: "child-name-input"
+    id: "child-name-input-0"
 - inputText: "Sophia"
 - tapOn:
-    id: "child-age-input"
+    id: "child-age-input-0"
 - inputText: "8"
 - tapOn:
-    id: "child-target-level"
-- tapOn: "University"
+    id: "child-save-0"
 - tapOn:
     id: "step1-next-button"
 
@@ -22,11 +21,8 @@ name: "Back navigation - Navigate backwards through onboarding"
 - assertVisible:
     id: "step2-screen"
 - tapOn:
-    id: "income-input"
-- inputText: "8500"
-- tapOn:
-    id: "savings-input"
-- inputText: "15000"
+    id: "annual-cost-input"
+- inputText: "5000"
 - tapOn:
     id: "step2-next-button"
 
@@ -34,7 +30,8 @@ name: "Back navigation - Navigate backwards through onboarding"
 - assertVisible:
     id: "step3-screen"
 - tapOn:
-    id: "tier-card-private"
+    id: "income-input"
+- inputText: "8500"
 
 # Go back to Step 2
 - tapOn:
@@ -58,20 +55,14 @@ name: "Back navigation - Navigate backwards through onboarding"
 - assertVisible:
     id: "step2-screen"
 
-# Verify financial data persisted
+# Continue to Step 3
 - tapOn:
     id: "step2-next-button"
 - assertVisible:
     id: "step3-screen"
 
-# Continue to Step 4
+# Go back from Step 3 again
 - tapOn:
-    id: "step3-next-button"
+    id: "step3-back-button"
 - assertVisible:
-    id: "step4-screen"
-
-# Go back from Step 4
-- tapOn:
-    id: "step4-back-button"
-- assertVisible:
-    id: "step3-screen"
+    id: "step2-screen"

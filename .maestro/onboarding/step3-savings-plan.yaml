@@ -1,31 +1,38 @@
 appId: ${APP_ID}
-name: "Step 3 - Select education tier"
+name: "Step 3 - Your Savings Plan"
 ---
 - assertVisible:
     id: "step3-screen"
 
-# Verify progress bar shows 75%
+# Verify progress bar shows 100%
 - assertVisible:
     id: "step3-progress-bar"
 
-# Verify all tier cards are visible
-- assertVisible:
-    id: "tier-card-public"
-- assertVisible:
-    id: "tier-card-private"
-- assertVisible:
-    id: "tier-card-international"
-
-# Select Private Academy tier
+# Enter monthly income
 - tapOn:
-    id: "tier-card-private"
+    id: "income-input"
+- inputText: "8500"
 
-# Verify cost projection card appears
+# Enter current savings
+- tapOn:
+    id: "savings-input"
+- inputText: "15000"
+
+# Verify savings goal appears
 - assertVisible:
-    id: "cost-projection-card"
+    id: "savings-goal-amount"
 
-# Proceed to Step 4
+# Verify child breakdown is visible
+- scrollUntilVisible:
+    element:
+      id: "child-breakdown-0"
+    direction: DOWN
+    timeout: 5000
+
+# Tap Start Tracking to complete onboarding
 - tapOn:
     id: "step3-next-button"
+
+# Verify we land on Home dashboard
 - assertVisible:
-    id: "step4-screen"
+    id: "home-screen"

@@ -1,26 +1,38 @@
 appId: ${APP_ID}
 name: "Complete onboarding flow - end to end"
 ---
-# === STEP 1: Family Profile ===
+# === STEP 1: Who are you saving for? ===
 - assertVisible:
     id: "step1-screen"
 
 - tapOn:
-    id: "child-name-input"
+    id: "child-name-input-0"
 - inputText: "Sophia"
 - tapOn:
-    id: "child-age-input"
+    id: "child-age-input-0"
 - inputText: "8"
+# Target level defaults to University
 - tapOn:
-    id: "child-target-level"
-- tapOn: "University"
+    id: "child-save-0"
 
 - tapOn:
     id: "step1-next-button"
 
-# === STEP 2: Financial Snapshot ===
+# === STEP 2: Where will they study? ===
 - assertVisible:
     id: "step2-screen"
+
+# Enter annual cost directly
+- tapOn:
+    id: "annual-cost-input"
+- inputText: "5000"
+
+- tapOn:
+    id: "step2-next-button"
+
+# === STEP 3: Your Savings Plan ===
+- assertVisible:
+    id: "step3-screen"
 
 - tapOn:
     id: "income-input"
@@ -29,31 +41,15 @@ name: "Complete onboarding flow - end to end"
     id: "savings-input"
 - inputText: "15000"
 
-- tapOn:
-    id: "step2-next-button"
-
-# === STEP 3: Education Goal ===
-- assertVisible:
-    id: "step3-screen"
-
-- tapOn:
-    id: "tier-card-private"
-
-- tapOn:
-    id: "step3-next-button"
-
-# === STEP 4: Savings Result ===
-- assertVisible:
-    id: "step4-screen"
 - assertVisible:
     id: "savings-goal-amount"
 - assertVisible:
     id: "child-breakdown-0"
 
-# Navigate to dashboard
+# Complete onboarding
 - tapOn:
-    id: "step4-next-button"
+    id: "step3-next-button"
 
-# === Dashboard: Horizon ===
+# === Dashboard: Home ===
 - assertVisible:
-    id: "horizon-screen"
+    id: "home-screen"

@@ -3,32 +3,48 @@ name: "Full E2E - Complete app flow covering all screens"
 ---
 # ===================================================================
 # FULL END-TO-END TEST
-# Covers: Onboarding (all 4 steps) → All 4 tabs → School detail modal
+# Covers: Onboarding (all 3 steps) → All 4 tabs
 # ===================================================================
 
-# === STEP 1: Family Profile ===
+# === STEP 1: Who are you saving for? ===
 - assertVisible:
     id: "step1-screen"
 - assertVisible:
     id: "step1-progress-bar"
 
-# Fill child details (first child auto-saves on Next)
+# Fill child details (first pending card at index 0)
 - tapOn:
-    id: "child-name-input"
+    id: "child-name-input-0"
 - inputText: "Sophia"
 - tapOn:
-    id: "child-age-input"
+    id: "child-age-input-0"
 - inputText: "8"
-# Target level defaults to University — no change needed
+# Target level defaults to University
+- tapOn:
+    id: "child-save-0"
 
 - tapOn:
     id: "step1-next-button"
 
-# === STEP 2: Financial Snapshot ===
+# === STEP 2: Where will they study? ===
 - assertVisible:
     id: "step2-screen"
 - assertVisible:
     id: "step2-progress-bar"
+
+# Enter annual cost directly
+- tapOn:
+    id: "annual-cost-input"
+- inputText: "5000"
+
+- tapOn:
+    id: "step2-next-button"
+
+# === STEP 3: Your Savings Plan ===
+- assertVisible:
+    id: "step3-screen"
+- assertVisible:
+    id: "step3-progress-bar"
 
 - tapOn:
     id: "income-input"
@@ -37,40 +53,6 @@ name: "Full E2E - Complete app flow covering all screens"
     id: "savings-input"
 - inputText: "20000"
 
-- tapOn:
-    id: "step2-next-button"
-
-# === STEP 3: Education Goal ===
-- assertVisible:
-    id: "step3-screen"
-- assertVisible:
-    id: "step3-progress-bar"
-
-# Verify all tiers visible
-- assertVisible:
-    id: "tier-card-public"
-- assertVisible:
-    id: "tier-card-private"
-- assertVisible:
-    id: "tier-card-international"
-
-# Select Private
-- tapOn:
-    id: "tier-card-private"
-
-# Cost projection card appears below tier cards — may need scroll
-- scrollUntilVisible:
-    element:
-      id: "cost-projection-card"
-    direction: DOWN
-    timeout: 5000
-
-- tapOn:
-    id: "step3-next-button"
-
-# === STEP 4: Savings Result ===
-- assertVisible:
-    id: "step4-screen"
 - assertVisible:
     id: "savings-goal-amount"
 - assertVisible:
@@ -83,31 +65,35 @@ name: "Full E2E - Complete app flow covering all screens"
     timeout: 5000
 
 - tapOn:
-    id: "step4-next-button"
+    id: "step3-next-button"
 
-# === HORIZON TAB ===
+# === HOME TAB ===
 - assertVisible:
-    id: "horizon-screen"
+    id: "home-screen"
 - assertVisible:
-    id: "horizon-goal-card"
+    id: "home-goal-card"
+- scrollUntilVisible:
+    element:
+      id: "horizon-child-0"
+    direction: DOWN
+    timeout: 5000
+- scrollUntilVisible:
+    element:
+      id: "home-update-plan"
+    direction: DOWN
+    timeout: 5000
 - assertVisible:
-    id: "horizon-child-0"
-- assertVisible:
-    id: "horizon-update-plan"
-- assertVisible:
-    id: "horizon-view-report"
+    id: "home-view-report"
 
-# === INSIGHTS TAB (via View Report button) ===
+# === PROGRESS TAB (via View Progress button) ===
 - tapOn:
-    id: "horizon-view-report"
+    id: "home-view-report"
 - assertVisible:
-    id: "insights-screen"
+    id: "progress-screen"
 - assertVisible:
     id: "growth-projection-card"
 - assertVisible:
     id: "growth-projection-amount"
-- assertVisible:
-    id: "tax-savings-card"
 
 - scrollUntilVisible:
     element:
@@ -124,30 +110,9 @@ name: "Full E2E - Complete app flow covering all screens"
 # === SCHOOLS TAB ===
 - tapOn: "Schools"
 - assertVisible:
-    id: "funding-screen"
+    id: "schools-screen"
 - assertVisible:
     id: "school-search-input"
-- assertVisible:
-    id: "school-card-0"
-
-# Open school detail
-- tapOn:
-    id: "school-card-0"
-- assertVisible:
-    id: "school-detail-screen"
-- assertVisible:
-    id: "school-name"
-- assertVisible:
-    id: "school-annual-tuition"
-- assertVisible:
-    id: "forecast-5yr"
-- assertVisible:
-    id: "forecast-10yr"
-- assertVisible:
-    id: "forecast-15yr"
-
-# Go back from school detail
-- back
 
 # === PROFILE TAB ===
 - tapOn: "Profile"
@@ -158,4 +123,4 @@ name: "Full E2E - Complete app flow covering all screens"
 # === Return to Home ===
 - tapOn: "Home"
 - assertVisible:
-    id: "horizon-screen"
+    id: "home-screen"

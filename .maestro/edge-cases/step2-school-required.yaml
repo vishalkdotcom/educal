@@ -1,63 +1,36 @@
 appId: ${APP_ID}
-name: "Step 3 validation - Tier selection required before proceeding"
+name: "Step 2 validation - School cost is required before proceeding"
 ---
-# Navigate to Step 3
+# Navigate to Step 2
 - assertVisible:
     id: "step1-screen"
 - tapOn:
-    id: "child-name-input"
+    id: "child-name-input-0"
 - inputText: "Sophia"
 - tapOn:
-    id: "child-age-input"
+    id: "child-age-input-0"
 - inputText: "8"
 - tapOn:
-    id: "child-target-level"
-- tapOn: "University"
+    id: "child-save-0"
 - tapOn:
     id: "step1-next-button"
 
+# === Step 2 ===
 - assertVisible:
     id: "step2-screen"
-- tapOn:
-    id: "income-input"
-- inputText: "8500"
-- tapOn:
-    id: "savings-input"
-- inputText: "15000"
+
+# Try to proceed without entering cost — button is disabled (canProceed = false)
 - tapOn:
     id: "step2-next-button"
+- assertVisible:
+    id: "step2-screen"
 
-# === Step 3 ===
+# Enter annual cost — now should be able to proceed
+- tapOn:
+    id: "annual-cost-input"
+- inputText: "5000"
+
+- tapOn:
+    id: "step2-next-button"
 - assertVisible:
     id: "step3-screen"
-
-# Verify all three tier cards are visible
-- assertVisible:
-    id: "tier-card-public"
-- assertVisible:
-    id: "tier-card-private"
-- assertVisible:
-    id: "tier-card-international"
-
-# Try to proceed without selecting tier — should stay on Step 3
-- tapOn:
-    id: "step3-next-button"
-- assertVisible:
-    id: "step3-screen"
-
-# Select public tier
-- tapOn:
-    id: "tier-card-public"
-
-# Verify cost projection appears (may need scroll)
-- scrollUntilVisible:
-    element:
-      id: "cost-projection-card"
-    direction: DOWN
-    timeout: 5000
-
-# Now should be able to proceed
-- tapOn:
-    id: "step3-next-button"
-- assertVisible:
-    id: "step4-screen"

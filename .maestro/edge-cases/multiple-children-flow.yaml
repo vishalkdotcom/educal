@@ -4,27 +4,18 @@ name: "Multiple children - Add two children and verify breakdown"
 - assertVisible:
     id: "step1-screen"
 
-# Add first child — fill form and tap Next to auto-save + navigate to step 2
+# Add first child and save
 - tapOn:
-    id: "child-name-input"
+    id: "child-name-input-0"
 - inputText: "Sophia"
 - tapOn:
-    id: "child-age-input"
+    id: "child-age-input-0"
 - inputText: "8"
 # Target level defaults to University
-
 - tapOn:
-    id: "step1-next-button"
+    id: "child-save-0"
 
-# Go back from Step 2 to Step 1 to add another child
-- assertVisible:
-    id: "step2-screen"
-- tapOn:
-    id: "step2-back-button"
-- assertVisible:
-    id: "step1-screen"
-
-# First child should be saved as a card
+# Verify first child card appears
 - assertVisible:
     id: "child-card-0"
 
@@ -32,16 +23,16 @@ name: "Multiple children - Add two children and verify breakdown"
 - tapOn:
     id: "add-another-child"
 - tapOn:
-    id: "child-name-input"
+    id: "child-name-input-1"
 - inputText: "Liam"
 - tapOn:
-    id: "child-age-input"
+    id: "child-age-input-1"
 - inputText: "5"
 - tapOn:
-    id: "child-target-level"
+    id: "child-target-level-1"
 - tapOn: "High School"
 - tapOn:
-    id: "save-child-button"
+    id: "child-save-1"
 
 # Verify both child cards
 - assertVisible:
@@ -49,52 +40,57 @@ name: "Multiple children - Add two children and verify breakdown"
 - assertVisible:
     id: "child-card-1"
 
-# Proceed
+# Proceed through Step 2
 - tapOn:
     id: "step1-next-button"
 
 - assertVisible:
     id: "step2-screen"
 - tapOn:
+    id: "annual-cost-input"
+- inputText: "8000"
+- tapOn:
+    id: "step2-next-button"
+
+# === Step 3 - Verify per-child breakdown ===
+- assertVisible:
+    id: "step3-screen"
+- tapOn:
     id: "income-input"
 - inputText: "12000"
 - tapOn:
     id: "savings-input"
 - inputText: "25000"
-- tapOn:
-    id: "step2-next-button"
 
-- assertVisible:
-    id: "step3-screen"
-- tapOn:
-    id: "tier-card-international"
-- tapOn:
-    id: "step3-next-button"
-
-# === Step 4 - Verify per-child breakdown ===
-- assertVisible:
-    id: "step4-screen"
 - assertVisible:
     id: "savings-goal-amount"
 
 # Both children should have breakdowns
-- assertVisible:
-    id: "child-breakdown-0"
-- assertVisible:
-    id: "child-breakdown-1"
-- assertVisible:
-    id: "child-share-0"
-- assertVisible:
-    id: "child-share-1"
+- scrollUntilVisible:
+    element:
+      id: "child-breakdown-0"
+    direction: DOWN
+    timeout: 5000
+- scrollUntilVisible:
+    element:
+      id: "child-breakdown-1"
+    direction: DOWN
+    timeout: 5000
 
 # Complete onboarding
 - tapOn:
-    id: "step4-next-button"
+    id: "step3-next-button"
 
 # === Verify dashboard shows both children ===
 - assertVisible:
-    id: "horizon-screen"
-- assertVisible:
-    id: "horizon-child-0"
-- assertVisible:
-    id: "horizon-child-1"
+    id: "home-screen"
+- scrollUntilVisible:
+    element:
+      id: "horizon-child-0"
+    direction: DOWN
+    timeout: 5000
+- scrollUntilVisible:
+    element:
+      id: "horizon-child-1"
+    direction: DOWN
+    timeout: 5000

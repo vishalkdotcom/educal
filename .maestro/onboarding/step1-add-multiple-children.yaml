@@ -4,37 +4,36 @@ name: "Step 1 - Add multiple children"
 - assertVisible:
     id: "step1-screen"
 
-# Add first child
+# First pending child is at index 0
 - tapOn:
-    id: "child-name-input"
+    id: "child-name-input-0"
 - inputText: "Sophia"
 - tapOn:
-    id: "child-age-input"
+    id: "child-age-input-0"
 - inputText: "8"
 - tapOn:
-    id: "child-target-level"
-- tapOn: "University"
-- tapOn:
-    id: "save-child-button"
+    id: "child-save-0"
 
-# Verify child card appears
+# Verify first child card appears
 - assertVisible:
     id: "child-card-0"
 
 # Add second child
 - tapOn:
     id: "add-another-child"
+
+# Second pending child is at index 1 (after 1 saved child)
 - tapOn:
-    id: "child-name-input"
+    id: "child-name-input-1"
 - inputText: "Liam"
 - tapOn:
-    id: "child-age-input"
+    id: "child-age-input-1"
 - inputText: "5"
 - tapOn:
-    id: "child-target-level"
+    id: "child-target-level-1"
 - tapOn: "High School"
 - tapOn:
-    id: "save-child-button"
+    id: "child-save-1"
 
 # Verify both child cards are visible
 - assertVisible:

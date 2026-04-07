@@ -5,25 +5,30 @@ name: "Step 1 - Add a child and proceed"
 - assertVisible:
     id: "step1-screen"
 
-# Verify progress bar shows 25%
+# Verify progress bar shows 33%
 - assertVisible:
     id: "step1-progress-bar"
 
-# Fill in child details
+# Fill in child details (first pending card is at index 0)
 - tapOn:
-    id: "child-name-input"
+    id: "child-name-input-0"
 - inputText: "Sophia"
 
 - tapOn:
-    id: "child-age-input"
+    id: "child-age-input-0"
 - inputText: "8"
 
-# Select target level
-- tapOn:
-    id: "child-target-level"
-- tapOn: "University"
+# Target level defaults to University — no change needed
 
-# Verify Next button is enabled and tap
+# Save the child card
+- tapOn:
+    id: "child-save-0"
+
+# Verify saved card appears in view mode
+- assertVisible:
+    id: "child-card-0"
+
+# Tap Next to proceed to Step 2
 - tapOn:
     id: "step1-next-button"
 
