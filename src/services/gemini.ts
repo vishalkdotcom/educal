@@ -133,6 +133,38 @@ function getFallbackSchools(tier: SchoolTierId, countryCode: CountryCode = 'US')
   return tierData?.schools ?? [];
 }
 
+/**
+ * Searches all three school tiers in parallel via Gemini.
+ * Returns results grouped by tier. Falls back per-tier on failure.
+ */
+export async function searchAllSchoolTiers(
+  latitude: number,
+  longitude: number,
+  countryCode: CountryCode,
+  childAges: number[],
+  targetLevels: string[],
+): Promise<{ public: SchoolResult[]; private: SchoolResult[]; international: SchoolResult[] }> {
+  const tiers: SchoolTierId[] = ['public', 'private', 'international'];
+  const results = await Promise.allSettled(
+    tiers.map((tier) =>
+      searchSchoolsWithGemini({
+        latitude,
+        longitude,
+        tier,
+        childAges,
+        targetLevels,
+        countryCode,
+      }),
+    ),
+  );
+
+  return {
+    public: results[0].status === 'fulfilled' ? results[0].value : getFallbackSchools('public', countryCode),
+    private: results[1].status === 'fulfilled' ? results[1].value : getFallbackSchools('private', countryCode),
+    international: results[2].status === 'fulfilled' ? results[2].value : getFallbackSchools('international', countryCode),
+  };
+}
+
 function safeParseSchools(raw: string): any[] {
   try {
     const clean = raw.replace(/```json\n?|```\n?/g, '').trim();

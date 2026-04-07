@@ -121,7 +121,7 @@ export default function Step1Screen() {
           {/* Progress */}
           <ProgressBar
             testID="step1-progress-bar"
-            progress={0.25}
+            progress={0.33}
             label="ONBOARDING PROGRESS"
           />
 

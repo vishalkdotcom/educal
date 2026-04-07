@@ -158,7 +158,7 @@ export default function Step3Screen() {
         {/* Progress */}
         <ProgressBar
           testID="step3-progress-bar"
-          progress={0.75}
+          progress={1.0}
           label="SETUP PROGRESS"
         />
 
