@@ -1,8 +1,16 @@
+import { GoogleGenAI } from '@google/genai';
 import type { CountryCode, SchoolResult, SchoolTierId } from '@/types';
 import { COUNTRY_CONFIGS } from '@/constants/countries';
 
 const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
-const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
+
+let _genai: GoogleGenAI | null = null;
+function getGenAI(): GoogleGenAI | null {
+  if (!GEMINI_API_KEY) return null;
+  if (!_genai) _genai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+  return _genai;
+}
+
 const GEMINI_MODELS = [
   { id: 'gemini-3-flash-preview', name: 'gemini-3-flash' },
   { id: 'gemini-3.1-flash-lite-preview', name: 'gemini-3.1-flash-lite' },
@@ -17,56 +25,51 @@ function logGemini(event: string, data?: Record<string, unknown>) {
 
 logGemini('init', { hasKey: !!GEMINI_API_KEY, keyPrefix: GEMINI_API_KEY?.slice(0, 8) });
 
-/** Try models in order with one 503 retry each, then fall back to the next model. */
-async function geminiRequest(body: object, label: string): Promise<string | null> {
-  for (const { id, name } of GEMINI_MODELS) {
-    const url = `${GEMINI_BASE}/${id}:generateContent?key=${GEMINI_API_KEY}`;
-    const fetchOpts = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    };
+const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/** Try models in order with one retry each on transient errors, then fall back to the next model. */
+async function geminiGenerate(
+  prompt: string,
+  config: { temperature: number; maxOutputTokens: number },
+  label: string,
+): Promise<string | null> {
+  const genai = getGenAI();
+  if (!genai) return null;
+
+  for (const { id, name } of GEMINI_MODELS) {
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
         if (attempt > 0) await delay(1500);
 
-        const response = await fetch(url, fetchOpts);
+        const response = await genai.models.generateContent({
+          model: id,
+          contents: prompt,
+          config: {
+            tools: [{ googleSearch: {} }],
+            temperature: config.temperature,
+            maxOutputTokens: config.maxOutputTokens,
+          },
+        });
 
-        if (response.status === 503) {
-          logGemini('503_retry', { label, model: name, attempt });
-          if (attempt === 0) continue; // retry once
-          break; // move to next model
-        }
+        const text = response.text ?? '';
+        logGemini('response', { label, model: name, textLength: text.length, preview: text.slice(0, 200) });
 
-        if (!response.ok) {
-          const errorBody = await response.text();
-          logGemini('api_error', { label, model: name, status: response.status, body: errorBody.slice(0, 500) });
-          break; // non-503 error, skip to next model
-        }
-
-        const data = await response.json();
-        const textContent =
-          data.candidates?.[0]?.content?.parts
-            ?.filter((p: any) => p.text)
-            ?.map((p: any) => p.text)
-            ?.join('') || '';
-
-        logGemini('response', { label, model: name, textLength: textContent.length, preview: textContent.slice(0, 200) });
-
-        if (textContent) return textContent;
+        if (text) return text;
         break; // empty response, try next model
-      } catch (error) {
+      } catch (error: any) {
+        const status = error?.status ?? error?.code;
+        if (status === 503 && attempt === 0) {
+          logGemini('503_retry', { label, model: name, attempt });
+          continue; // retry once on 503
+        }
         logGemini('fetch_error', { label, model: name, error: String(error) });
-        break;
+        break; // non-retryable error, skip to next model
       }
     }
   }
 
   return null;
 }
-
-const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 interface CacheEntry {
   results: SchoolResult[];
@@ -111,16 +114,7 @@ export async function searchSchoolsWithGemini(
 
   const prompt = `Find ${tierDescriptions[tier]} near coordinates ${latitude}, ${longitude} suitable for children aged ${childAges.join(' and ')}. For each school, provide: school name, estimated annual tuition in ${currencyCode}, school type, and a brief description. Return ONLY a JSON array with no additional text, markdown, or explanation. Each object in the array should have: "name" (string), "annualTuition" (number in ${currencyCode}), "type" (string: public/private/international), "description" (string). Return maximum 5 schools.`;
 
-  const body = {
-    contents: [{ parts: [{ text: prompt }] }],
-    tools: [{ google_search: {} }],
-    generationConfig: {
-      temperature: 0.3,
-      maxOutputTokens: 2048,
-    },
-  };
-
-  const textContent = await geminiRequest(body, tier);
+  const textContent = await geminiGenerate(prompt, { temperature: 0.3, maxOutputTokens: 2048 }, tier);
   if (!textContent) {
     logGemini('using_fallback', { tier, reason: 'api_failed' });
     return getFallbackSchools(tier, countryCode);
@@ -143,7 +137,12 @@ export async function searchSchoolsWithGemini(
     source: 'gemini' as const,
   }));
 
-  cache.set(cacheKey, { results, timestamp: Date.now() });
+  // Evict expired entries to prevent unbounded growth
+  const now = Date.now();
+  for (const [key, entry] of cache) {
+    if (now - entry.timestamp >= CACHE_TTL_MS) cache.delete(key);
+  }
+  cache.set(cacheKey, { results, timestamp: now });
   return results;
 }
 
@@ -154,13 +153,7 @@ export async function searchSchoolTuition(
 
   const prompt = `What is the current annual tuition for ${schoolName}? Also provide the average annual education inflation rate for this type of institution. Return ONLY a JSON object with: "annualTuition" (number in local currency), "inflationRate" (number as decimal, e.g. 0.052 for 5.2%). No additional text.`;
 
-  const body = {
-    contents: [{ parts: [{ text: prompt }] }],
-    tools: [{ google_search: {} }],
-    generationConfig: { temperature: 0.2, maxOutputTokens: 256 },
-  };
-
-  const textContent = await geminiRequest(body, 'tuition');
+  const textContent = await geminiGenerate(prompt, { temperature: 0.2, maxOutputTokens: 256 }, 'tuition');
   if (!textContent) return null;
 
   try {
