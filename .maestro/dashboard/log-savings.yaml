@@ -1,0 +1,43 @@
+appId: ${APP_ID}
+name: "Log savings - Record a savings entry from home dashboard"
+---
+# === Complete onboarding first ===
+- runFlow: ../helpers/complete-onboarding.yaml
+
+# === Verify empty savings state ===
+- scrollUntilVisible:
+    element:
+      id: "home-empty-savings"
+    direction: DOWN
+    timeout: 5000
+
+# === Open savings modal ===
+- scrollUntilVisible:
+    element:
+      id: "log-savings-button"
+    direction: UP
+    timeout: 5000
+- tapOn:
+    id: "log-savings-button"
+
+# === Fill in savings entry ===
+- assertVisible:
+    id: "savings-amount-input"
+- tapOn:
+    id: "savings-amount-input"
+- inputText: "500"
+
+- tapOn:
+    id: "savings-note-input"
+- inputText: "April savings"
+
+# === Submit ===
+- tapOn:
+    id: "savings-submit-button"
+
+# === Verify savings progress card now visible ===
+- scrollUntilVisible:
+    element:
+      id: "savings-progress-card"
+    direction: UP
+    timeout: 5000

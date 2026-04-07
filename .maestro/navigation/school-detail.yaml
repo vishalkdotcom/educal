@@ -1,0 +1,43 @@
+appId: ${APP_ID}
+name: "School detail - View school projection from Schools tab"
+---
+# === Complete onboarding first ===
+- runFlow: ../helpers/complete-onboarding.yaml
+
+# === Navigate to Schools tab ===
+- tapOn: "Schools"
+- assertVisible:
+    id: "schools-screen"
+
+# === Tap first school card (fallback country tier data) ===
+- scrollUntilVisible:
+    element:
+      id: "school-card-0"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "school-card-0"
+
+# === Verify School Detail screen ===
+- assertVisible:
+    id: "school-detail-screen"
+- assertVisible:
+    id: "school-name"
+- assertVisible:
+    id: "school-annual-tuition"
+
+# Forecast cards
+- scrollUntilVisible:
+    element:
+      id: "forecast-10yr"
+    direction: DOWN
+    timeout: 5000
+
+# Degree total card
+- scrollUntilVisible:
+    element:
+      id: "degree-total-card"
+    direction: DOWN
+    timeout: 5000
+- assertVisible:
+    id: "degree-total-amount"

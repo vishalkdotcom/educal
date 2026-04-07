@@ -1,32 +1,10 @@
 appId: ${APP_ID}
 name: "Step 3 validation - Income is required"
 ---
-# Navigate to Step 3 first
-- assertVisible:
-    id: "step1-screen"
-- tapOn:
-    id: "child-name-input-0"
-- inputText: "Sophia"
-- tapOn:
-    id: "child-age-input-0"
-- inputText: "8"
-- tapOn:
-    id: "child-save-0"
-- tapOn:
-    id: "step1-next-button"
-
-- assertVisible:
-    id: "step2-screen"
-- tapOn:
-    id: "annual-cost-input"
-- inputText: "5000"
-- tapOn:
-    id: "step2-next-button"
+# Navigate to Step 3
+- runFlow: ../helpers/complete-step1-and-step2.yaml
 
 # === Step 3 ===
-- assertVisible:
-    id: "step3-screen"
-
 # Try to proceed without entering income — button requires income > 0
 - tapOn:
     id: "step3-next-button"

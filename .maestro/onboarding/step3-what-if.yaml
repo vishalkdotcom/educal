@@ -1,0 +1,46 @@
+appId: ${APP_ID}
+name: "Step 3 what-if - Adjust monthly savings with stepper"
+---
+# === Navigate to Step 3 ===
+- runFlow: ../helpers/complete-step1-and-step2.yaml
+
+# === Enter income and savings ===
+- tapOn:
+    id: "income-input"
+- inputText: "8500"
+- tapOn:
+    id: "savings-input"
+- inputText: "15000"
+
+# Verify savings goal is calculated
+- assertVisible:
+    id: "savings-goal-amount"
+
+# === Scroll to stepper section ===
+- scrollUntilVisible:
+    element:
+      id: "monthly-increment"
+    direction: DOWN
+    timeout: 5000
+
+# === Tap increment to adjust savings ===
+- tapOn:
+    id: "monthly-increment"
+
+# Verify what-if comparison card appears
+- scrollUntilVisible:
+    element:
+      id: "what-if-comparison"
+    direction: DOWN
+    timeout: 5000
+
+# === Tap decrement ===
+- tapOn:
+    id: "monthly-decrement"
+
+# Verify what-if impact text is visible
+- scrollUntilVisible:
+    element:
+      id: "what-if-impact"
+    direction: DOWN
+    timeout: 5000

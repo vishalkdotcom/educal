@@ -138,6 +138,8 @@ export default function Step3Screen() {
       ? savingsResult.currentFunded
       : 0;
 
+  const canConfirm = monthlyIncome > 0;
+
   const handleIncomeChange = (text: string) => {
     const clean = text.replace(/[^0-9.]/g, '');
     setIncomeText(clean);
@@ -416,6 +418,7 @@ export default function Step3Screen() {
             testID="step3-next-button"
             title="Start Tracking"
             onPress={handleConfirm}
+            disabled={!canConfirm}
             icon="check"
             iconPosition="right"
             style={{ flex: 1, marginLeft: Spacing.md }}

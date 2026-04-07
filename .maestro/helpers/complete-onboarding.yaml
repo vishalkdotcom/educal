@@ -1,0 +1,41 @@
+appId: ${APP_ID}
+---
+# Shared helper: completes full onboarding (1 child, manual cost, income + savings)
+# Child: Sophia, age 8, University (default)
+# Annual cost: 5000 | Income: 8500 | Savings: 15000
+
+- assertVisible:
+    id: "step1-screen"
+
+- tapOn:
+    id: "child-name-input-0"
+- inputText: "Sophia"
+- tapOn:
+    id: "child-age-input-0"
+- inputText: "8"
+- tapOn:
+    id: "child-save-0"
+- tapOn:
+    id: "step1-next-button"
+
+- assertVisible:
+    id: "step2-screen"
+- tapOn:
+    id: "annual-cost-input"
+- inputText: "5000"
+- tapOn:
+    id: "step2-next-button"
+
+- assertVisible:
+    id: "step3-screen"
+- tapOn:
+    id: "income-input"
+- inputText: "8500"
+- tapOn:
+    id: "savings-input"
+- inputText: "15000"
+- tapOn:
+    id: "step3-next-button"
+
+- assertVisible:
+    id: "home-screen"

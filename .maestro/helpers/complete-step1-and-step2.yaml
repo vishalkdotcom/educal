@@ -1,0 +1,29 @@
+appId: ${APP_ID}
+---
+# Shared helper: completes Steps 1 and 2 (lands on Step 3)
+# Child: Sophia, age 8, University (default) | Annual cost: 5000
+
+- assertVisible:
+    id: "step1-screen"
+
+- tapOn:
+    id: "child-name-input-0"
+- inputText: "Sophia"
+- tapOn:
+    id: "child-age-input-0"
+- inputText: "8"
+- tapOn:
+    id: "child-save-0"
+- tapOn:
+    id: "step1-next-button"
+
+- assertVisible:
+    id: "step2-screen"
+- tapOn:
+    id: "annual-cost-input"
+- inputText: "5000"
+- tapOn:
+    id: "step2-next-button"
+
+- assertVisible:
+    id: "step3-screen"

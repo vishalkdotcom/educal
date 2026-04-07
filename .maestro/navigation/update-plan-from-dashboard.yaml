@@ -2,43 +2,9 @@ appId: ${APP_ID}
 name: "Update plan - Navigate from dashboard back to onboarding"
 ---
 # === Complete onboarding first ===
-- assertVisible:
-    id: "step1-screen"
-
-- tapOn:
-    id: "child-name-input-0"
-- inputText: "Sophia"
-- tapOn:
-    id: "child-age-input-0"
-- inputText: "8"
-- tapOn:
-    id: "child-save-0"
-- tapOn:
-    id: "step1-next-button"
-
-- assertVisible:
-    id: "step2-screen"
-- tapOn:
-    id: "annual-cost-input"
-- inputText: "5000"
-- tapOn:
-    id: "step2-next-button"
-
-- assertVisible:
-    id: "step3-screen"
-- tapOn:
-    id: "income-input"
-- inputText: "8500"
-- tapOn:
-    id: "savings-input"
-- inputText: "15000"
-- tapOn:
-    id: "step3-next-button"
+- runFlow: ../helpers/complete-onboarding.yaml
 
 # === On Dashboard, tap Update Plan ===
-- assertVisible:
-    id: "home-screen"
-
 - scrollUntilVisible:
     element:
       id: "home-update-plan"

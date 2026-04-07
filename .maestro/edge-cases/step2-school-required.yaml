@@ -2,23 +2,9 @@ appId: ${APP_ID}
 name: "Step 2 validation - School cost is required before proceeding"
 ---
 # Navigate to Step 2
-- assertVisible:
-    id: "step1-screen"
-- tapOn:
-    id: "child-name-input-0"
-- inputText: "Sophia"
-- tapOn:
-    id: "child-age-input-0"
-- inputText: "8"
-- tapOn:
-    id: "child-save-0"
-- tapOn:
-    id: "step1-next-button"
+- runFlow: ../helpers/complete-step1.yaml
 
 # === Step 2 ===
-- assertVisible:
-    id: "step2-screen"
-
 # Try to proceed without entering cost — button is disabled (canProceed = false)
 - tapOn:
     id: "step2-next-button"
