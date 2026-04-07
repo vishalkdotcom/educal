@@ -6,6 +6,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -101,7 +102,10 @@ export default function Step1Screen() {
         >
           {/* Hero */}
           <View testID="step1-hero-image" style={styles.hero}>
-            <MaterialIcons name="family-restroom" size={64} color={Colors.primary} />
+            <Image
+              source={require('../../../assets/images/hero-family.jpg')}
+              style={styles.heroImage}
+            />
           </View>
 
           {/* Progress */}
@@ -227,12 +231,15 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   hero: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 120,
-    backgroundColor: Colors.primaryContainer,
+    height: 200,
     borderRadius: Radius.default,
     marginBottom: Spacing.lg,
+    overflow: 'hidden',
+  },
+  heroImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   },
   title: {
     ...Typography.heading,
