@@ -12,6 +12,11 @@ name: "Step 2 validation - School cost is required before proceeding"
     id: "step2-screen"
 
 # Enter annual cost — now should be able to proceed
+- scrollUntilVisible:
+    element:
+      id: "annual-cost-input"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "annual-cost-input"
 - inputText: "5000"

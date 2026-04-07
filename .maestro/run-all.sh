@@ -12,7 +12,18 @@
 # =============================================================
 
 APP_ID="host.exp.exponent"
-LOCAL_IP=$(hostname -I 2>/dev/null | awk '{print $1}' || echo "192.168.1.57")
+# Detect local IP — works on Linux, macOS, and Windows (Git Bash / WSL)
+# On Windows, prefer Wi-Fi adapter over WSL/virtual adapters (192.168.x.x over 172.x.x.x)
+if command -v hostname &>/dev/null && hostname -I &>/dev/null 2>&1; then
+    LOCAL_IP=$(hostname -I | awk '{print $1}')
+elif command -v ipconfig &>/dev/null; then
+    LOCAL_IP=$(ipconfig 2>/dev/null | grep -B1 "192\.168\." | grep "IPv4" | head -1 | awk -F': ' '{print $2}' | tr -d '\r')
+    # Fallback to first IPv4 if no 192.168.x.x found
+    LOCAL_IP="${LOCAL_IP:-$(ipconfig 2>/dev/null | grep -m1 "IPv4" | awk -F': ' '{print $2}' | tr -d '\r')}"
+else
+    LOCAL_IP="192.168.80.239"
+fi
+LOCAL_IP="${LOCAL_IP:-192.168.80.239}"
 SUITE="${1:-all}"
 
 RED='\033[0;31m'

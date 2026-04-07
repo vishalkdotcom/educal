@@ -233,8 +233,8 @@ export default function Step2Screen() {
             </View>
           )}
 
-          {/* Custom Cost Input */}
-          {(location || !canProceed) && (
+          {/* Custom Cost Input — always show when no school selected */}
+          {(location || !canProceed || !selectedSchool) && (
             <View style={styles.customCostSection}>
               <View style={styles.dividerRow}>
                 <View style={styles.dividerLine} />

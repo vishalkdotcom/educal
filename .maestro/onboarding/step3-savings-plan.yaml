@@ -1,6 +1,9 @@
 appId: ${APP_ID}
 name: "Step 3 - Your Savings Plan"
 ---
+# Navigate to Step 3 first
+- runFlow: ../helpers/complete-step1-and-step2.yaml
+
 - assertVisible:
     id: "step3-screen"
 

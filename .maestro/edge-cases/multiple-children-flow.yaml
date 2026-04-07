@@ -46,6 +46,11 @@ name: "Multiple children - Add two children and verify breakdown"
 
 - assertVisible:
     id: "step2-screen"
+- scrollUntilVisible:
+    element:
+      id: "annual-cost-input"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "annual-cost-input"
 - inputText: "8000"

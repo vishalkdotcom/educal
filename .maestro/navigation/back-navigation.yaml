@@ -20,6 +20,11 @@ name: "Back navigation - Navigate backwards through onboarding"
 # === Step 2 ===
 - assertVisible:
     id: "step2-screen"
+- scrollUntilVisible:
+    element:
+      id: "annual-cost-input"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "annual-cost-input"
 - inputText: "5000"

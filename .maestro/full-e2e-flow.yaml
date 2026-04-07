@@ -33,6 +33,11 @@ name: "Full E2E - Complete app flow covering all screens"
     id: "step2-progress-bar"
 
 # Enter annual cost directly
+- scrollUntilVisible:
+    element:
+      id: "annual-cost-input"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "annual-cost-input"
 - inputText: "5000"
@@ -55,8 +60,12 @@ name: "Full E2E - Complete app flow covering all screens"
 
 - assertVisible:
     id: "savings-goal-amount"
-- assertVisible:
-    id: "child-breakdown-0"
+
+- scrollUntilVisible:
+    element:
+      id: "child-breakdown-0"
+    direction: DOWN
+    timeout: 5000
 
 - scrollUntilVisible:
     element:

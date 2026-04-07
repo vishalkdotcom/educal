@@ -18,6 +18,11 @@ name: "Different costs - Enter different annual costs and verify plan updates"
 # === Step 2 - Enter a low annual cost ===
 - assertVisible:
     id: "step2-screen"
+- scrollUntilVisible:
+    element:
+      id: "annual-cost-input"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "annual-cost-input"
 - inputText: "2000"
@@ -44,6 +49,11 @@ name: "Different costs - Enter different annual costs and verify plan updates"
     id: "step2-screen"
 
 # Clear and enter higher cost
+- scrollUntilVisible:
+    element:
+      id: "annual-cost-input"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "annual-cost-input"
 - eraseText: 4
@@ -53,6 +63,14 @@ name: "Different costs - Enter different annual costs and verify plan updates"
     id: "step2-next-button"
 - assertVisible:
     id: "step3-screen"
+
+# Re-enter income (store may clear on back-nav recalculation)
+- tapOn:
+    id: "income-input"
+- inputText: "9000"
+- tapOn:
+    id: "savings-input"
+- inputText: "20000"
 
 # Savings goal should update with higher cost
 - assertVisible:
