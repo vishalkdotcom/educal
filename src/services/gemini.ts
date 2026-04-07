@@ -32,9 +32,9 @@ function getGenAI(): GoogleGenAI | null {
 }
 
 const GEMINI_MODELS = [
+  { id: 'gemini-3.1-pro-preview', name: 'gemini-3.1-pro' },
   { id: 'gemini-3-flash-preview', name: 'gemini-3-flash' },
   { id: 'gemini-3.1-flash-lite-preview', name: 'gemini-3.1-flash-lite' },
-  { id: 'gemini-2.5-flash', name: 'gemini-2.5-flash' },
 ];
 
 const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
