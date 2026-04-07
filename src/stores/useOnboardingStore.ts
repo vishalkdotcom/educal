@@ -25,6 +25,7 @@ interface OnboardingState {
   costSource: CostSource | null;
   schoolResults: SchoolResult[];
   savingsResult: SavingsResult | null;
+  monthlySavingsOverride: number | null;
   savingsLog: SavingsEntry[];
   currentStep: number;
   onboardingComplete: boolean;
@@ -43,6 +44,7 @@ interface OnboardingActions {
   setCustomAnnualCost: (amount: number | null, source: CostSource) => void;
   setSchoolResults: (results: SchoolResult[]) => void;
   setSavingsResult: (result: SavingsResult | null) => void;
+  setMonthlySavingsOverride: (amount: number | null) => void;
   setCurrentStep: (step: number) => void;
   addSavingsEntry: (entry: SavingsEntry) => void;
   removeSavingsEntry: (id: string) => void;
@@ -64,6 +66,7 @@ const initialState: OnboardingState = {
   costSource: null,
   schoolResults: [],
   savingsResult: null,
+  monthlySavingsOverride: null,
   savingsLog: [],
   currentStep: 1,
   onboardingComplete: false,
@@ -104,6 +107,7 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
         set({ customAnnualCost: amount, costSource: source }),
       setSchoolResults: (results) => set({ schoolResults: results }),
       setSavingsResult: (result) => set({ savingsResult: result }),
+      setMonthlySavingsOverride: (amount) => set({ monthlySavingsOverride: amount }),
       setCurrentStep: (step) => set({ currentStep: step }),
 
       addSavingsEntry: (entry) =>

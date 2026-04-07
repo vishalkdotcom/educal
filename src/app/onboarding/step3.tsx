@@ -36,6 +36,7 @@ export default function Step3Screen() {
     customAnnualCost,
     savingsResult,
     setSavingsResult,
+    setMonthlySavingsOverride,
     completeOnboarding,
     setCurrentStep,
   } = useOnboardingStore();
@@ -62,6 +63,7 @@ export default function Step3Screen() {
       countryConfig.inflationRate,
     );
     setSavingsResult(result);
+    setMonthlySavingsOverride(null);
   }, [children, currentSavings, annualCost, countryCode]);
 
   // What-if state
@@ -103,15 +105,25 @@ export default function Step3Screen() {
   }, [parsedMonthly, adjusting, annualCost, children, currentSavings, countryConfig.inflationRate]);
 
   // Contextual feedback
-  const incomePercent = monthlyIncome > 0 && baselineMonthly > 0
-    ? ((baselineMonthly / monthlyIncome) * 100).toFixed(1)
+  const effectiveMonthly = adjusting && whatIf ? parsedMonthly : baselineMonthly;
+  const incomePercent = monthlyIncome > 0 && effectiveMonthly > 0
+    ? ((effectiveMonthly / monthlyIncome) * 100).toFixed(1)
     : null;
 
   const savingsYearsCovered = useMemo(() => {
-    if (currentSavings <= 0 || annualCost <= 0) return null;
-    const years = Math.floor(currentSavings / annualCost);
+    if (currentSavings <= 0 || annualCost <= 0 || children.length === 0) return null;
+    const inflationRate = countryConfig.inflationRate;
+    const earliestStart = Math.min(...children.map(c => c.targetAge - c.currentAge));
+    let remaining = currentSavings;
+    let years = 0;
+    while (remaining > 0 && years < 100) {
+      const yearCost = annualCost * Math.pow(1 + inflationRate, earliestStart + years);
+      if (remaining < yearCost) break;
+      remaining -= yearCost;
+      years++;
+    }
     return years > 0 ? years : null;
-  }, [currentSavings, annualCost]);
+  }, [currentSavings, annualCost, children, countryConfig.inflationRate]);
 
   // Funding status color
   const getFundingColor = (percent: number) => {
@@ -156,6 +168,7 @@ export default function Step3Screen() {
       );
       setSavingsResult(finalResult);
     }
+    setMonthlySavingsOverride(adjusting && parsedMonthly > 0 ? parsedMonthly : null);
     completeOnboarding();
     router.replace('/(tabs)/home');
   };
@@ -203,7 +216,7 @@ export default function Step3Screen() {
                 <Text style={styles.heroUnit}>/month</Text>
               </Text>
               <Text style={styles.heroSubtext}>
-                covers 100% of projected costs
+                covers {adjusting && whatIf ? `${Math.round(whatIf.fundedPercent)}%` : '100%'} of projected costs
               </Text>
             </Card>
           )}
