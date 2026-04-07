@@ -29,7 +29,8 @@ export interface Child {
   targetAge: number;
 }
 
-export type SchoolTierId = 'public' | 'private' | 'international';
+export const SCHOOL_TIER_IDS = ['public', 'private', 'international'] as const;
+export type SchoolTierId = (typeof SCHOOL_TIER_IDS)[number];
 
 export interface SchoolTier {
   id: SchoolTierId;

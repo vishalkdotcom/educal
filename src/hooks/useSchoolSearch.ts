@@ -41,10 +41,12 @@ export function useSchoolSearch() {
 
     try {
       const childAges = children.map((c) => c.currentAge);
-      const targetLevels = children.map((c) => c.targetLevel);
-      const results = await searchAllSchoolTiers(
-        location.lat, location.lng, countryCode, childAges, targetLevels,
-      );
+      const results = await searchAllSchoolTiers({
+        latitude: location.lat,
+        longitude: location.lng,
+        countryCode,
+        childAges,
+      });
       const allSchools = [...results.public, ...results.private, ...results.international];
       if (allSchools.length > 0) {
         setSchoolResults(allSchools);

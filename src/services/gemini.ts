@@ -1,6 +1,26 @@
 import { GoogleGenAI } from '@google/genai';
+import { z, toJSONSchema } from 'zod';
 import type { CountryCode, SchoolResult, SchoolTierId } from '@/types';
+import { SCHOOL_TIER_IDS } from '@/types';
 import { COUNTRY_CONFIGS } from '@/constants/countries';
+
+const GeminiSchoolSchema = z.object({
+  name: z.string().describe('Full official name of the school'),
+  annualTuition: z.number().describe('Estimated total annual education cost in the requested currency, including tuition, fees, supplies, uniforms, and other mandatory expenses. For public/free schools, estimate the total out-of-pocket cost families actually pay.'),
+  type: z.enum(SCHOOL_TIER_IDS).describe('School category'),
+  address: z.string().optional().describe('Street address or locality of the school'),
+  rating: z.number().optional().describe('School rating out of 5 if available'),
+});
+
+const SchoolSearchResponseSchema = z.array(GeminiSchoolSchema);
+
+const TuitionResponseSchema = z.object({
+  annualTuition: z.number().describe('Current total annual education cost in local currency, including tuition, fees, supplies, and other expenses families pay. For free/public schools, estimate total out-of-pocket cost.'),
+  inflationRate: z.number().optional().describe('Average annual education cost inflation rate as decimal, e.g. 0.052 for 5.2%'),
+});
+
+const schoolSearchJsonSchema = toJSONSchema(SchoolSearchResponseSchema);
+const tuitionJsonSchema = toJSONSchema(TuitionResponseSchema);
 
 const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
 
@@ -30,11 +50,21 @@ const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 /** Try models in order with one retry each on transient errors, then fall back to the next model. */
 async function geminiGenerate(
   prompt: string,
-  config: { temperature: number; maxOutputTokens: number },
+  config: { temperature: number; maxOutputTokens: number; responseJsonSchema?: unknown },
   label: string,
 ): Promise<string | null> {
   const genai = getGenAI();
   if (!genai) return null;
+
+  const genConfig: Record<string, unknown> = {
+    tools: [{ googleSearch: {} }],
+    temperature: config.temperature,
+    maxOutputTokens: config.maxOutputTokens,
+  };
+  if (config.responseJsonSchema) {
+    genConfig.responseMimeType = 'application/json';
+    genConfig.responseJsonSchema = config.responseJsonSchema;
+  }
 
   for (const { id, name } of GEMINI_MODELS) {
     for (let attempt = 0; attempt < 2; attempt++) {
@@ -44,11 +74,7 @@ async function geminiGenerate(
         const response = await genai.models.generateContent({
           model: id,
           contents: prompt,
-          config: {
-            tools: [{ googleSearch: {} }],
-            temperature: config.temperature,
-            maxOutputTokens: config.maxOutputTokens,
-          },
+          config: genConfig,
         });
 
         const text = response.text ?? '';
@@ -78,12 +104,17 @@ interface CacheEntry {
 
 const cache = new Map<string, CacheEntry>();
 
+const TIER_DESCRIPTIONS: Record<SchoolTierId, string> = {
+  public: 'public government-funded schools',
+  private: 'private academy or independent schools',
+  international: 'international schools with IB or international curriculum',
+};
+
 interface GeminiSchoolSearchParams {
   latitude: number;
   longitude: number;
   tier: SchoolTierId;
   childAges: number[];
-  targetLevels: string[];
   countryCode?: CountryCode;
 }
 
@@ -106,32 +137,47 @@ export async function searchSchoolsWithGemini(
     return getFallbackSchools(tier, countryCode);
   }
 
-  const tierDescriptions: Record<SchoolTierId, string> = {
-    public: 'public government-funded schools',
-    private: 'private academy or independent schools',
-    international: 'international schools with IB or international curriculum',
-  };
+  const prompt = `Search for real, currently operating ${TIER_DESCRIPTIONS[tier]} near latitude ${latitude}, longitude ${longitude}. The schools should be suitable for children aged ${childAges.join(' and ')}. For each school provide its official name, street address, and estimated total annual education cost in ${currencyCode}. For public or government-funded schools where tuition is free or subsidized, estimate the realistic total annual out-of-pocket cost families pay including registration fees, textbooks, supplies, uniforms, transportation, meals, and extracurricular activities — this should never be 0. Use current data from school websites or recent publications. Return up to 5 schools, prioritizing well-known institutions closest to the coordinates.`;
 
-  const prompt = `Find ${tierDescriptions[tier]} near coordinates ${latitude}, ${longitude} suitable for children aged ${childAges.join(' and ')}. For each school, provide: school name, estimated annual tuition in ${currencyCode}, school type, and a brief description. Return ONLY a JSON array with no additional text, markdown, or explanation. Each object in the array should have: "name" (string), "annualTuition" (number in ${currencyCode}), "type" (string: public/private/international), "description" (string). Return maximum 5 schools.`;
-
-  const textContent = await geminiGenerate(prompt, { temperature: 0.3, maxOutputTokens: 2048 }, tier);
+  const textContent = await geminiGenerate(
+    prompt,
+    {
+      temperature: 0.3,
+      maxOutputTokens: 8192,
+      responseJsonSchema: schoolSearchJsonSchema,
+    },
+    tier,
+  );
   if (!textContent) {
     logGemini('using_fallback', { tier, reason: 'api_failed' });
     return getFallbackSchools(tier, countryCode);
   }
 
-  const schools = safeParseSchools(textContent);
-  logGemini('parsed', { tier, count: schools.length });
-
-  if (schools.length === 0) {
-    logGemini('using_fallback', { tier, reason: 'empty_parse' });
+  let schools: z.infer<typeof SchoolSearchResponseSchema>;
+  try {
+    schools = SchoolSearchResponseSchema.parse(JSON.parse(textContent));
+  } catch (error) {
+    logGemini('parse_error', { tier, error: String(error) });
     return getFallbackSchools(tier, countryCode);
   }
 
-  const results: SchoolResult[] = schools.map((s: any) => ({
-    name: s.name || 'Unknown School',
-    annualTuition: typeof s.annualTuition === 'number' ? s.annualTuition : 0,
-    type: s.type || tier,
+  logGemini('parsed', { tier, count: schools.length });
+
+  if (schools.length === 0) {
+    logGemini('using_fallback', { tier, reason: 'empty_result' });
+    return getFallbackSchools(tier, countryCode);
+  }
+
+  // For public schools, if Gemini still returns 0, use the country's fallback minimum
+  const fallbackSchools = getFallbackSchools(tier, countryCode);
+  const fallbackMin = fallbackSchools.length > 0
+    ? Math.min(...fallbackSchools.map((s) => s.annualTuition))
+    : 0;
+
+  const results: SchoolResult[] = schools.map((s) => ({
+    name: s.name,
+    annualTuition: s.annualTuition > 0 ? s.annualTuition : fallbackMin,
+    type: s.type,
     address: s.address,
     rating: s.rating,
     source: 'gemini' as const,
@@ -148,21 +194,28 @@ export async function searchSchoolsWithGemini(
 
 export async function searchSchoolTuition(
   schoolName: string,
+  countryCode: CountryCode = 'US',
 ): Promise<{ annualTuition: number; inflationRate: number } | null> {
   if (!GEMINI_API_KEY) return null;
 
-  const prompt = `What is the current annual tuition for ${schoolName}? Also provide the average annual education inflation rate for this type of institution. Return ONLY a JSON object with: "annualTuition" (number in local currency), "inflationRate" (number as decimal, e.g. 0.052 for 5.2%). No additional text.`;
+  const prompt = `Look up the total annual education cost for "${schoolName}" using official school websites or recent publications. Include tuition, fees, supplies, uniforms, and other mandatory expenses families pay. If the school is public/free, estimate the realistic total out-of-pocket annual cost (not 0). Also estimate the average annual education cost inflation rate for this type of institution in its country. Use real, up-to-date figures.`;
 
-  const textContent = await geminiGenerate(prompt, { temperature: 0.2, maxOutputTokens: 256 }, 'tuition');
+  const textContent = await geminiGenerate(
+    prompt,
+    {
+      temperature: 0.2,
+      maxOutputTokens: 256,
+      responseJsonSchema: tuitionJsonSchema,
+    },
+    'tuition',
+  );
   if (!textContent) return null;
 
   try {
-    const cleanJson = textContent.replace(/```json\n?|```\n?/g, '').trim();
-    const parsed = JSON.parse(cleanJson);
-    if (typeof parsed.annualTuition !== 'number') return null;
+    const parsed = TuitionResponseSchema.parse(JSON.parse(textContent));
     return {
       annualTuition: parsed.annualTuition,
-      inflationRate: parsed.inflationRate ?? 0.042,
+      inflationRate: parsed.inflationRate ?? COUNTRY_CONFIGS[countryCode].inflationRate,
     };
   } catch (error) {
     logGemini('tuition_parse_error', { error: String(error) });
@@ -175,64 +228,20 @@ function getFallbackSchools(tier: SchoolTierId, countryCode: CountryCode = 'US')
   return tierData?.schools ?? [];
 }
 
-/**
- * Searches all three school tiers in parallel via Gemini.
- * Returns results grouped by tier. Falls back per-tier on failure.
- */
+/** Searches all three school tiers in parallel via Gemini. Falls back per-tier on failure. */
 export async function searchAllSchoolTiers(
-  latitude: number,
-  longitude: number,
-  countryCode: CountryCode,
-  childAges: number[],
-  targetLevels: string[],
-): Promise<{ public: SchoolResult[]; private: SchoolResult[]; international: SchoolResult[] }> {
-  const tiers: SchoolTierId[] = ['public', 'private', 'international'];
+  params: Omit<GeminiSchoolSearchParams, 'tier'>,
+): Promise<Record<SchoolTierId, SchoolResult[]>> {
+  const countryCode = params.countryCode ?? 'US';
   const results = await Promise.allSettled(
-    tiers.map((tier) =>
-      searchSchoolsWithGemini({
-        latitude,
-        longitude,
-        tier,
-        childAges,
-        targetLevels,
-        countryCode,
-      }),
-    ),
+    SCHOOL_TIER_IDS.map((tier) => searchSchoolsWithGemini({ ...params, tier })),
   );
 
-  return {
-    public: results[0].status === 'fulfilled' ? results[0].value : getFallbackSchools('public', countryCode),
-    private: results[1].status === 'fulfilled' ? results[1].value : getFallbackSchools('private', countryCode),
-    international: results[2].status === 'fulfilled' ? results[2].value : getFallbackSchools('international', countryCode),
-  };
+  return Object.fromEntries(
+    SCHOOL_TIER_IDS.map((tier, i) => [
+      tier,
+      results[i].status === 'fulfilled' ? results[i].value : getFallbackSchools(tier, countryCode),
+    ]),
+  ) as Record<SchoolTierId, SchoolResult[]>;
 }
 
-function validSchool(s: any): boolean {
-  return s && typeof s.name === 'string' && s.name.length > 0 && typeof s.annualTuition === 'number';
-}
-
-function safeParseSchools(raw: string): any[] {
-  try {
-    const clean = raw.replace(/```json\n?|```\n?/g, '').trim();
-
-    // Try direct parse first
-    try {
-      const parsed = JSON.parse(clean);
-      if (Array.isArray(parsed)) return parsed.filter(validSchool);
-      if (parsed.schools && Array.isArray(parsed.schools)) return parsed.schools.filter(validSchool);
-    } catch { /* fall through to regex extraction */ }
-
-    // Extract JSON array from mixed text (Gemini with grounding often wraps JSON in prose)
-    const arrayMatch = clean.match(/\[[\s\S]*\]/);
-    if (arrayMatch) {
-      const parsed = JSON.parse(arrayMatch[0]);
-      if (Array.isArray(parsed)) return parsed.filter(validSchool);
-    }
-
-    logGemini('parse_failed', { preview: clean.slice(0, 300) });
-    return [];
-  } catch {
-    logGemini('parse_exception', { preview: raw.slice(0, 300) });
-    return [];
-  }
-}
