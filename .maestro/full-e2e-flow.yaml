@@ -121,8 +121,8 @@ name: "Full E2E - Complete app flow covering all screens"
     direction: DOWN
     timeout: 5000
 
-# === FUNDING TAB ===
-- tapOn: "Funding"
+# === SCHOOLS TAB ===
+- tapOn: "Schools"
 - assertVisible:
     id: "funding-screen"
 - assertVisible:
@@ -155,7 +155,7 @@ name: "Full E2E - Complete app flow covering all screens"
     id: "profile-screen"
 - assertVisible: "Sophia"
 
-# === Return to Horizon ===
-- tapOn: "Horizon"
+# === Return to Home ===
+- tapOn: "Home"
 - assertVisible:
     id: "horizon-screen"

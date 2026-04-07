@@ -167,7 +167,7 @@ export default function Step2Screen() {
           />
 
           {/* Heading */}
-          <Text style={styles.title}>Your Financial Snapshot</Text>
+          <Text style={styles.title}>Your Location & Costs</Text>
           <Text style={styles.subtitle}>
             Help us personalize your education plan by providing a few financial
             details and your location for local cost accuracy.

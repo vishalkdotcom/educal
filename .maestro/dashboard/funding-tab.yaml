@@ -43,7 +43,7 @@ name: "Funding tab - School search and navigation"
 # === Navigate to Funding tab ===
 - assertVisible:
     id: "horizon-screen"
-- tapOn: "Funding"
+- tapOn: "Schools"
 
 # === Verify Funding screen ===
 - assertVisible:

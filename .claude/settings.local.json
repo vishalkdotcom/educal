@@ -21,7 +21,9 @@
       "Bash(adb devices:*)",
       "Bash(curl -s http://localhost:8081/status)",
       "Bash(git add:*)",
-      "Bash(git commit -m ':*)"
+      "Bash(git commit -m ':*)",
+      "Bash(git commit:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

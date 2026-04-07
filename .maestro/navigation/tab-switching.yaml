@@ -42,17 +42,17 @@ name: "Tab navigation - Switch between all tabs"
 
 # === Tab Switching ===
 
-# Start on Horizon
+# Start on Home
 - assertVisible:
     id: "horizon-screen"
 
-# Switch to Insights
-- tapOn: "Insights"
+# Switch to Progress
+- tapOn: "Progress"
 - assertVisible:
     id: "insights-screen"
 
-# Switch to Funding
-- tapOn: "Funding"
+# Switch to Schools
+- tapOn: "Schools"
 - assertVisible:
     id: "funding-screen"
 
@@ -61,18 +61,18 @@ name: "Tab navigation - Switch between all tabs"
 - assertVisible:
     id: "profile-screen"
 
-# Switch back to Horizon
-- tapOn: "Horizon"
+# Switch back to Home
+- tapOn: "Home"
 - assertVisible:
     id: "horizon-screen"
 
 # Rapid switching - stress test
-- tapOn: "Funding"
+- tapOn: "Schools"
 - assertVisible:
     id: "funding-screen"
-- tapOn: "Insights"
+- tapOn: "Progress"
 - assertVisible:
     id: "insights-screen"
-- tapOn: "Horizon"
+- tapOn: "Home"
 - assertVisible:
     id: "horizon-screen"

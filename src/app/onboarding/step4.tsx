@@ -168,7 +168,6 @@ export default function Step4Screen() {
         contentContainerStyle={styles.scrollContent}
       >
         {/* Header */}
-        <Text style={styles.supertitle}>EDUCATION WEALTH REPORT</Text>
         <Text style={styles.title}>Your Monthly Savings Goal</Text>
 
         {/* Savings Result */}
@@ -356,7 +355,7 @@ export default function Step4Screen() {
         />
         <Button
           testID="step4-next-button"
-          title="CONFIRM PLAN"
+          title="Start Tracking"
           onPress={handleConfirm}
           icon="check"
           iconPosition="right"

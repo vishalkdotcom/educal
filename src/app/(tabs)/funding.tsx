@@ -52,7 +52,7 @@ function SchoolCard({
           </View>
         </View>
         <View style={cardStyles.footer}>
-          <Text style={cardStyles.footerText}>View Projection</Text>
+          <Text style={cardStyles.footerText}>See details</Text>
           <MaterialIcons name="arrow-forward" size={16} color={Colors.primary} />
         </View>
       </Card>
@@ -139,7 +139,7 @@ export default function FundingScreen() {
           <MaterialIcons name="notifications-none" size={24} color={Colors.onSurfaceVariant} />
         </View>
 
-        <Text style={styles.title}>School Search</Text>
+        <Text style={styles.title}>Schools</Text>
         <Text style={styles.subtitle}>
           {hasGeminiResults
             ? `Schools near ${location?.name ?? 'your area'}`

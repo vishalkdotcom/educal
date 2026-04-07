@@ -286,7 +286,7 @@ export default function HorizonScreen() {
             testID="horizon-update-plan"
           />
           <Button
-            title="View Report"
+            title="View Progress"
             variant="primary"
             icon="analytics"
             iconPosition="right"

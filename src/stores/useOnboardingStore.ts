@@ -18,7 +18,9 @@ interface OnboardingState {
   monthlyIncome: number;
   currentSavings: number;
   location: Location | null;
+  locationSource: 'gps' | 'city' | null;
   selectedTier: SchoolTierId | null;
+  selectedSchool: SchoolResult | null;
   customAnnualCost: number | null;
   costSource: CostSource | null;
   schoolResults: SchoolResult[];
@@ -35,7 +37,8 @@ interface OnboardingActions {
   updateChild: (id: string, updates: Partial<Child>) => void;
   setMonthlyIncome: (amount: number) => void;
   setCurrentSavings: (amount: number) => void;
-  setLocation: (location: Location | null) => void;
+  setLocation: (location: Location | null, source?: 'gps' | 'city', countryCode?: CountryCode) => void;
+  setSelectedSchool: (school: SchoolResult | null) => void;
   setSelectedTier: (tier: SchoolTierId) => void;
   setCustomAnnualCost: (amount: number | null, source: CostSource) => void;
   setSchoolResults: (results: SchoolResult[]) => void;
@@ -53,7 +56,9 @@ const initialState: OnboardingState = {
   monthlyIncome: 0,
   currentSavings: 0,
   location: null,
+  locationSource: null,
   selectedTier: null,
+  selectedSchool: null,
   customAnnualCost: null,
   costSource: null,
   schoolResults: [],
@@ -87,7 +92,12 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
 
       setMonthlyIncome: (amount) => set({ monthlyIncome: amount }),
       setCurrentSavings: (amount) => set({ currentSavings: amount }),
-      setLocation: (location) => set({ location }),
+      setLocation: (location, source, countryCode) => set((state) => ({
+        location,
+        locationSource: source ?? state.locationSource,
+        ...(countryCode ? { countryCode } : {}),
+      })),
+      setSelectedSchool: (school) => set({ selectedSchool: school }),
       setSelectedTier: (tier) => set({ selectedTier: tier }),
       setCustomAnnualCost: (amount, source) =>
         set({ customAnnualCost: amount, costSource: source }),
@@ -104,7 +114,7 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
         })),
 
       completeOnboarding: () =>
-        set({ onboardingComplete: true, currentStep: 5 }),
+        set({ onboardingComplete: true, currentStep: 4 }),
 
       reset: () => set(initialState),
     }),

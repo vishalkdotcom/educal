@@ -90,8 +90,8 @@ export default function InsightsScreen() {
           <MaterialIcons name="notifications-none" size={24} color={Colors.onSurfaceVariant} />
         </View>
 
-        <Text style={styles.label}>QUARTERLY ANALYSIS</Text>
-        <Text style={styles.title}>Education Wealth Report</Text>
+        <Text style={styles.label}>YOUR PROGRESS</Text>
+        <Text style={styles.title}>Your Progress</Text>
         <Text style={styles.narrative}>
           {report
             ? `Your horizon is clearing. Based on current contributions and projected growth, you are on track to fund ${fundedPercent}% of total estimated education costs for ${childNames}.`
@@ -196,7 +196,7 @@ export default function InsightsScreen() {
         {/* Strategic Milestones */}
         {report && (
           <View style={styles.section} testID="milestones-section">
-            <Text style={styles.sectionTitle}>Strategic Milestones</Text>
+            <Text style={styles.sectionTitle}>Your Milestones</Text>
             <Card variant="outlined">
               {report.milestones.map((ms, i) => (
                 <View

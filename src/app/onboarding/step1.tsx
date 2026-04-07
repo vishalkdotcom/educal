@@ -126,10 +126,10 @@ export default function Step1Screen() {
           />
 
           {/* Heading */}
-          <Text style={styles.title}>Build Your Family Profile</Text>
+          <Text style={styles.title}>Who are you saving for?</Text>
           <Text style={styles.subtitle}>
-            Tell us more about your children to personalize their education
-            trajectory.
+            Tell us about your children so we can personalize their savings
+            plan.
           </Text>
 
           {/* Saved Child Cards */}

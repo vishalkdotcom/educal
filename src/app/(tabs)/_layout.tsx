@@ -24,7 +24,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="horizon"
         options={{
-          title: 'Horizon',
+          title: 'Home',
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="home" size={size} color={color} />
           ),
@@ -33,7 +33,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="insights"
         options={{
-          title: 'Insights',
+          title: 'Progress',
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="insights" size={size} color={color} />
           ),
@@ -42,7 +42,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="funding"
         options={{
-          title: 'Funding',
+          title: 'Schools',
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="account-balance-wallet" size={size} color={color} />
           ),
