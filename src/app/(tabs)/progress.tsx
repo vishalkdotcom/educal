@@ -60,7 +60,7 @@ function FundingRow({
   );
 }
 
-export default function InsightsScreen() {
+export default function ProgressScreen() {
   const report = useWealthReport();
   const children = useOnboardingStore((s) => s.children);
   const countryCode = useOnboardingStore((s) => s.countryCode);
@@ -78,7 +78,7 @@ export default function InsightsScreen() {
     : 0;
 
   return (
-    <SafeAreaView style={styles.safe} testID="insights-screen">
+    <SafeAreaView style={styles.safe} testID="progress-screen">
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
@@ -94,8 +94,8 @@ export default function InsightsScreen() {
         <Text style={styles.title}>Your Progress</Text>
         <Text style={styles.narrative}>
           {report
-            ? `Your horizon is clearing. Based on current contributions and projected growth, you are on track to fund ${fundedPercent}% of total estimated education costs for ${childNames}.`
-            : 'Complete onboarding to see your wealth report.'}
+            ? `Based on current contributions and projected growth, you're on track to cover ${fundedPercent}% of estimated education costs for ${childNames}.`
+            : 'Complete onboarding to see your progress.'}
         </Text>
 
         {/* Growth Projection */}
@@ -159,7 +159,7 @@ export default function InsightsScreen() {
             <Card variant="outlined">
               <FundingRow label="Personal Savings" amount={fundingSources.personalSavings} icon="savings" index={0} countryCode={countryCode} />
               <FundingRow label="Investment Growth" amount={fundingSources.marketGrowth} icon="show-chart" index={1} countryCode={countryCode} />
-              <FundingRow label="Potential Scholarships" amount={fundingSources.potentialGrants} icon="card-giftcard" index={2} countryCode={countryCode} />
+              <FundingRow label="Estimated Grants (~5%)" amount={fundingSources.potentialGrants} icon="card-giftcard" index={2} countryCode={countryCode} />
             </Card>
           </View>
         )}

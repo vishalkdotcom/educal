@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Colors, Typography } from '@/constants/theme';
+import { Colors } from '@/constants/theme';
 
 export default function TabLayout() {
   return (
@@ -22,7 +22,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="horizon"
+        name="home"
         options={{
           title: 'Home',
           tabBarIcon: ({ color, size }) => (
@@ -31,7 +31,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="insights"
+        name="progress"
         options={{
           title: 'Progress',
           tabBarIcon: ({ color, size }) => (
@@ -40,7 +40,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="funding"
+        name="schools"
         options={{
           title: 'Schools',
           tabBarIcon: ({ color, size }) => (

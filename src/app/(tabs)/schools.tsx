@@ -7,7 +7,7 @@ import { Colors, Typography, Layout, Spacing, Radius, Shadows } from '@/constant
 import { Card, Button } from '@/components/ui';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
 import { COUNTRY_CONFIGS } from '@/constants/countries';
-import { searchSchoolsWithGemini } from '@/services/gemini';
+import { searchAllSchoolTiers } from '@/services/gemini';
 import { formatCurrency } from '@/utils/format';
 import type { CountryCode, SchoolResult, SchoolTierId } from '@/types';
 
@@ -60,7 +60,7 @@ function SchoolCard({
   );
 }
 
-export default function FundingScreen() {
+export default function SchoolsScreen() {
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [tierFilter, setTierFilter] = useState<SchoolTierId | null>(null);
@@ -103,19 +103,18 @@ export default function FundingScreen() {
     try {
       const childAges = children.map((c) => c.currentAge);
       const targetLevels = children.map((c) => c.targetLevel);
-      const results = await Promise.all(
-        (['public', 'private', 'international'] as SchoolTierId[]).map((tier) =>
-          searchSchoolsWithGemini({
-            latitude: location.lat,
-            longitude: location.lng,
-            tier,
-            childAges,
-            targetLevels,
-            countryCode,
-          }),
-        ),
+      const tierResults = await searchAllSchoolTiers(
+        location.lat,
+        location.lng,
+        countryCode,
+        childAges,
+        targetLevels,
       );
-      const allResults = results.flat();
+      const allResults = [
+        ...tierResults.public,
+        ...tierResults.private,
+        ...tierResults.international,
+      ];
       if (allResults.length > 0) {
         setSchoolResults(allResults);
       }
@@ -127,7 +126,7 @@ export default function FundingScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} testID="funding-screen">
+    <SafeAreaView style={styles.safe} testID="schools-screen">
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
@@ -143,7 +142,7 @@ export default function FundingScreen() {
         <Text style={styles.subtitle}>
           {hasGeminiResults
             ? `Schools near ${location?.name ?? 'your area'}`
-            : `Average schools for ${countryConfig.name} — search during onboarding for local results`}
+            : `Browse schools in ${countryConfig.name}`}
         </Text>
 
         {/* Search Bar */}

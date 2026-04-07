@@ -157,7 +157,7 @@ export default function Step3Screen() {
       setSavingsResult(finalResult);
     }
     completeOnboarding();
-    router.replace('/(tabs)/horizon');
+    router.replace('/(tabs)/home');
   };
 
   // Narrative text

@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet, ScrollView, Alert, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Colors, Typography, Layout, Spacing, Radius } from '@/constants/theme';
+import { Colors, Typography, Layout, Spacing } from '@/constants/theme';
 import { Card, Button } from '@/components/ui';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
 import { useTotalSaved } from '@/stores/useDashboardStore';
@@ -143,44 +143,39 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Financial Details</Text>
           <Card variant="outlined">
-            <View style={rowStyles.row}>
-              <View style={rowStyles.iconWrap}>
-                <MaterialIcons name="public" size={18} color={Colors.primary} />
-              </View>
-              <Text style={rowStyles.label}>Country</Text>
-              <View style={countryStyles.options}>
-                {(Object.keys(COUNTRY_CONFIGS) as CountryCode[]).map((code) => (
-                  <Pressable
-                    key={code}
-                    testID={`country-option-${code}`}
-                    onPress={() => handleCountryChange(code)}
-                    style={[
-                      countryStyles.pill,
-                      code === countryCode && countryStyles.pillActive,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        countryStyles.pillText,
-                        code === countryCode && countryStyles.pillTextActive,
-                      ]}
-                    >
-                      {COUNTRY_CONFIGS[code].name}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
+            <InfoRow
+              icon="location-on"
+              label="Location"
+              value={location?.name
+                ? `${location.name}, ${COUNTRY_CONFIGS[countryCode].name}`
+                : 'Not set'}
+            />
             <InfoRow icon="attach-money" label="Monthly Income" value={formatCurrency(monthlyIncome, countryCode)} />
-            <InfoRow icon="savings" label="Current Savings" value={formatCurrency(currentSavings, countryCode)} />
-            <InfoRow icon="account-balance-wallet" label="Total Saved" value={formatCurrency(totalSaved, countryCode)} />
-            <InfoRow icon="location-on" label="Location" value={location?.name ?? 'Not set'} />
+            <InfoRow icon="savings" label="Starting Savings" value={formatCurrency(currentSavings, countryCode)} />
+            <InfoRow icon="account-balance-wallet" label="Total Logged" value={formatCurrency(totalSaved, countryCode)} />
             <InfoRow
               icon="school"
               label="Education Tier"
               value={selectedTier ? selectedTier.charAt(0).toUpperCase() + selectedTier.slice(1) : 'Not selected'}
             />
           </Card>
+          <Button
+            title="Change Country"
+            variant="text"
+            icon="public"
+            onPress={() => {
+              Alert.alert(
+                'Change Country',
+                'Select your country:',
+                (Object.keys(COUNTRY_CONFIGS) as CountryCode[]).map((code) => ({
+                  text: COUNTRY_CONFIGS[code].name,
+                  onPress: () => handleCountryChange(code),
+                })),
+              );
+            }}
+            style={{ marginTop: Spacing.sm }}
+            textStyle={{ fontSize: 13 }}
+          />
         </View>
 
         {/* Actions */}
@@ -286,22 +281,4 @@ const styles = StyleSheet.create({
   button: { marginBottom: Spacing.sm },
   appInfo: { alignItems: 'center', paddingVertical: Spacing.xl },
   appInfoText: { ...Typography.muted, fontSize: 12 },
-});
-
-const countryStyles = StyleSheet.create({
-  options: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
-  pill: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: Radius.full,
-    borderWidth: 1,
-    borderColor: Colors.outlineLight,
-    backgroundColor: Colors.surface,
-  },
-  pillActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
-  pillText: { fontSize: 12, fontWeight: '500', color: Colors.onSurfaceVariant },
-  pillTextActive: { color: '#FFFFFF' },
 });

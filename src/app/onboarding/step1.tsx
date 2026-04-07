@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -14,92 +14,78 @@ import { Colors, Typography, Spacing, Radius, Layout } from '@/constants/theme';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
 import { OnboardingHeader } from './_layout';
 import { ProgressBar } from '@/components/ui/ProgressBar';
-import { Input } from '@/components/ui/Input';
-import { Dropdown } from '@/components/ui/Dropdown';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { ChildCard } from '@/components/onboarding/ChildCard';
-import { validateChild } from '@/utils/validation';
-import type { TargetLevel } from '@/types';
+import type { Child, TargetLevel } from '@/types';
 import { TARGET_AGES } from '@/types';
 
-const TARGET_OPTIONS = [
-  { label: 'University', value: 'university' },
-  { label: 'High School', value: 'high_school' },
-  { label: 'Primary', value: 'primary' },
-];
-
 export default function Step1Screen() {
-  const { children, addChild, removeChild, setCurrentStep } =
+  const { children, addChild, updateChild, removeChild, setCurrentStep } =
     useOnboardingStore();
 
-  const [name, setName] = useState('');
-  const [age, setAge] = useState('');
-  const [targetLevel, setTargetLevel] = useState<string>('university');
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [showForm, setShowForm] = useState(children.length === 0);
+  // Track IDs of cards currently being created (unsaved new cards)
+  const [pendingIds, setPendingIds] = useState<string[]>(() =>
+    children.length === 0 ? [createPendingId()] : [],
+  );
+  // Track IDs of cards currently in edit mode (existing saved cards)
+  const [editingIds, setEditingIds] = useState<Set<string>>(new Set());
 
-  const handleSaveChild = () => {
-    const currentAge = parseInt(age, 10);
-    const level = targetLevel as TargetLevel;
-    const { valid, errors: validationErrors } = validateChild({
-      name: name.trim(),
-      currentAge,
-      targetLevel: level,
-    });
-
-    if (!valid) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    addChild({
-      id: Date.now().toString(),
-      name: name.trim(),
-      currentAge,
-      targetLevel: level,
-      targetAge: TARGET_AGES[level],
-    });
-
-    setName('');
-    setAge('');
-    setTargetLevel('university');
-    setErrors({});
-    setShowForm(false);
+  const handleAddChild = () => {
+    const id = createPendingId();
+    setPendingIds((prev) => [...prev, id]);
   };
 
-  const handleNext = () => {
-    // If no children saved yet, save the current form as the first child
-    if (children.length === 0 && name.trim()) {
-      const currentAge = parseInt(age, 10);
-      const level = targetLevel as TargetLevel;
-      const { valid, errors: validationErrors } = validateChild({
-        name: name.trim(),
-        currentAge,
-        targetLevel: level,
-      });
-
-      if (!valid) {
-        setErrors(validationErrors);
-        return;
-      }
-
+  const handleSaveNew = useCallback(
+    (id: string, updates: Partial<Child>) => {
       addChild({
-        id: Date.now().toString(),
-        name: name.trim(),
-        currentAge,
-        targetLevel: level,
-        targetAge: TARGET_AGES[level],
+        id,
+        name: updates.name!,
+        currentAge: updates.currentAge!,
+        targetLevel: updates.targetLevel as TargetLevel,
+        targetAge: TARGET_AGES[updates.targetLevel as TargetLevel],
       });
-    }
+      setPendingIds((prev) => prev.filter((pid) => pid !== id));
+    },
+    [addChild],
+  );
 
-    if (children.length === 0 && !name.trim()) return;
+  const handleSaveExisting = useCallback(
+    (id: string, updates: Partial<Child>) => {
+      updateChild(id, updates);
+      setEditingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    },
+    [updateChild],
+  );
 
+  const handleCancelNew = useCallback((id: string) => {
+    setPendingIds((prev) => prev.filter((pid) => pid !== id));
+  }, []);
+
+  const handleRemove = useCallback(
+    (id: string) => {
+      removeChild(id);
+      setEditingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    },
+    [removeChild],
+  );
+
+  const hasUnsaved = pendingIds.length > 0 || editingIds.size > 0;
+  const canProceed = children.length > 0 && !hasUnsaved;
+
+  const handleNext = () => {
+    if (!canProceed) return;
     setCurrentStep(2);
     router.push('/onboarding/step2');
   };
-
-  const canProceed = children.length > 0 || name.trim().length > 0;
 
   return (
     <SafeAreaView style={styles.safe} testID="step1-screen">
@@ -132,70 +118,47 @@ export default function Step1Screen() {
             plan.
           </Text>
 
-          {/* Saved Child Cards */}
+          {/* Saved Child Cards (view or edit mode) */}
           {children.map((child, index) => (
             <View key={child.id} style={styles.childCardWrap}>
-              <ChildCard child={child} index={index} onRemove={removeChild} />
+              <ChildCard
+                child={child}
+                index={index}
+                editing={editingIds.has(child.id)}
+                onSave={handleSaveExisting}
+                onRemove={handleRemove}
+              />
             </View>
           ))}
 
-          {/* Add Child Form */}
-          {(showForm || children.length === 0) && (
-            <Card variant="outlined" style={styles.formCard}>
-              <Input
-                testID="child-name-input"
-                label="CHILD'S NAME"
-                placeholder="e.g. Sophia"
-                value={name}
-                onChangeText={setName}
-                error={errors.name}
-                autoCapitalize="words"
+          {/* Pending new cards (always in edit mode) */}
+          {pendingIds.map((id, i) => (
+            <View key={id} style={styles.childCardWrap}>
+              <ChildCard
+                child={makePendingChild(id)}
+                index={children.length + i}
+                editing={true}
+                onSave={handleSaveNew}
+                onCancelNew={handleCancelNew}
+                onRemove={handleCancelNew}
               />
+            </View>
+          ))}
 
-              <Input
-                testID="child-age-input"
-                label="CURRENT AGE"
-                placeholder="5"
-                value={age}
-                onChangeText={setAge}
-                error={errors.age}
-                keyboardType="number-pad"
-                maxLength={2}
-                containerStyle={{ marginTop: Spacing.md }}
-              />
+          {/* Add Child Button — always visible */}
+          <Button
+            testID="add-another-child"
+            title="+ Add Child"
+            variant="text"
+            onPress={handleAddChild}
+            style={{ marginTop: Spacing.md, alignSelf: 'flex-start' }}
+          />
 
-              <View style={{ marginTop: Spacing.md }}>
-                <Dropdown
-                  testID="child-target-level"
-                  label="TARGET LEVEL"
-                  options={TARGET_OPTIONS}
-                  value={targetLevel}
-                  onSelect={setTargetLevel}
-                  placeholder="Select target level"
-                />
-              </View>
-
-              {children.length > 0 && (
-                <Button
-                  testID="save-child-button"
-                  title="Save Child Details"
-                  onPress={handleSaveChild}
-                  icon="check"
-                  style={{ marginTop: Spacing.lg }}
-                />
-              )}
-            </Card>
-          )}
-
-          {/* Add Another Child */}
-          {children.length > 0 && !showForm && (
-            <Button
-              testID="add-another-child"
-              title="+ Add another child"
-              variant="text"
-              onPress={() => setShowForm(true)}
-              style={{ marginTop: Spacing.md, alignSelf: 'flex-start' }}
-            />
+          {/* Hint when cards are unsaved */}
+          {hasUnsaved && children.length > 0 && (
+            <Text style={styles.hintText}>
+              Save or cancel all edits before continuing.
+            </Text>
           )}
 
           {/* Info Card */}
@@ -237,6 +200,20 @@ export default function Step1Screen() {
   );
 }
 
+function createPendingId() {
+  return `pending-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+}
+
+function makePendingChild(id: string): Child {
+  return {
+    id,
+    name: '',
+    currentAge: 0,
+    targetLevel: 'university',
+    targetAge: 18,
+  };
+}
+
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
@@ -270,8 +247,11 @@ const styles = StyleSheet.create({
   childCardWrap: {
     marginBottom: Spacing.md,
   },
-  formCard: {
-    marginTop: Spacing.sm,
+  hintText: {
+    ...Typography.muted,
+    fontSize: 13,
+    color: '#F59E0B',
+    marginTop: Spacing.xs,
   },
   infoCard: {
     marginTop: Spacing.lg,

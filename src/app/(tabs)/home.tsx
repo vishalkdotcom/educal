@@ -23,7 +23,7 @@ import {
 import { COUNTRY_CONFIGS } from '@/constants/countries';
 import { formatCurrency } from '@/utils/format';
 
-export default function HorizonScreen() {
+export default function HomeScreen() {
   const router = useRouter();
   const monthlyGoal = useMonthlyGoal();
   const childProgress = usePerChildProgress();
@@ -69,7 +69,7 @@ export default function HorizonScreen() {
   const recentEntries = savingsLog.slice(0, 5);
 
   return (
-    <SafeAreaView style={styles.safe} testID="horizon-screen">
+    <SafeAreaView style={styles.safe} testID="home-screen">
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
@@ -93,7 +93,7 @@ export default function HorizonScreen() {
         </Text>
 
         {/* Monthly Goal Card */}
-        <Card style={styles.goalCard} testID="horizon-goal-card">
+        <Card style={styles.goalCard} testID="home-goal-card">
           <View style={styles.goalHeader}>
             <MaterialIcons name="trending-up" size={20} color={Colors.primary} />
             <Text style={styles.goalLabel}>MONTHLY SAVINGS GOAL</Text>
@@ -192,6 +192,17 @@ export default function HorizonScreen() {
           style={styles.logButton}
         />
 
+        {/* Empty state for savings */}
+        {savingsLog.length === 0 && (
+          <Card variant="outlined" style={styles.emptyState} testID="home-empty-savings">
+            <MaterialIcons name="savings" size={36} color={Colors.outlineLight} />
+            <Text style={styles.emptyTitle}>No savings logged yet</Text>
+            <Text style={styles.emptySubtitle}>
+              Tap "Log Savings" above to start tracking your contributions.
+            </Text>
+          </Card>
+        )}
+
         {/* Recent Entries */}
         {recentEntries.length > 0 && (
           <View style={styles.section}>
@@ -283,16 +294,16 @@ export default function HorizonScreen() {
             icon="edit"
             onPress={() => router.push('/onboarding/step1')}
             style={styles.actionButton}
-            testID="horizon-update-plan"
+            testID="home-update-plan"
           />
           <Button
             title="View Progress"
             variant="primary"
             icon="analytics"
             iconPosition="right"
-            onPress={() => router.push('/(tabs)/insights')}
+            onPress={() => router.push('/(tabs)/progress')}
             style={styles.actionButton}
-            testID="horizon-view-report"
+            testID="home-view-report"
           />
         </View>
       </ScrollView>
@@ -471,6 +482,21 @@ const styles = StyleSheet.create({
   },
   logButton: {
     marginBottom: Spacing.lg,
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: Spacing.xl,
+    marginBottom: Spacing.lg,
+  },
+  emptyTitle: {
+    ...Typography.cardHeading,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.xs,
+  },
+  emptySubtitle: {
+    ...Typography.muted,
+    fontSize: 13,
+    textAlign: 'center',
   },
   section: {
     marginBottom: Spacing.lg,

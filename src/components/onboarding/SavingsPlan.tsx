@@ -6,13 +6,13 @@ import { formatCurrency } from '@/utils/format';
 import { Card } from '@/components/ui/Card';
 import type { CountryCode, SavingsResult as SavingsResultType } from '@/types';
 
-interface SavingsResultProps {
+interface SavingsPlanProps {
   result: SavingsResultType;
   countryCode?: CountryCode;
   testID?: string;
 }
 
-export function SavingsResultCard({ result, countryCode = 'US', testID }: SavingsResultProps) {
+export function SavingsPlanCard({ result, countryCode = 'US', testID }: SavingsPlanProps) {
   const animValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
