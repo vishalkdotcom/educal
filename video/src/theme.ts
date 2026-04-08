@@ -5,20 +5,31 @@ export const colors = {
   primaryContainer: "#E3F2FD",
   bgDark: "#0F172A",
   bgDarkLight: "#1E293B",
+  bgDeep: "#080E1A",
   surface: "#F8FAFC",
   white: "#FFFFFF",
   onSurface: "#1E293B",
   onSurfaceVariant: "#64748B",
   success: "#10B981",
+  amber: "#F59E0B",
+  slate300: "#CBD5E1",
+  slate400: "#94A3B8",
 } as const;
 
 export const FPS = 30;
-export const TOTAL_DURATION = 720; // 24s @ 30fps
+export const WIDTH = 1920;
+export const HEIGHT = 1080;
+export const TOTAL_DURATION = 1500; // 50s @ 30fps
 
-// Scene frame ranges
-export const SCENE_HOOK = { start: 0, duration: 120 }; // 0-4s
-export const SCENE_ONBOARDING = { start: 0, duration: 300 }; // 4-14s (10s)
-export const SCENE_DASHBOARD = { start: 0, duration: 180 }; // 14-20s (6s)
-export const SCENE_CTA = { start: 0, duration: 120 }; // 20-24s (4s)
+// Scene durations (in frames)
+export const SCENE_HOOK = { duration: 240 }; // 0-8s
+export const SCENE_PROBLEM = { duration: 240 }; // 8-16s
+export const SCENE_SOLUTION = { duration: 180 }; // 16-22s
+export const SCENE_FEATURES = { duration: 480 }; // 22-38s
+export const SCENE_DASHBOARD = { duration: 240 }; // 38-46s
+export const SCENE_CTA = { duration: 205 }; // extended to fill composition (accounts for transition overlaps)
 
-export const TRANSITION_DURATION = 10; // 0.33s overlap
+export const TRANSITION_DURATION = 15; // 0.5s overlap
+
+export const fontFamily =
+  'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';

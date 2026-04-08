@@ -1,136 +1,79 @@
 import React from "react";
-import {
-  AbsoluteFill,
-  useCurrentFrame,
-  useVideoConfig,
-  interpolate,
-  spring,
-} from "remotion";
+import { AbsoluteFill, useCurrentFrame, interpolate } from "remotion";
+import { SceneBackground } from "../components/SceneBackground";
+import { KineticText } from "../components/KineticText";
 import { colors } from "../theme";
 
+/**
+ * Scene 1: "Every Parent's Dream" (0-8s, 240 frames)
+ * Emotional hook — no product, no stats yet.
+ * Three lines build aspirational → concern.
+ */
 export const HookScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
 
-  // Animated counter: 0 → 8
-  const counterProgress = interpolate(frame, [10, 50], [0, 8], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const counterValue = Math.round(counterProgress);
-
-  // "Education costs rose" text
-  const topTextOpacity = interpolate(frame, [0, 15], [0, 1], {
-    extrapolateRight: "clamp",
-  });
-  const topTextY = interpolate(frame, [0, 15], [20, 0], {
-    extrapolateRight: "clamp",
-  });
-
-  // Percentage reveal
-  const percentSpring = spring({
-    frame: Math.max(0, frame - 10),
-    fps,
-    config: { damping: 12, stiffness: 150 },
-  });
-
-  // Subtext: "Is your family financially ready?"
-  const subTextOpacity = interpolate(frame, [60, 80], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const subTextY = interpolate(frame, [60, 80], [30, 0], {
+  // Line 3 shifts color toward muted to convey concern
+  const line3Opacity = interpolate(frame, [140, 160], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
   return (
-    <AbsoluteFill
-      style={{
-        background: `linear-gradient(170deg, ${colors.bgDark} 0%, ${colors.bgDarkLight} 50%, ${colors.bgDark} 100%)`,
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 60,
-      }}
+    <SceneBackground
+      glowPosition={{ x: "50%", y: "45%" }}
+      glowColor={colors.primary}
+      glowSize={700}
+      glowOpacity={0.06}
+      particleCount={35}
     >
-      {/* Decorative glow */}
-      <div
+      <AbsoluteFill
         style={{
-          position: "absolute",
-          width: 500,
-          height: 500,
-          borderRadius: "50%",
-          background: `radial-gradient(circle, rgba(33,150,243,0.08) 0%, transparent 70%)`,
-          top: "30%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-        }}
-      />
-
-      {/* Main text */}
-      <div
-        style={{
-          opacity: topTextOpacity,
-          transform: `translateY(${topTextY}px)`,
-          fontSize: 42,
-          fontWeight: 400,
-          color: colors.onSurfaceVariant,
-          fontFamily: 'Inter, -apple-system, sans-serif',
-          textAlign: "center",
-          marginBottom: 20,
-          letterSpacing: 1,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 20,
+          padding: "0 200px",
         }}
       >
-        Education costs rose
-      </div>
+        {/* Line 1: Aspirational */}
+        <KineticText
+          text="You dream of the best for your child."
+          mode="word"
+          staggerFrames={4}
+          fontSize={62}
+          fontWeight={700}
+          color={colors.white}
+          delay={15}
+          textAlign="center"
+        />
 
-      {/* Big animated percentage */}
-      <div
-        style={{
-          transform: `scale(${0.5 + percentSpring * 0.5})`,
-          opacity: percentSpring,
-          fontSize: 160,
-          fontWeight: 800,
-          color: colors.primary,
-          fontFamily: 'Inter, -apple-system, sans-serif',
-          textAlign: "center",
-          lineHeight: 1,
-          marginBottom: 10,
-        }}
-      >
-        {counterValue}%
-      </div>
+        {/* Line 2: Builds on the dream */}
+        <KineticText
+          text="The best schools. The best future."
+          mode="word"
+          staggerFrames={4}
+          fontSize={54}
+          fontWeight={600}
+          color={colors.primaryLight}
+          delay={70}
+          textAlign="center"
+        />
 
-      <div
-        style={{
-          opacity: topTextOpacity,
-          fontSize: 36,
-          fontWeight: 400,
-          color: colors.onSurfaceVariant,
-          fontFamily: 'Inter, -apple-system, sans-serif',
-          textAlign: "center",
-          marginBottom: 60,
-        }}
-      >
-        this year alone
-      </div>
-
-      {/* Subtext */}
-      <div
-        style={{
-          opacity: subTextOpacity,
-          transform: `translateY(${subTextY}px)`,
-          fontSize: 44,
-          fontWeight: 600,
-          color: colors.white,
-          fontFamily: 'Inter, -apple-system, sans-serif',
-          textAlign: "center",
-          lineHeight: 1.3,
-          maxWidth: 800,
-        }}
-      >
-        Is your family{"\n"}financially ready?
-      </div>
-    </AbsoluteFill>
+        {/* Line 3: The turn — concern */}
+        <div style={{ opacity: line3Opacity, marginTop: 20 }}>
+          <KineticText
+            text="But rising costs make it feel impossible."
+            mode="word"
+            staggerFrames={4}
+            fontSize={50}
+            fontWeight={500}
+            color={colors.slate300}
+            delay={140}
+            textAlign="center"
+          />
+        </div>
+      </AbsoluteFill>
+    </SceneBackground>
   );
 };

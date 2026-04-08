@@ -2,133 +2,127 @@ import React from "react";
 import {
   AbsoluteFill,
   Img,
+  Sequence,
   useCurrentFrame,
   useVideoConfig,
   interpolate,
   spring,
   staticFile,
 } from "remotion";
+import { SceneBackground } from "../components/SceneBackground";
+import { LogoReveal } from "../components/LogoReveal";
+import { AnimatedText } from "../components/AnimatedText";
 import { colors } from "../theme";
 
+/**
+ * Scene 6: "Start Today" (46-50s, 120 frames)
+ * CTA with logo, tagline, download badge, website.
+ */
 export const CTAScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // Logo entrance
-  const logoSpring = spring({
-    frame,
-    fps,
-    config: { damping: 12, stiffness: 100 },
-  });
-  const logoScale = interpolate(logoSpring, [0, 1], [0.5, 1]);
-  const logoOpacity = logoSpring;
-
-  // Tagline
-  const taglineOpacity = interpolate(frame, [20, 40], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const taglineY = interpolate(frame, [20, 40], [20, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-
-  // Badge slide up
+  // Badge entrance
   const badgeSpring = spring({
-    frame: Math.max(0, frame - 45),
+    frame: Math.max(0, frame - 40),
     fps,
     config: { damping: 15, stiffness: 120 },
   });
-  const badgeY = interpolate(badgeSpring, [0, 1], [60, 0]);
+  const badgeOpacity = interpolate(badgeSpring, [0, 1], [0, 1]);
+  const badgeY = interpolate(badgeSpring, [0, 1], [30, 0]);
 
   // "Download Free" text
-  const dlOpacity = interpolate(frame, [60, 75], [0, 1], {
+  const dlOpacity = interpolate(frame, [55, 70], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  // Website URL
+  const urlOpacity = interpolate(frame, [70, 85], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
   return (
-    <AbsoluteFill
-      style={{
-        background: `linear-gradient(170deg, ${colors.bgDark} 0%, #0a1628 50%, ${colors.bgDark} 100%)`,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
+    <SceneBackground
+      glowPosition={{ x: "50%", y: "40%" }}
+      glowColor={colors.primary}
+      glowSize={800}
+      glowOpacity={0.12}
+      particleCount={40}
+      particleColor={colors.primaryLight}
     >
-      {/* Radial glow */}
-      <div
+      <AbsoluteFill
         style={{
-          position: "absolute",
-          width: 700,
-          height: 700,
-          borderRadius: "50%",
-          background: `radial-gradient(circle, rgba(33,150,243,0.1) 0%, transparent 60%)`,
-          top: "40%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-        }}
-      />
-
-      {/* Logo */}
-      <div
-        style={{
-          opacity: logoOpacity,
-          transform: `scale(${logoScale})`,
-          marginBottom: 40,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 24,
         }}
       >
-        <Img
-          src={staticFile("logo_landscape.png")}
-          style={{ width: 500, objectFit: "contain" }}
-        />
-      </div>
+        {/* Logo with glow */}
+        <Sequence from={0} layout="none">
+          <LogoReveal width={460} />
+        </Sequence>
 
-      {/* Tagline */}
-      <div
-        style={{
-          opacity: taglineOpacity,
-          transform: `translateY(${taglineY}px)`,
-          fontSize: 40,
-          fontWeight: 500,
-          color: colors.primaryLight,
-          fontFamily: 'Inter, -apple-system, sans-serif',
-          textAlign: "center",
-          marginBottom: 60,
-          letterSpacing: 0.5,
-        }}
-      >
-        Secure Their Academic Future
-      </div>
+        {/* Tagline */}
+        <Sequence from={20} layout="none">
+          <AnimatedText
+            text="Plan your child's education journey today."
+            fontSize={36}
+            fontWeight={500}
+            color={colors.primaryLight}
+            animation="fadeUp"
+          />
+        </Sequence>
 
-      {/* Google Play Badge */}
-      <div
-        style={{
-          opacity: badgeSpring,
-          transform: `translateY(${badgeY}px)`,
-          marginBottom: 20,
-        }}
-      >
-        <Img
-          src={staticFile("google-play-badge.png")}
-          style={{ width: 280, objectFit: "contain" }}
-        />
-      </div>
+        {/* Google Play Badge */}
+        <div
+          style={{
+            opacity: badgeOpacity,
+            transform: `translateY(${badgeY}px)`,
+            marginTop: 16,
+          }}
+        >
+          <Img
+            src={staticFile("google-play-badge.png")}
+            style={{ width: 260, objectFit: "contain" }}
+          />
+        </div>
 
-      {/* Download Free text */}
-      <div
-        style={{
-          opacity: dlOpacity,
-          fontSize: 30,
-          fontWeight: 600,
-          color: colors.success,
-          fontFamily: 'Inter, -apple-system, sans-serif',
-          textAlign: "center",
-          letterSpacing: 2,
-          textTransform: "uppercase",
-        }}
-      >
-        Download Free
-      </div>
-    </AbsoluteFill>
+        {/* "Download Free" text */}
+        <div
+          style={{
+            opacity: dlOpacity,
+            fontSize: 22,
+            fontWeight: 700,
+            color: colors.success,
+            fontFamily:
+              'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+            textAlign: "center",
+            letterSpacing: 4,
+            textTransform: "uppercase",
+          }}
+        >
+          DOWNLOAD FREE
+        </div>
+
+        {/* Website URL */}
+        <div
+          style={{
+            opacity: urlOpacity,
+            fontSize: 20,
+            fontWeight: 400,
+            color: colors.slate400,
+            fontFamily:
+              'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+            textAlign: "center",
+          }}
+        >
+          www.educal.app
+        </div>
+      </AbsoluteFill>
+    </SceneBackground>
   );
 };
