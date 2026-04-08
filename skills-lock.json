@@ -20,6 +20,11 @@
       "source": "expo/skills",
       "sourceType": "github",
       "computedHash": "3cd0ba91f359f9f84cd40f36f356287994a0e952520fac6e03ef7952d0397879"
+    },
+    "remotion-best-practices": {
+      "source": "remotion-dev/skills",
+      "sourceType": "github",
+      "computedHash": "2f673b7710813ac07c71c0a54657f740078aec6585f15edf351494499e1f9ac3"
     }
   }
 }

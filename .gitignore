@@ -42,3 +42,4 @@ app-example
 # generated native folders
 /ios
 /android
+video/node_modules/
