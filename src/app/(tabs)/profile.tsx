@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Layout, Spacing, Radius } from '@/constants/theme';
-import { Card, Button } from '@/components/ui';
+import { Card, Button, Logo } from '@/components/ui';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
 import { useTotalSaved } from '@/stores/useDashboardStore';
 import { COUNTRY_CONFIGS } from '@/constants/countries';
@@ -92,7 +92,7 @@ export default function ProfileScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.logo}>EduCal</Text>
+          <Logo />
         </View>
 
         <Text style={styles.title}>Profile & Settings</Text>
@@ -238,7 +238,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.lg,
   },
-  logo: { fontSize: 24, fontWeight: '800', color: Colors.primary },
   title: { ...Typography.screenTitle, marginBottom: Spacing.lg },
   familyHeader: {
     flexDirection: 'row',

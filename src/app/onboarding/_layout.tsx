@@ -1,11 +1,12 @@
 import { Stack } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors, Typography, Spacing } from '@/constants/theme';
+import { Logo } from '@/components/ui';
 
 function OnboardingHeader({ step }: { step: number }) {
   return (
     <View style={styles.header}>
-      <Text style={styles.logo}>EduCal</Text>
+      <Logo />
       <Text style={styles.step}>STEP {step} OF 3</Text>
     </View>
   );
@@ -37,11 +38,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.sm,
     paddingBottom: Spacing.md,
-  },
-  logo: {
-    ...Typography.heading,
-    color: Colors.primary,
-    fontWeight: '800',
   },
   step: {
     ...Typography.label,

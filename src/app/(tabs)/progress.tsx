@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Layout, Spacing, Radius, Shadows } from '@/constants/theme';
-import { Card, ProgressBar } from '@/components/ui';
+import { Card, ProgressBar, Logo } from '@/components/ui';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
 import type { CountryCode } from '@/types';
 import {
@@ -86,7 +86,7 @@ export default function ProgressScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.logo}>EduCal</Text>
+          <Logo />
           <MaterialIcons name="notifications-none" size={24} color={Colors.onSurfaceVariant} />
         </View>
 
@@ -266,7 +266,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.lg,
   },
-  logo: { fontSize: 24, fontWeight: '800', color: Colors.primary },
   label: { ...Typography.label, marginBottom: Spacing.xs },
   title: { ...Typography.screenTitle, marginBottom: Spacing.sm },
   narrative: { ...Typography.body, color: Colors.onSurfaceVariant, marginBottom: Spacing.lg, lineHeight: 24 },

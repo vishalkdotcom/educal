@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Layout, Spacing, Radius, Shadows } from '@/constants/theme';
-import { Card } from '@/components/ui';
+import { Card, Logo } from '@/components/ui';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
 import { LocationCard } from '@/components/LocationCard';
 import { COUNTRY_CONFIGS } from '@/constants/countries';
@@ -135,7 +135,7 @@ export default function SchoolsScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.logo}>EduCal</Text>
+          <Logo />
           <View style={styles.headerRight}>
             {location && (
               <Pressable onPress={() => searchSchools(true)} testID="refresh-schools">
@@ -295,7 +295,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.md,
   },
-  logo: { fontSize: 24, fontWeight: '800', color: Colors.primary },
   title: { ...Typography.screenTitle, marginBottom: Spacing.xs },
   subtitleRow: {
     flexDirection: 'row',

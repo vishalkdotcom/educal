@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Typography, Layout, Spacing, Radius, Shadows } from '@/constants/theme';
-import { Card, Button } from '@/components/ui';
+import { Card, Button, Logo } from '@/components/ui';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
 import { calculateProjectedCost, calculateDegreeTotal } from '@/services/calculator';
 import { COUNTRY_CONFIGS } from '@/constants/countries';
@@ -109,7 +109,7 @@ export default function SchoolDetailScreen() {
             <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
           </Pressable>
           <Text style={styles.headerTitle}>Specific School Projection</Text>
-          <Text style={styles.headerLogo}>EduCal</Text>
+          <Logo />
         </View>
 
         {/* School Info */}
@@ -231,7 +231,6 @@ const styles = StyleSheet.create({
   },
   backBtn: { marginRight: Spacing.md },
   headerTitle: { ...Typography.body, fontWeight: '600', flex: 1 },
-  headerLogo: { fontSize: 18, fontWeight: '800', color: Colors.primary },
   schoolCard: { marginBottom: Spacing.lg },
   schoolRow: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.md },
   schoolIcon: {

@@ -22,7 +22,7 @@ import {
   Radius,
   Shadows,
 } from '@/constants/theme';
-import { Card, Button, ProgressBar, Input } from '@/components/ui';
+import { Card, Button, ProgressBar, Input, Logo } from '@/components/ui';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
 import {
   useMonthlyGoal,
@@ -113,7 +113,7 @@ export default function HomeScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.logo}>EduCal</Text>
+          <Logo />
           <MaterialIcons
             name='notifications-none'
             size={24}
@@ -461,11 +461,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: Spacing.lg,
-  },
-  logo: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: Colors.primary,
   },
   title: {
     ...Typography.screenTitle,
