@@ -9,24 +9,27 @@ import { LogoReveal } from "../components/LogoReveal";
 import { colors, fontFamily } from "../theme";
 
 /**
- * Outro Scene 7: FADE (1.5s / 45 frames).
- * Logo stamp + pitch close, fade to black.
+ * Outro Scene 7: FADE (3s / 90 frames).
+ * Logo stamp + pitch close, then fade to black.
+ *
+ * Timing: LogoReveal delayed by 10f so it settles after the incoming
+ * crossfade. Tagline in 22-40, held 40-65, then fade-to-black 65-90.
  */
 export const OutroFade: React.FC = () => {
   const frame = useCurrentFrame();
 
-  // Tagline fades in as its own small entrance
-  const taglineOpacity = interpolate(frame, [8, 22], [0, 1], {
+  // Tagline fades in as its own small entrance (pushed past the crossfade)
+  const taglineOpacity = interpolate(frame, [22, 40], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const taglineY = interpolate(frame, [8, 22], [14, 0], {
+  const taglineY = interpolate(frame, [22, 40], [14, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  // Black overlay rises over the last 20 frames (fade to black)
-  const blackOverlay = interpolate(frame, [25, 45], [0, 1], {
+  // Black overlay rises over the last 25 frames (fade to black)
+  const blackOverlay = interpolate(frame, [65, 90], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -51,7 +54,7 @@ export const OutroFade: React.FC = () => {
             gap: 32,
           }}
         >
-          <LogoReveal width={420} />
+          <LogoReveal width={420} delay={10} />
           <div
             style={{
               opacity: taglineOpacity,

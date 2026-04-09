@@ -229,7 +229,8 @@ const Tile: React.FC<{ tile: TileSpec; index: number }> = ({ tile, index }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const popStart = 12 + index * 10;
+  // +15f shift so tiles pop AFTER the incoming 15f crossfade completes
+  const popStart = 27 + index * 10;
   const s = spring({
     frame: Math.max(0, frame - popStart),
     fps,
@@ -304,16 +305,23 @@ const Tile: React.FC<{ tile: TileSpec; index: number }> = ({ tile, index }) => {
 export const OutroOutput: React.FC = () => {
   const frame = useCurrentFrame();
 
-  const labelOpacity = interpolate(frame, [0, 10], [0, 1], {
-    extrapolateRight: "clamp",
-  });
-  // Tagline lands after the 3 tiles fully settle (last tile pops at frame 32,
-  // settles ~70). Tagline is then visible from ~125 to 180 = ~55f (~1.8s).
-  const taglineOpacity = interpolate(frame, [100, 125], [0, 1], {
+  const labelOpacity = interpolate(frame, [15, 25], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const taglineY = interpolate(frame, [100, 125], [18, 0], {
+  // Tagline lands after the 3 tiles fully settle (last tile pops at frame 47,
+  // settles ~85). Tagline visible ~125 to ~165 = ~40f (~1.3s) before exit fade.
+  const taglineOpacity = interpolate(frame, [112, 135], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const taglineY = interpolate(frame, [112, 135], [18, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  // Exit fade over last 15 frames (scene is 180f)
+  const exitOpacity = interpolate(frame, [165, 180], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -336,6 +344,7 @@ export const OutroOutput: React.FC = () => {
           paddingTop: 40,
           paddingBottom: 20,
           gap: 48,
+          opacity: exitOpacity,
         }}
       >
         <div
@@ -392,7 +401,7 @@ export const OutroOutput: React.FC = () => {
             letterSpacing: -0.5,
           }}
         >
-          Three deliverables. Two days of code. Real output.
+          Three deliverables. One week. Real output.
         </div>
       </AbsoluteFill>
     </SceneBackground>

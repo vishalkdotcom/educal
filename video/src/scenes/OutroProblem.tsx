@@ -10,24 +10,35 @@ import { colors, fontFamily } from "../theme";
 export const OutroProblem: React.FC = () => {
   const frame = useCurrentFrame();
 
-  // Label "1. PROBLEM" pips in first
-  const labelOpacity = interpolate(frame, [0, 10], [0, 1], {
+  // Label "1. PROBLEM" pips in after the incoming 15f crossfade completes
+  const labelOpacity = interpolate(frame, [15, 25], [0, 1], {
+    extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
   // Headline
-  const headlineOpacity = interpolate(frame, [8, 24], [0, 1], {
+  const headlineOpacity = interpolate(frame, [23, 39], [0, 1], {
+    extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const headlineY = interpolate(frame, [8, 24], [28, 0], {
+  const headlineY = interpolate(frame, [23, 39], [28, 0], {
+    extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
   // Subhead
-  const subOpacity = interpolate(frame, [22, 38], [0, 1], {
+  const subOpacity = interpolate(frame, [37, 53], [0, 1], {
+    extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const subY = interpolate(frame, [22, 38], [20, 0], {
+  const subY = interpolate(frame, [37, 53], [20, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  // Exit fade over last 15 frames (scene is 150f)
+  const exitOpacity = interpolate(frame, [135, 150], [1, 0], {
+    extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
@@ -48,6 +59,7 @@ export const OutroProblem: React.FC = () => {
           alignItems: "center",
           padding: "0 120px",
           gap: 28,
+          opacity: exitOpacity,
         }}
       >
         <div

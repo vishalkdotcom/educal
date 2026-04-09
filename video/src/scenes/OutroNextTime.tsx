@@ -41,7 +41,8 @@ const Row: React.FC<{ bullet: Bullet; index: number }> = ({
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const start = 14 + index * 14;
+  // +15f so bullets pop after the incoming 15f crossfade completes
+  const start = 29 + index * 14;
   const s = spring({
     frame: Math.max(0, frame - start),
     fps,
@@ -123,7 +124,14 @@ const Row: React.FC<{ bullet: Bullet; index: number }> = ({
 export const OutroNextTime: React.FC = () => {
   const frame = useCurrentFrame();
 
-  const labelOpacity = interpolate(frame, [0, 10], [0, 1], {
+  const labelOpacity = interpolate(frame, [15, 25], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  // Exit fade over last 15 frames (scene is 300f)
+  const exitOpacity = interpolate(frame, [285, 300], [1, 0], {
+    extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
@@ -144,6 +152,7 @@ export const OutroNextTime: React.FC = () => {
           alignItems: "center",
           gap: 24,
           paddingTop: 80,
+          opacity: exitOpacity,
         }}
       >
         <div

@@ -20,6 +20,7 @@ import { SolutionReveal } from "./scenes/SolutionReveal";
 import { FeatureShowcase } from "./scenes/FeatureShowcase";
 import { DashboardDemo } from "./scenes/DashboardDemo";
 import { CTAScene } from "./scenes/CTAScene";
+import { PauseBreak } from "./scenes/PauseBreak";
 import { OutroTitle } from "./scenes/OutroTitle";
 import { OutroProblem } from "./scenes/OutroProblem";
 import { OutroTools } from "./scenes/OutroTools";
@@ -34,6 +35,7 @@ import {
   SCENE_FEATURES,
   SCENE_DASHBOARD,
   SCENE_CTA,
+  SCENE_PAUSE_BREAK,
   SCENE_OUTRO_TITLE,
   SCENE_OUTRO_PROBLEM,
   SCENE_OUTRO_TOOLS,
@@ -125,9 +127,18 @@ export const AppPromo: React.FC = () => {
 
         {FADE_TRANSITION}
 
-        {/* === "How we built it" outro (~53s) === */}
+        {/* Pause breath — 1.5s dark canvas so promo→outro pivot doesn't hard-cut */}
+        <TransitionSeries.Sequence
+          durationInFrames={SCENE_PAUSE_BREAK.duration}
+        >
+          <PauseBreak />
+        </TransitionSeries.Sequence>
 
-        {/* Outro 1: Title card — 1.5s */}
+        {FADE_TRANSITION}
+
+        {/* === "How we built it" outro (~56s) === */}
+
+        {/* Outro 1: Title card — 3s */}
         <TransitionSeries.Sequence
           durationInFrames={SCENE_OUTRO_TITLE.duration}
         >

@@ -14,11 +14,13 @@ import { colors, fontFamily } from "../theme";
  * Three crossfading quote cards — one per teammate. Quotes are verbatim
  * from docs/PRESENTATION_COPY.md.
  *
- * Each card's static read window is sized to its word count (~0.18s/word
- * scan speed), with 25-frame crossfades between cards.
- *   Vishal (28 words): frames   0 – 200  (readable 20-175 ≈ 5.2s)
- *   Kavya  (17 words): frames 190 – 355  (readable 215-325 ≈ 3.7s)
- *   Imam   (31 words): frames 340 – 570  (readable 365-540 ≈ 5.8s)
+ * Each card's static read window is sized to its word count. All windows
+ * are pushed 15f forward so the first card doesn't spring-pop during the
+ * incoming crossfade. Card spring is softer (damping 22 / stiffness 90)
+ * so cards drift in rather than pop in.
+ *   Vishal (28 words): frames  15 – 200  (readable 40-175 ≈ 4.5s)
+ *   Kavya  (17 words): frames 195 – 360  (readable 220-330 ≈ 3.7s)
+ *   Imam   (31 words): frames 350 – 570  (readable 375-540 ≈ 5.5s)
  */
 
 type Quote = {
@@ -46,11 +48,12 @@ const QUOTES: Quote[] = [
 ];
 
 // Card show windows (frames): [fadeInStart, fadeInEnd, fadeOutStart, fadeOutEnd]
-// Total scene = 570 frames; sized to give each quote enough static read time.
+// Total scene = 570 frames; first card fadeInStart pushed to 15 so it doesn't
+// spring-pop during the incoming 15f crossfade.
 const WINDOWS: [number, number, number, number][] = [
-  [0, 20, 175, 200], // Vishal
-  [190, 215, 325, 355], // Kavya
-  [340, 365, 540, 570], // Imam
+  [15, 40, 175, 200], // Vishal
+  [195, 220, 330, 360], // Kavya
+  [350, 375, 540, 570], // Imam
 ];
 
 const QuoteCard: React.FC<{ quote: Quote; index: number }> = ({
@@ -71,7 +74,7 @@ const QuoteCard: React.FC<{ quote: Quote; index: number }> = ({
   const s = spring({
     frame: Math.max(0, frame - fiStart),
     fps,
-    config: { damping: 18, stiffness: 120 },
+    config: { damping: 22, stiffness: 90 },
   });
   const translateY = interpolate(s, [0, 1], [30, 0]);
   const scale = interpolate(s, [0, 1], [0.96, 1]);
@@ -189,9 +192,15 @@ const QuoteCard: React.FC<{ quote: Quote; index: number }> = ({
 export const OutroLearnings: React.FC = () => {
   const frame = useCurrentFrame();
 
-  const labelOpacity = interpolate(frame, [0, 10], [0, 1], {
+  const labelOpacityIn = interpolate(frame, [15, 25], [0, 1], {
+    extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
+  const labelOpacityOut = interpolate(frame, [540, 570], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const labelOpacity = labelOpacityIn * labelOpacityOut;
 
   return (
     <SceneBackground

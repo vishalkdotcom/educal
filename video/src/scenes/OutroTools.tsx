@@ -1,20 +1,22 @@
 import React from "react";
 import {
   AbsoluteFill,
-  useCurrentFrame,
-  useVideoConfig,
   interpolate,
   spring,
+  useCurrentFrame,
+  useVideoConfig,
 } from "remotion";
 import { SceneBackground } from "../components/SceneBackground";
 import { colors, fontFamily } from "../theme";
 
 /**
- * Outro Scene 3: TOOLS (9s / 270 frames) — the hero card of the outro.
+ * Outro Scene 3: TOOLS — the hero card of the outro.
  *
- * A 5-node pipeline: Stitch → Claude Code → Gemini → Maestro → Remotion.
- * A wire draws left→right behind the nodes; each glass-card pops in on
- * spring, followed by its "new"/"stretch" attribution pill. A bottom stamp
+ * 5-node pipeline: Stitch → Claude Code → Gemini → Maestro → Remotion.
+ * Each glass-card pops in on spring, followed by its "new"/"stretch"
+ * attribution pill. Once every card is settled, a connecting wire
+ * sweeps through left→right, briefly holds, then fades out so it
+ * doesn't sit over the see-through glass cards. A bottom stamp
  * lands last. Matches the frozen copy in docs/PRESENTATION_COPY.md.
  */
 
@@ -63,8 +65,9 @@ const CARD_HEIGHT = 260;
 const CARD_GAP = 54;
 const ROW_WIDTH = NODES.length * CARD_WIDTH + (NODES.length - 1) * CARD_GAP;
 
-const NODE_POP_START = 30;
+const NODE_POP_START = 45; // +15f to let the incoming crossfade finish before nodes pop
 const NODE_POP_STEP = 18;
+// Card pops fire at: 45, 63, 81, 99, 117
 
 const Node: React.FC<{ node: PipelineNode; index: number }> = ({
   node,
@@ -103,6 +106,7 @@ const Node: React.FC<{ node: PipelineNode; index: number }> = ({
         height: CARD_HEIGHT,
         opacity,
         transform: `translateY(${translateY}px) scale(${scale})`,
+        zIndex: 2, // always paint above the wire
       }}
     >
       {/* Glass card */}
@@ -186,32 +190,59 @@ export const OutroTools: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // Label + header
-  const labelOpacity = interpolate(frame, [0, 10], [0, 1], {
+  // Label + header — entry delayed past the incoming 15f crossfade
+  const labelOpacity = interpolate(frame, [15, 25], [0, 1], {
+    extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const headerOpacity = interpolate(frame, [6, 20], [0, 1], {
+  const headerOpacity = interpolate(frame, [21, 35], [0, 1], {
+    extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const headerY = interpolate(frame, [6, 20], [22, 0], {
-    extrapolateRight: "clamp",
-  });
-
-  // Wire draws behind nodes
-  const wireProgress = interpolate(frame, [15, 140], [0, 1], {
+  const headerY = interpolate(frame, [21, 35], [22, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  // Bottom stamp lands last
-  const stampSpring = spring({
-    frame: Math.max(0, frame - 150),
+  // Wire connects the cards AFTER every card has popped & settled.
+  // It sweeps in, briefly holds, then fades out so it doesn't sit
+  // across the see-through glass cards for the rest of the scene.
+  // Cards: 45 → 117 + ~30f spring settle (≈ frame 147).
+  // Sweep in:  155 → 195   (40f wire draw)
+  // Hold:      195 → 210   (15f so the eye catches the link)
+  // Fade out:  210 → 235   (25f — wire gone by ~ frame 235)
+  const WIRE_START = 155;
+  const WIRE_END = 195;
+  const WIRE_HOLD_END = 210;
+  const WIRE_FADE_OUT_END = 235;
+  const wireProgress = interpolate(frame, [WIRE_START, WIRE_END], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const wireOpacity = interpolate(
+    frame,
+    [WIRE_START - 5, WIRE_START + 5, WIRE_HOLD_END, WIRE_FADE_OUT_END],
+    [0, 1, 1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
+
+  // Bottom stamp lands after the wire sweep begins so they don't
+  // compete for attention.
+  const BOTTOM_STAMP_START = 185;
+  const bottomStampSpring = spring({
+    frame: Math.max(0, frame - BOTTOM_STAMP_START),
     fps,
     config: { damping: 12, stiffness: 140 },
   });
-  const bottomStampOpacity = interpolate(stampSpring, [0, 1], [0, 1]);
-  const bottomStampY = interpolate(stampSpring, [0, 1], [20, 0]);
-  const bottomStampScale = interpolate(stampSpring, [0, 1], [0.9, 1]);
+  const bottomStampOpacity = interpolate(bottomStampSpring, [0, 1], [0, 1]);
+  const bottomStampY = interpolate(bottomStampSpring, [0, 1], [20, 0]);
+  const bottomStampScale = interpolate(bottomStampSpring, [0, 1], [0.9, 1]);
+
+  // Exit fade over last 15 frames (scene is 300f)
+  const exitOpacity = interpolate(frame, [285, 300], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   return (
     <SceneBackground
@@ -231,6 +262,7 @@ export const OutroTools: React.FC = () => {
           paddingTop: 60,
           paddingBottom: 60,
           gap: 44,
+          opacity: exitOpacity,
         }}
       >
         {/* Label */}
@@ -274,9 +306,10 @@ export const OutroTools: React.FC = () => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            isolation: "isolate", // self-contained stacking context
           }}
         >
-          {/* Wire track (dim) */}
+          {/* Dim track — rides the same opacity envelope as the wire */}
           <div
             style={{
               position: "absolute",
@@ -287,9 +320,11 @@ export const OutroTools: React.FC = () => {
               transform: "translateY(-50%)",
               background: "rgba(144, 202, 249, 0.15)",
               borderRadius: 2,
+              opacity: wireOpacity,
+              zIndex: 1,
             }}
           />
-          {/* Wire progress (glowing) */}
+          {/* Glowing progress — sweeps in, holds, then fades out */}
           <div
             style={{
               position: "absolute",
@@ -301,6 +336,8 @@ export const OutroTools: React.FC = () => {
               background: `linear-gradient(90deg, ${colors.primary}, ${colors.primaryLight})`,
               borderRadius: 2,
               boxShadow: `0 0 16px ${colors.primary}`,
+              opacity: wireOpacity,
+              zIndex: 1,
             }}
           />
 

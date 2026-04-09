@@ -4,20 +4,31 @@ import { SceneBackground } from "../components/SceneBackground";
 import { colors, fontFamily } from "../theme";
 
 /**
- * Outro Scene 1: "How we built it" title card (1.5s / 45 frames).
+ * Outro Scene 1: "How we built it" title card (3s / 90 frames).
  * Lightweight ident that signals the video is pivoting from promo to process.
+ *
+ * Timing: empty for frames 0-15 (incoming 15f crossfade), title fades in
+ * 15-33, underline grows 22-46, holds 46-75, fades out 75-90.
  */
 export const OutroTitle: React.FC = () => {
   const frame = useCurrentFrame();
 
-  const titleOpacity = interpolate(frame, [0, 10], [0, 1], {
+  const titleOpacity = interpolate(frame, [15, 28], [0, 1], {
+    extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const titleY = interpolate(frame, [0, 15], [20, 0], {
+  const titleY = interpolate(frame, [15, 33], [20, 0], {
+    extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  const underlineWidth = interpolate(frame, [8, 28], [0, 320], {
+  const underlineWidth = interpolate(frame, [22, 46], [0, 320], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  // Exit fade over last 15 frames so the outgoing crossfade blends cleanly
+  const exitOpacity = interpolate(frame, [75, 90], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -38,6 +49,7 @@ export const OutroTitle: React.FC = () => {
           justifyContent: "center",
           alignItems: "center",
           gap: 24,
+          opacity: exitOpacity,
         }}
       >
         <div
