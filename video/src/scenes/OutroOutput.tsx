@@ -14,12 +14,14 @@ import { colors, fontFamily } from "../theme";
 /**
  * Outro Scene 4: OUTPUT (6s / 180 frames).
  * 2-column magazine layout:
- *   Left:  tall portrait App tile (phone screenshot, full)
- *   Right: Promo (16:9) stacked on top of Tests (terminal)
+ *   Left:  App tile — two overlapping tilted phone screenshots
+ *          (school listing behind + per-child savings in front),
+ *          rendered bare so tilt corners don't clip.
+ *   Right: Promo (16:9) stacked on top of Tests (terminal).
  *
- * Note: left col total height (~821) and right col total height (~873)
- * differ by ~52px. We use alignItems: "center" so the App tile floats
- * vertically inside the row instead of dangling above the right stack.
+ * Left/right column heights are close but not identical; we use
+ * alignItems: "center" so the App mockup floats vertically inside
+ * the row instead of dangling above the right stack.
  */
 
 type TileSpec = {
@@ -28,41 +30,87 @@ type TileSpec = {
   width: number;
   height: number;
   render: () => React.ReactNode;
+  /**
+   * When true, the Tile's outer card (border + shadow + dark bg +
+   * overflow:hidden) is dropped. Used by the App two-phone mockup so
+   * the tilted phones can float with their own shadows and extend
+   * beyond the bounding box without getting clipped.
+   */
+  bare?: boolean;
+};
+
+/**
+ * App two-phone mockup — classic app-store promo idiom: back phone
+ * (Gemini school listing, step2) tilts right and recedes; front phone
+ * (per-child savings, step3 — the payoff screen) tilts left and
+ * dominates. Rendered bare (no glass card) so the tilted corners
+ * don't clip.
+ */
+const AppMockup: React.FC = () => {
+  const phoneW = 306;
+  const phoneH = 680; // preserves 1080:2400 ratio
+  const phoneBase: React.CSSProperties = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    width: phoneW,
+    height: phoneH,
+    borderRadius: 22,
+    overflow: "hidden",
+    border: "1px solid rgba(255,255,255,0.08)",
+    background: colors.bgDarkLight,
+  };
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      {/* Back phone — school listing (Gemini), recedes */}
+      <div
+        style={{
+          ...phoneBase,
+          zIndex: 1,
+          transform:
+            "translate(-50%, -50%) translate(72px, -38px) rotate(6deg)",
+          boxShadow: "0 14px 38px rgba(0,0,0,0.55)",
+          filter: "brightness(0.82)",
+        }}
+      >
+        <Img
+          src={staticFile("screenshots/step2-school.png")}
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      </div>
+      {/* Front phone — per-child savings, dominant */}
+      <div
+        style={{
+          ...phoneBase,
+          zIndex: 2,
+          transform:
+            "translate(-50%, -50%) translate(-56px, 38px) rotate(-5deg)",
+          boxShadow: "0 22px 56px rgba(0,0,0,0.65)",
+        }}
+      >
+        <Img
+          src={staticFile("screenshots/step3-savings.png")}
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      </div>
+    </div>
+  );
 };
 
 const APP_TILE: TileSpec = {
   label: "App",
   sub: "Gemini school search\nper-child savings",
-  width: 330,
-  height: 733,
-  render: () => (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        background: colors.bgDarkLight,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Img
-        src={staticFile("screenshots/step3-savings.png")}
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "contain",
-        }}
-      />
-    </div>
-  ),
+  width: 460,
+  height: 780,
+  render: () => <AppMockup />,
+  bare: true,
 };
 
 const PROMO_TILE: TileSpec = {
   label: "Promo",
   sub: "80-second rendered\nvideo · this one",
-  width: 620,
-  height: 348,
+  width: 580,
+  height: 318,
   render: () => (
     <div
       style={{
@@ -81,9 +129,9 @@ const PROMO_TILE: TileSpec = {
         style={{
           width: 0,
           height: 0,
-          borderLeft: `80px solid ${colors.white}`,
-          borderTop: "50px solid transparent",
-          borderBottom: "50px solid transparent",
+          borderLeft: `65px solid ${colors.white}`,
+          borderTop: "40px solid transparent",
+          borderBottom: "40px solid transparent",
           marginLeft: 20,
           filter: "drop-shadow(0 6px 24px rgba(0,0,0,0.4))",
         }}
@@ -91,7 +139,7 @@ const PROMO_TILE: TileSpec = {
       <div
         style={{
           fontFamily,
-          fontSize: 24,
+          fontSize: 20,
           fontWeight: 800,
           color: colors.white,
           letterSpacing: 3,
@@ -110,8 +158,8 @@ const PROMO_TILE: TileSpec = {
 const TESTS_TILE: TileSpec = {
   label: "Tests",
   sub: "Maestro E2E flows\nauthored with AI",
-  width: 620,
-  height: 325,
+  width: 580,
+  height: 295,
   render: () => (
     <div
       style={{
@@ -207,11 +255,18 @@ const Tile: React.FC<{ tile: TileSpec; index: number }> = ({ tile, index }) => {
         style={{
           width: tile.width,
           height: tile.height,
-          borderRadius: 20,
-          overflow: "hidden",
-          border: "1px solid rgba(144, 202, 249, 0.25)",
-          boxShadow: "0 12px 40px rgba(0, 0, 0, 0.45)",
-          background: colors.bgDarkLight,
+          // "bare" tiles (e.g. the App two-phone mockup) drop the glass
+          // card so their children can float with their own shadows and
+          // extend beyond the bounding box without getting clipped.
+          ...(tile.bare
+            ? { overflow: "visible" }
+            : {
+                borderRadius: 20,
+                overflow: "hidden",
+                border: "1px solid rgba(144, 202, 249, 0.25)",
+                boxShadow: "0 12px 40px rgba(0, 0, 0, 0.45)",
+                background: colors.bgDarkLight,
+              }),
         }}
       >
         {tile.render()}
@@ -278,9 +333,9 @@ export const OutroOutput: React.FC = () => {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          paddingTop: 20,
+          paddingTop: 40,
           paddingBottom: 20,
-          gap: 24,
+          gap: 48,
         }}
       >
         <div
@@ -298,11 +353,12 @@ export const OutroOutput: React.FC = () => {
         </div>
 
         {/* 2-column magazine layout — center-align so the shorter App
-            tile floats vertically inside the taller right-column stack */}
+            mockup floats vertically inside the taller right-column stack.
+            Left = two-phone App mockup, Right = Promo stacked on Tests. */}
         <div
           style={{
             display: "flex",
-            gap: 70,
+            gap: 100,
             alignItems: "center",
           }}
         >
