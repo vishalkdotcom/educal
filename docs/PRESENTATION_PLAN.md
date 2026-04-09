@@ -1,5 +1,9 @@
 # EduCal — Presentation-Day Plan (Session-by-Session)
 
+> **Copy has moved.** The "Lead angle" and "Frozen copy" sections below are kept as the historical v1. The live, frozen copy — title, card stamp, cold open, 5-items, script, and Q&A — now lives in **[PRESENTATION_COPY.md](./PRESENTATION_COPY.md)**. Edit copy there. Edit the session plan, build order, and critical-files map in this file.
+>
+> Words to avoid on stage and on the slide: **"orchestrator"**, **"cockpit"**, **"chat surface"**. See PRESENTATION_COPY.md for why.
+
 ## Context
 
 Labor Solutions' AI Innovation Sprint wraps Friday, April 10 2026 (tomorrow). Team **Vishal / Imam / Kavya** built **EduCal**, a mobile family savings-planner with Gemini-grounded school search. Deliverable per the brief: **one slide + ten-minute presentation to the full company** covering Problem, Tools, Output, Learnings, Next Time. Judging: problem solving, use of tools, creativity (equal weight). Demo format: **promo video first, live demo only if asked**. Presenter: **Vishal**, remote via **MS Teams**. Imam and Kavya jump in when called.
@@ -137,15 +141,25 @@ Each session is scoped to **one focused deliverable** so you can stop and resume
 2. Extend `TOTAL_DURATION` from `1500` → `1500 + 870 = 2370` (79s). Matches the prior plan's ~80s target.
 3. In `AppPromo.tsx`, append the 7 new scenes inside `TransitionSeries` after the `CTAScene` block, each with a `FADE_TRANSITION`.
 4. Confirm `musicVolume` interpolation still fades the track properly across the new total length (`durationInFrames - 90` is still fine — it's fps-relative).
-5. `bun run render` in `video/`. Output overwrites `video/out/educal-promo.mp4`.
-6. Play the MP4 once locally with audio to verify.
+5. **Fix render quality before shipping.** Previous renders are noticeably soft at full-screen and will look worse after Teams' video compression. `video/remotion.config.ts` currently only sets JPEG format and overwrite — no explicit quality controls. Update it before re-rendering:
+   ```ts
+   Config.setVideoImageFormat("jpeg");   // existing. For lossless frames, switch to "png" (~2× render time, usually not needed if JPEG quality is bumped).
+   Config.setJpegQuality(95);             // NEW. Remotion default is 80. Promo-grade is 92–95.
+   Config.setCrf(16);                     // NEW. H.264 quality target; Remotion default is ~18. 14–16 is promo-grade; lower = sharper + larger file.
+   Config.setPixelFormat("yuv420p");      // CONFIRM. Safest for mpv / VLC / Teams playback.
+   Config.setAudioCodec("aac");           // CONFIRM. Default, but lock it in.
+   ```
+   Also confirm in `video/src/Root.tsx` that the `AppPromo` composition is **1920×1080 at 30fps** (the render size comes from the composition, not the config). If any scene uses low-res source images (mockup PNGs, app screen recordings), swap them for higher-resolution sources now — config tweaks can't fix a blurry input.
+6. `bun run render` in `video/`. Output overwrites `video/out/educal-promo.mp4`. Expect the file to get noticeably larger — that's the point.
+7. Play the MP4 once locally with audio to verify.
 
 **Critical files:**
 - `video/src/AppPromo.tsx` — scene wiring
 - `video/src/theme.ts` — durations
-- `video/src/Root.tsx` — durationInFrames
+- `video/src/Root.tsx` — durationInFrames, composition size/fps
+- `video/remotion.config.ts` — quality settings (new)
 
-**Verification:** `video/out/educal-promo.mp4` is ~79–80s, has audio, plays cleanly through the 5 new outro cards.
+**Verification:** `video/out/educal-promo.mp4` is ~79–80s, has audio, plays cleanly through the 5 new outro cards. **Visual-quality check:** full-screen the MP4 on your laptop. App screen recordings should be sharp, logo/gradient animations should have no visible blocking, text inside mockups should be readable. If anything still looks soft, drop CRF to 14 or switch `setVideoImageFormat` to `"png"` and re-render. A second sanity check: share the MP4 into a self-Teams call with "Include computer sound" on and confirm it still looks sharp after Teams re-encodes it — Teams' compression is the real test, not your local player.
 
 ---
 
