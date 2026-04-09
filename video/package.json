@@ -27,8 +27,10 @@
     "dev": "remotion studio",
     "build": "remotion bundle",
     "render": "remotion render src/index.ts AppPromo out/educal-promo.mp4",
-    "slide": "remotion still src/index.ts OutroSlide out/educal-slide.png",
-    "slide-static": "remotion still src/index.ts OutroSlideStatic out/educal-slide-static.png",
+    "slide-build": "remotion still src/index.ts BackupSlide-Build out/educal-slide-build.png",
+    "slide-reflect": "remotion still src/index.ts BackupSlide-Reflect out/educal-slide-reflect.png",
+    "slide-hero": "remotion still src/index.ts BackupSlide-Hero out/educal-slide-hero.png",
+    "slides": "bun run slide-build && bun run slide-reflect && bun run slide-hero",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc"
   },

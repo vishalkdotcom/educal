@@ -21,8 +21,9 @@ import { OutroOutput } from "./scenes/OutroOutput";
 import { OutroLearnings } from "./scenes/OutroLearnings";
 import { OutroNextTime } from "./scenes/OutroNextTime";
 import { OutroFade } from "./scenes/OutroFade";
-import { OutroSlide } from "./scenes/OutroSlide";
-import { OutroSlideStatic } from "./scenes/OutroSlideStatic";
+import { BackupSlideBuild } from "./slides/BackupSlideBuild";
+import { BackupSlideReflect } from "./slides/BackupSlideReflect";
+import { BackupSlideHero } from "./slides/BackupSlideHero";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -99,28 +100,36 @@ export const RemotionRoot: React.FC = () => {
       />
 
       {/*
-       * Session 4 — Backup slide PNGs. Rendered as stills via
-       * `bun run slide` / `bun run slide-static`. OutroSlide reuses the
-       * live outro scenes via <Freeze> + CSS zoom; OutroSlideStatic is a
-       * dedicated mini-card rebuild for comparison.
+       * Backup slide PNGs — rendered as stills via `bun run slides`.
        *
-       * NOTE: durationInFrames MUST be ≥ the largest Freeze frame used
-       * inside OutroSlide (currently 220 for OutroTools). Remotion's
-       * useCurrentFrame() internally clamps to durationInFrames - 1, so
-       * a 1-frame composition would force every Freeze(frame=80+) back
-       * to 0 and render the scenes in their pre-entry state.
+       *   BackupSlide-Build    — Slide 1 of 2: Problem + Tools hero + Output
+       *   BackupSlide-Reflect  — Slide 2 of 2: Learnings + Next Time + Logo close
+       *   BackupSlide-Hero     — Single-slide alternative packing all 6 sections
+       *
+       * All three wrap BackupSlideShell and pull copy from outroContent.ts.
+       * No <Freeze> or scene reuse — layouts are authored directly at
+       * 1920×1080 so there are no scaling artifacts. durationInFrames=1
+       * is safe because no component inside depends on useCurrentFrame().
        */}
       <Composition
-        id="OutroSlide"
-        component={OutroSlide}
-        durationInFrames={300}
+        id="BackupSlide-Build"
+        component={BackupSlideBuild}
+        durationInFrames={1}
         fps={FPS}
         width={WIDTH}
         height={HEIGHT}
       />
       <Composition
-        id="OutroSlideStatic"
-        component={OutroSlideStatic}
+        id="BackupSlide-Reflect"
+        component={BackupSlideReflect}
+        durationInFrames={1}
+        fps={FPS}
+        width={WIDTH}
+        height={HEIGHT}
+      />
+      <Composition
+        id="BackupSlide-Hero"
+        component={BackupSlideHero}
         durationInFrames={1}
         fps={FPS}
         width={WIDTH}
