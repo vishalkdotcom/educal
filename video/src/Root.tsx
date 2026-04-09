@@ -21,6 +21,8 @@ import { OutroOutput } from "./scenes/OutroOutput";
 import { OutroLearnings } from "./scenes/OutroLearnings";
 import { OutroNextTime } from "./scenes/OutroNextTime";
 import { OutroFade } from "./scenes/OutroFade";
+import { OutroSlide } from "./scenes/OutroSlide";
+import { OutroSlideStatic } from "./scenes/OutroSlideStatic";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -91,6 +93,35 @@ export const RemotionRoot: React.FC = () => {
         id="Preview-OutroFade"
         component={OutroFade}
         durationInFrames={SCENE_OUTRO_FADE.duration}
+        fps={FPS}
+        width={WIDTH}
+        height={HEIGHT}
+      />
+
+      {/*
+       * Session 4 — Backup slide PNGs. Rendered as stills via
+       * `bun run slide` / `bun run slide-static`. OutroSlide reuses the
+       * live outro scenes via <Freeze> + CSS zoom; OutroSlideStatic is a
+       * dedicated mini-card rebuild for comparison.
+       *
+       * NOTE: durationInFrames MUST be ≥ the largest Freeze frame used
+       * inside OutroSlide (currently 220 for OutroTools). Remotion's
+       * useCurrentFrame() internally clamps to durationInFrames - 1, so
+       * a 1-frame composition would force every Freeze(frame=80+) back
+       * to 0 and render the scenes in their pre-entry state.
+       */}
+      <Composition
+        id="OutroSlide"
+        component={OutroSlide}
+        durationInFrames={300}
+        fps={FPS}
+        width={WIDTH}
+        height={HEIGHT}
+      />
+      <Composition
+        id="OutroSlideStatic"
+        component={OutroSlideStatic}
+        durationInFrames={1}
         fps={FPS}
         width={WIDTH}
         height={HEIGHT}

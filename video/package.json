@@ -27,6 +27,8 @@
     "dev": "remotion studio",
     "build": "remotion bundle",
     "render": "remotion render src/index.ts AppPromo out/educal-promo.mp4",
+    "slide": "remotion still src/index.ts OutroSlide out/educal-slide.png",
+    "slide-static": "remotion still src/index.ts OutroSlideStatic out/educal-slide-static.png",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc"
   },
