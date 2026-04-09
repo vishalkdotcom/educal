@@ -13,152 +13,167 @@ import { colors, fontFamily } from "../theme";
 
 /**
  * Outro Scene 4: OUTPUT (4s / 120 frames).
- * Three stacked thumbnails (App / Promo / Tests) + tagline.
+ * 2-column magazine layout:
+ *   Left:  tall portrait App tile (phone screenshot, full)
+ *   Right: Promo (16:9) stacked on top of Tests (terminal)
  */
 
-type Tile = {
+type TileSpec = {
   label: string;
   sub: string;
+  width: number;
+  height: number;
   render: () => React.ReactNode;
 };
 
-const TILES: Tile[] = [
-  {
-    label: "App",
-    sub: "Gemini school search\nper-child savings",
-    render: () => (
+const APP_TILE: TileSpec = {
+  label: "App",
+  sub: "Gemini school search\nper-child savings",
+  width: 330,
+  height: 733,
+  render: () => (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        background: colors.bgDarkLight,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
       <Img
         src={staticFile("screenshots/step3-savings.png")}
         style={{
           width: "100%",
           height: "100%",
-          objectFit: "cover",
-          objectPosition: "top center",
+          objectFit: "contain",
         }}
       />
-    ),
-  },
-  {
-    label: "Promo",
-    sub: "50-second rendered\nvideo · this one",
-    render: () => (
+    </div>
+  ),
+};
+
+const PROMO_TILE: TileSpec = {
+  label: "Promo",
+  sub: "80-second rendered\nvideo · this one",
+  width: 620,
+  height: 348,
+  render: () => (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        background: `linear-gradient(160deg, ${colors.primary} 0%, ${colors.primaryDark} 100%)`,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 20,
+      }}
+    >
+      {/* Play triangle */}
       <div
         style={{
-          width: "100%",
-          height: "100%",
-          background: `linear-gradient(160deg, ${colors.primary} 0%, ${colors.primaryDark} 100%)`,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: 18,
+          width: 0,
+          height: 0,
+          borderLeft: `80px solid ${colors.white}`,
+          borderTop: "50px solid transparent",
+          borderBottom: "50px solid transparent",
+          marginLeft: 20,
+          filter: "drop-shadow(0 6px 24px rgba(0,0,0,0.4))",
+        }}
+      />
+      <div
+        style={{
+          fontFamily,
+          fontSize: 24,
+          fontWeight: 800,
+          color: colors.white,
+          letterSpacing: 3,
+          textTransform: "uppercase",
+          background: "rgba(0,0,0,0.25)",
+          padding: "8px 18px",
+          borderRadius: 999,
         }}
       >
-        {/* Play triangle */}
+        80 seconds · 1080p
+      </div>
+    </div>
+  ),
+};
+
+const TESTS_TILE: TileSpec = {
+  label: "Tests",
+  sub: "Maestro E2E flows\nauthored with AI",
+  width: 620,
+  height: 325,
+  render: () => (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        background: "#0B1220",
+        padding: "24px 26px",
+        fontFamily: 'Menlo, Consolas, "Courier New", monospace',
+        fontSize: 18,
+        lineHeight: 1.55,
+        color: "#CBD5E1",
+        overflow: "hidden",
+      }}
+    >
+      {/* mac-style dots */}
+      <div style={{ display: "flex", gap: 7, marginBottom: 18 }}>
         <div
           style={{
-            width: 0,
-            height: 0,
-            borderLeft: `70px solid ${colors.white}`,
-            borderTop: "44px solid transparent",
-            borderBottom: "44px solid transparent",
-            marginLeft: 18,
-            filter: "drop-shadow(0 6px 24px rgba(0,0,0,0.4))",
+            width: 12,
+            height: 12,
+            borderRadius: 6,
+            background: "#FF5F57",
           }}
         />
         <div
           style={{
-            fontFamily,
-            fontSize: 22,
-            fontWeight: 800,
-            color: colors.white,
-            letterSpacing: 3,
-            textTransform: "uppercase",
-            background: "rgba(0,0,0,0.25)",
-            padding: "6px 14px",
-            borderRadius: 999,
+            width: 12,
+            height: 12,
+            borderRadius: 6,
+            background: "#FFBD2E",
           }}
-        >
-          00:50 · 1920×1080
-        </div>
+        />
+        <div
+          style={{
+            width: 12,
+            height: 12,
+            borderRadius: 6,
+            background: "#28C840",
+          }}
+        />
       </div>
-    ),
-  },
-  {
-    label: "Tests",
-    sub: "Maestro E2E flows\nauthored with AI",
-    render: () => (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          background: "#0B1220",
-          padding: "24px 20px",
-          fontFamily:
-            'Menlo, Consolas, "Courier New", monospace',
-          fontSize: 15,
-          lineHeight: 1.55,
-          color: "#CBD5E1",
-          overflow: "hidden",
-        }}
-      >
-        {/* mac-style dots */}
-        <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
-          <div
-            style={{
-              width: 10,
-              height: 10,
-              borderRadius: 5,
-              background: "#FF5F57",
-            }}
-          />
-          <div
-            style={{
-              width: 10,
-              height: 10,
-              borderRadius: 5,
-              background: "#FFBD2E",
-            }}
-          />
-          <div
-            style={{
-              width: 10,
-              height: 10,
-              borderRadius: 5,
-              background: "#28C840",
-            }}
-          />
-        </div>
-        <div style={{ color: "#64748B" }}># onboarding.yaml</div>
-        <div>
-          <span style={{ color: "#90CAF9" }}>appId:</span> com.educal
-        </div>
-        <div style={{ color: "#64748B", marginTop: 6 }}>---</div>
-        <div>
-          - <span style={{ color: "#90CAF9" }}>launchApp</span>
-        </div>
-        <div>
-          - <span style={{ color: "#90CAF9" }}>tapOn:</span>{" "}
-          <span style={{ color: "#FDE68A" }}>"Add child"</span>
-        </div>
-        <div>
-          - <span style={{ color: "#90CAF9" }}>inputText:</span>{" "}
-          <span style={{ color: "#FDE68A" }}>"Aria"</span>
-        </div>
-        <div>
-          - <span style={{ color: "#90CAF9" }}>assertVisible:</span>{" "}
-          <span style={{ color: "#FDE68A" }}>"Monthly savings"</span>
-        </div>
+      <div style={{ color: "#64748B" }}># onboarding.yaml</div>
+      <div>
+        <span style={{ color: "#90CAF9" }}>appId:</span> com.educal
       </div>
-    ),
-  },
-];
+      <div style={{ color: "#64748B", marginTop: 6 }}>---</div>
+      <div>
+        - <span style={{ color: "#90CAF9" }}>launchApp</span>
+      </div>
+      <div>
+        - <span style={{ color: "#90CAF9" }}>tapOn:</span>{" "}
+        <span style={{ color: "#FDE68A" }}>"Add child"</span>
+      </div>
+      <div>
+        - <span style={{ color: "#90CAF9" }}>inputText:</span>{" "}
+        <span style={{ color: "#FDE68A" }}>"Aria"</span>
+      </div>
+      <div>
+        - <span style={{ color: "#90CAF9" }}>assertVisible:</span>{" "}
+        <span style={{ color: "#FDE68A" }}>"Monthly savings"</span>
+      </div>
+    </div>
+  ),
+};
 
-const TILE_W = 440;
-const TILE_H = 300;
-const TILE_GAP = 60;
-
-const Tile: React.FC<{ tile: Tile; index: number }> = ({ tile, index }) => {
+const Tile: React.FC<{ tile: TileSpec; index: number }> = ({ tile, index }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -175,19 +190,19 @@ const Tile: React.FC<{ tile: Tile; index: number }> = ({ tile, index }) => {
   return (
     <div
       style={{
-        width: TILE_W,
+        width: tile.width,
         opacity,
         transform: `translateY(${translateY}px) scale(${scale})`,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: 18,
+        gap: 14,
       }}
     >
       <div
         style={{
-          width: TILE_W,
-          height: TILE_H,
+          width: tile.width,
+          height: tile.height,
           borderRadius: 20,
           overflow: "hidden",
           border: "1px solid rgba(144, 202, 249, 0.25)",
@@ -200,10 +215,11 @@ const Tile: React.FC<{ tile: Tile; index: number }> = ({ tile, index }) => {
       <div
         style={{
           fontFamily,
-          fontSize: 28,
+          fontSize: 22,
           fontWeight: 800,
           color: colors.white,
           letterSpacing: -0.3,
+          marginTop: 2,
         }}
       >
         {tile.label}
@@ -211,13 +227,13 @@ const Tile: React.FC<{ tile: Tile; index: number }> = ({ tile, index }) => {
       <div
         style={{
           fontFamily,
-          fontSize: 18,
+          fontSize: 15,
           fontWeight: 400,
           color: colors.slate400,
           textAlign: "center",
           whiteSpace: "pre-line",
-          lineHeight: 1.4,
-          marginTop: -6,
+          lineHeight: 1.35,
+          marginTop: -4,
         }}
       >
         {tile.sub}
@@ -254,10 +270,11 @@ export const OutroOutput: React.FC = () => {
         style={{
           display: "flex",
           flexDirection: "column",
+          justifyContent: "center",
           alignItems: "center",
-          paddingTop: 80,
-          paddingBottom: 80,
-          gap: 36,
+          paddingTop: 32,
+          paddingBottom: 32,
+          gap: 24,
         }}
       >
         <div
@@ -274,22 +291,33 @@ export const OutroOutput: React.FC = () => {
           3 · Output
         </div>
 
+        {/* 2-column magazine layout */}
         <div
           style={{
             display: "flex",
-            gap: TILE_GAP,
+            gap: 70,
             alignItems: "flex-start",
-            marginTop: 20,
           }}
         >
-          {TILES.map((tile, i) => (
-            <Tile key={tile.label} tile={tile} index={i} />
-          ))}
+          {/* Left column — tall App portrait */}
+          <Tile tile={APP_TILE} index={0} />
+
+          {/* Right column — Promo on top, Tests below */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 24,
+            }}
+          >
+            <Tile tile={PROMO_TILE} index={1} />
+            <Tile tile={TESTS_TILE} index={2} />
+          </div>
         </div>
 
         <div
           style={{
-            marginTop: "auto",
             opacity: taglineOpacity,
             transform: `translateY(${taglineY}px)`,
             fontFamily,

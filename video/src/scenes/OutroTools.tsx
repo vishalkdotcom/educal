@@ -58,9 +58,9 @@ const NODES: PipelineNode[] = [
   },
 ];
 
-const CARD_WIDTH = 280;
-const CARD_HEIGHT = 200;
-const CARD_GAP = 50;
+const CARD_WIDTH = 320;
+const CARD_HEIGHT = 260;
+const CARD_GAP = 54;
 const ROW_WIDTH = NODES.length * CARD_WIDTH + (NODES.length - 1) * CARD_GAP;
 
 const NODE_POP_START = 30;
@@ -122,14 +122,14 @@ const Node: React.FC<{ node: PipelineNode; index: number }> = ({
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          padding: "24px 20px",
-          gap: 14,
+          padding: "28px 22px",
+          gap: 18,
         }}
       >
         <div
           style={{
             fontFamily,
-            fontSize: 34,
+            fontSize: 40,
             fontWeight: 800,
             color: colors.white,
             textAlign: "center",
@@ -142,7 +142,7 @@ const Node: React.FC<{ node: PipelineNode; index: number }> = ({
         <div
           style={{
             fontFamily,
-            fontSize: 18,
+            fontSize: 22,
             fontWeight: 400,
             color: colors.slate300,
             textAlign: "center",
@@ -165,11 +165,11 @@ const Node: React.FC<{ node: PipelineNode; index: number }> = ({
           background: isStretch ? colors.primary : colors.primaryContainer,
           color: isStretch ? colors.white : colors.primaryDark,
           fontFamily,
-          fontSize: 14,
+          fontSize: 15,
           fontWeight: 800,
           letterSpacing: 1,
           textTransform: "uppercase",
-          padding: "8px 14px",
+          padding: "9px 16px",
           borderRadius: 999,
           border: `2px solid ${colors.primary}`,
           boxShadow: `0 4px 16px rgba(33, 150, 243, 0.4)`,
@@ -226,10 +226,11 @@ export const OutroTools: React.FC = () => {
         style={{
           display: "flex",
           flexDirection: "column",
+          justifyContent: "center",
           alignItems: "center",
-          paddingTop: 90,
-          paddingBottom: 90,
-          gap: 36,
+          paddingTop: 60,
+          paddingBottom: 60,
+          gap: 44,
         }}
       >
         {/* Label */}
@@ -253,13 +254,13 @@ export const OutroTools: React.FC = () => {
             opacity: headerOpacity,
             transform: `translateY(${headerY}px)`,
             fontFamily,
-            fontSize: 60,
+            fontSize: 64,
             fontWeight: 800,
             color: colors.white,
             textAlign: "center",
             lineHeight: 1.1,
             letterSpacing: -1,
-            maxWidth: 1500,
+            maxWidth: 1600,
           }}
         >
           Five stretches. One chat. MCP as the wiring.
@@ -270,7 +271,6 @@ export const OutroTools: React.FC = () => {
           style={{
             position: "relative",
             width: ROW_WIDTH,
-            marginTop: 40,
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -314,18 +314,17 @@ export const OutroTools: React.FC = () => {
           style={{
             opacity: bottomStampOpacity,
             transform: `translateY(${bottomStampY}px) scale(${bottomStampScale})`,
-            marginTop: "auto",
             fontFamily,
-            fontSize: 32,
+            fontSize: 34,
             fontWeight: 600,
             color: colors.primaryLight,
             textAlign: "center",
             fontStyle: "italic",
-            maxWidth: 1400,
+            maxWidth: 1500,
             lineHeight: 1.3,
           }}
         >
-          Five tools, one chat. Manual chain today — autonomous tomorrow.
+          Five tools, one chat. Manual chain today, autonomous tomorrow.
         </div>
       </AbsoluteFill>
     </SceneBackground>

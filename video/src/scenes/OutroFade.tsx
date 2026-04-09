@@ -15,13 +15,17 @@ import { colors, fontFamily } from "../theme";
 export const OutroFade: React.FC = () => {
   const frame = useCurrentFrame();
 
-  // Content opacity — fade to black over the last 15 frames
-  const contentOpacity = interpolate(frame, [0, 10, 30, 45], [0, 1, 1, 0], {
+  // Tagline fades in as its own small entrance
+  const taglineOpacity = interpolate(frame, [8, 22], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const taglineY = interpolate(frame, [8, 22], [14, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  // Black overlay rises over the last 20 frames
+  // Black overlay rises over the last 20 frames (fade to black)
   const blackOverlay = interpolate(frame, [25, 45], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -29,43 +33,44 @@ export const OutroFade: React.FC = () => {
 
   return (
     <AbsoluteFill>
-      <div style={{ opacity: contentOpacity }}>
-        <SceneBackground
-          glowPosition={{ x: "50%", y: "50%" }}
-          glowColor={colors.primary}
-          glowSize={800}
-          glowOpacity={0.14}
-          particleCount={20}
-          particleColor={colors.primaryLight}
+      {/* Solid background from frame 0 — no wrapping opacity */}
+      <SceneBackground
+        glowPosition={{ x: "50%", y: "50%" }}
+        glowColor={colors.primary}
+        glowSize={800}
+        glowOpacity={0.14}
+        particleCount={20}
+        particleColor={colors.primaryLight}
+      >
+        <AbsoluteFill
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 32,
+          }}
         >
-          <AbsoluteFill
+          <LogoReveal width={420} />
+          <div
             style={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: 32,
+              opacity: taglineOpacity,
+              transform: `translateY(${taglineY}px)`,
+              fontFamily,
+              fontSize: 34,
+              fontWeight: 600,
+              color: colors.primaryLight,
+              textAlign: "center",
+              letterSpacing: -0.3,
+              fontStyle: "italic",
             }}
           >
-            <LogoReveal width={420} />
-            <div
-              style={{
-                fontFamily,
-                fontSize: 34,
-                fontWeight: 600,
-                color: colors.primaryLight,
-                textAlign: "center",
-                letterSpacing: -0.3,
-                fontStyle: "italic",
-              }}
-            >
-              Five tools, one chat, one week — a real app for real parents.
-            </div>
-          </AbsoluteFill>
-        </SceneBackground>
-      </div>
+            Five tools, one chat, one week. A real app for real parents.
+          </div>
+        </AbsoluteFill>
+      </SceneBackground>
 
-      {/* Fade to black */}
+      {/* Fade to black — the only thing that controls the exit */}
       <AbsoluteFill
         style={{
           background: "#000",

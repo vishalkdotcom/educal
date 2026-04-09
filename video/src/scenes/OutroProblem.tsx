@@ -78,7 +78,7 @@ export const OutroProblem: React.FC = () => {
             maxWidth: 1500,
           }}
         >
-          Parents can't plan for school costs.
+          Planning your child's education starts with three questions.
         </div>
 
         <div
@@ -94,7 +94,7 @@ export const OutroProblem: React.FC = () => {
             maxWidth: 1300,
           }}
         >
-          No localized data. No monthly number. No plan.
+          How much? When? How do I save for it?
         </div>
       </AbsoluteFill>
     </SceneBackground>

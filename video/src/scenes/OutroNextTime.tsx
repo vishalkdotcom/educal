@@ -22,15 +22,15 @@ type Bullet = {
 const BULLETS: Bullet[] = [
   {
     who: "Vishal",
-    text: "Close the loop — run the chain as an autonomous loop (Ralph-style) so it self-corrects.",
+    text: "Next time I'm not babysitting. The AI can plan, build, test and fix itself.",
   },
   {
     who: "Kavya",
-    text: "Put AI into CI/CD — continuous test generation, flaky detection, self-healing flows.",
+    text: "Start with AI-generated test plans. End with tests that fix themselves.",
   },
   {
     who: "Imam",
-    text: "Pre-build design-system inspection prompts and asset-rename templates.",
+    text: "Spec first, prompt second. The tighter the brief, the closer the draft gets to production.",
   },
 ];
 
