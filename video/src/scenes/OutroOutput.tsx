@@ -12,10 +12,14 @@ import { SceneBackground } from "../components/SceneBackground";
 import { colors, fontFamily } from "../theme";
 
 /**
- * Outro Scene 4: OUTPUT (4s / 120 frames).
+ * Outro Scene 4: OUTPUT (6s / 180 frames).
  * 2-column magazine layout:
  *   Left:  tall portrait App tile (phone screenshot, full)
  *   Right: Promo (16:9) stacked on top of Tests (terminal)
+ *
+ * Note: left col total height (~821) and right col total height (~873)
+ * differ by ~52px. We use alignItems: "center" so the App tile floats
+ * vertically inside the row instead of dangling above the right stack.
  */
 
 type TileSpec = {
@@ -248,11 +252,13 @@ export const OutroOutput: React.FC = () => {
   const labelOpacity = interpolate(frame, [0, 10], [0, 1], {
     extrapolateRight: "clamp",
   });
-  const taglineOpacity = interpolate(frame, [70, 90], [0, 1], {
+  // Tagline lands after the 3 tiles fully settle (last tile pops at frame 32,
+  // settles ~70). Tagline is then visible from ~125 to 180 = ~55f (~1.8s).
+  const taglineOpacity = interpolate(frame, [100, 125], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const taglineY = interpolate(frame, [70, 90], [18, 0], {
+  const taglineY = interpolate(frame, [100, 125], [18, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -272,8 +278,8 @@ export const OutroOutput: React.FC = () => {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          paddingTop: 32,
-          paddingBottom: 32,
+          paddingTop: 20,
+          paddingBottom: 20,
           gap: 24,
         }}
       >
@@ -291,12 +297,13 @@ export const OutroOutput: React.FC = () => {
           3 · Output
         </div>
 
-        {/* 2-column magazine layout */}
+        {/* 2-column magazine layout — center-align so the shorter App
+            tile floats vertically inside the taller right-column stack */}
         <div
           style={{
             display: "flex",
             gap: 70,
-            alignItems: "flex-start",
+            alignItems: "center",
           }}
         >
           {/* Left column — tall App portrait */}

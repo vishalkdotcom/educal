@@ -20,6 +20,13 @@ import { SolutionReveal } from "./scenes/SolutionReveal";
 import { FeatureShowcase } from "./scenes/FeatureShowcase";
 import { DashboardDemo } from "./scenes/DashboardDemo";
 import { CTAScene } from "./scenes/CTAScene";
+import { OutroTitle } from "./scenes/OutroTitle";
+import { OutroProblem } from "./scenes/OutroProblem";
+import { OutroTools } from "./scenes/OutroTools";
+import { OutroOutput } from "./scenes/OutroOutput";
+import { OutroLearnings } from "./scenes/OutroLearnings";
+import { OutroNextTime } from "./scenes/OutroNextTime";
+import { OutroFade } from "./scenes/OutroFade";
 import {
   SCENE_HOOK,
   SCENE_PROBLEM,
@@ -27,6 +34,13 @@ import {
   SCENE_FEATURES,
   SCENE_DASHBOARD,
   SCENE_CTA,
+  SCENE_OUTRO_TITLE,
+  SCENE_OUTRO_PROBLEM,
+  SCENE_OUTRO_TOOLS,
+  SCENE_OUTRO_OUTPUT,
+  SCENE_OUTRO_LEARNINGS,
+  SCENE_OUTRO_NEXT,
+  SCENE_OUTRO_FADE,
   TRANSITION_DURATION,
 } from "./theme";
 
@@ -107,6 +121,71 @@ export const AppPromo: React.FC = () => {
         {/* Scene 6: CTA — 4s */}
         <TransitionSeries.Sequence durationInFrames={SCENE_CTA.duration}>
           <CTAScene />
+        </TransitionSeries.Sequence>
+
+        {FADE_TRANSITION}
+
+        {/* === "How we built it" outro (~53s) === */}
+
+        {/* Outro 1: Title card — 1.5s */}
+        <TransitionSeries.Sequence
+          durationInFrames={SCENE_OUTRO_TITLE.duration}
+        >
+          <OutroTitle />
+        </TransitionSeries.Sequence>
+
+        {FADE_TRANSITION}
+
+        {/* Outro 2: Problem — 5s */}
+        <TransitionSeries.Sequence
+          durationInFrames={SCENE_OUTRO_PROBLEM.duration}
+        >
+          <OutroProblem />
+        </TransitionSeries.Sequence>
+
+        {FADE_TRANSITION}
+
+        {/* Outro 3: Tools pipeline — 10s */}
+        <TransitionSeries.Sequence
+          durationInFrames={SCENE_OUTRO_TOOLS.duration}
+        >
+          <OutroTools />
+        </TransitionSeries.Sequence>
+
+        {FADE_TRANSITION}
+
+        {/* Outro 4: Output (3 deliverables) — 6s */}
+        <TransitionSeries.Sequence
+          durationInFrames={SCENE_OUTRO_OUTPUT.duration}
+        >
+          <OutroOutput />
+        </TransitionSeries.Sequence>
+
+        {FADE_TRANSITION}
+
+        {/* Outro 5: Learnings (3 quote cards) — 19s */}
+        <TransitionSeries.Sequence
+          durationInFrames={SCENE_OUTRO_LEARNINGS.duration}
+        >
+          <OutroLearnings />
+        </TransitionSeries.Sequence>
+
+        {FADE_TRANSITION}
+
+        {/* Outro 6: Next time (3 bullets) — 10s */}
+        <TransitionSeries.Sequence
+          durationInFrames={SCENE_OUTRO_NEXT.duration}
+        >
+          <OutroNextTime />
+        </TransitionSeries.Sequence>
+
+        {FADE_TRANSITION}
+
+        {/* Outro 7: Logo + fade to black — 1.5s */}
+        <TransitionSeries.Sequence
+          durationInFrames={SCENE_OUTRO_FADE.duration}
+        >
+          <OutroFade />
         </TransitionSeries.Sequence>
       </TransitionSeries>
     </AbsoluteFill>

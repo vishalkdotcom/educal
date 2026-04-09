@@ -10,14 +10,15 @@ import { SceneBackground } from "../components/SceneBackground";
 import { colors, fontFamily } from "../theme";
 
 /**
- * Outro Scene 5: LEARNINGS (7s / 210 frames).
+ * Outro Scene 5: LEARNINGS (19s / 570 frames).
  * Three crossfading quote cards — one per teammate. Quotes are verbatim
  * from docs/PRESENTATION_COPY.md.
  *
- * Layout: 210 frames / 3 cards = ~70 frames each, with ~15 frame overlap.
- *   Vishal: frames   0 – 85  (in 0-15, out 70-85)
- *   Kavya:  frames  70 – 155 (in 70-85, out 140-155)
- *   Imam:   frames 140 – 210 (in 140-155, out 195-210)
+ * Each card's static read window is sized to its word count (~0.18s/word
+ * scan speed), with 25-frame crossfades between cards.
+ *   Vishal (28 words): frames   0 – 200  (readable 20-175 ≈ 5.2s)
+ *   Kavya  (17 words): frames 190 – 355  (readable 215-325 ≈ 3.7s)
+ *   Imam   (31 words): frames 340 – 570  (readable 365-540 ≈ 5.8s)
  */
 
 type Quote = {
@@ -45,10 +46,11 @@ const QUOTES: Quote[] = [
 ];
 
 // Card show windows (frames): [fadeInStart, fadeInEnd, fadeOutStart, fadeOutEnd]
+// Total scene = 570 frames; sized to give each quote enough static read time.
 const WINDOWS: [number, number, number, number][] = [
-  [0, 15, 70, 85],
-  [70, 85, 140, 155],
-  [140, 155, 195, 210],
+  [0, 20, 175, 200], // Vishal
+  [190, 215, 325, 355], // Kavya
+  [340, 365, 540, 570], // Imam
 ];
 
 const QuoteCard: React.FC<{ quote: Quote; index: number }> = ({
