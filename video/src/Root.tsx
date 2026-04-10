@@ -1,5 +1,6 @@
 import { Composition } from "remotion";
 import { AppPromo } from "./AppPromo";
+import { AppPromoReverse } from "./AppPromoReverse";
 import "./index.css";
 import {
   FPS,
@@ -31,6 +32,16 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="AppPromo"
         component={AppPromo}
+        durationInFrames={TOTAL_DURATION}
+        fps={FPS}
+        width={WIDTH}
+        height={HEIGHT}
+      />
+
+      {/* Reverse-order variant: outro → pause → promo (same total length) */}
+      <Composition
+        id="AppPromoReverse"
+        component={AppPromoReverse}
         durationInFrames={TOTAL_DURATION}
         fps={FPS}
         width={WIDTH}

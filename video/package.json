@@ -27,6 +27,7 @@
     "dev": "remotion studio",
     "build": "remotion bundle",
     "render": "remotion render src/index.ts AppPromo out/educal-promo.mp4",
+    "render-reverse": "remotion render src/index.ts AppPromoReverse out/educal-promo-reverse.mp4",
     "slide-build": "remotion still src/index.ts BackupSlide-Build out/educal-slide-build.png",
     "slide-reflect": "remotion still src/index.ts BackupSlide-Reflect out/educal-slide-reflect.png",
     "slide-hero": "remotion still src/index.ts BackupSlide-Hero out/educal-slide-hero.png",
